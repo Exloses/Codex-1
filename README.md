@@ -43,6 +43,12 @@ codex-1
 codex-1 --name "Your Project"
 ```
 
+Inspect a different project directory:
+
+```sh
+python -m codex_starter --path /path/to/project
+```
+
 Run tests:
 
 ```sh
@@ -50,6 +56,37 @@ python -m pytest
 ```
 
 There is no separate lint or build command yet.
+
+## Example Output
+
+```text
+Codex-1 project readiness report
+
+Repository summary
+- Name: Codex-1
+- Path checked: /path/to/Codex-1
+- Purpose: Minimal starter project for a small command-line tool.
+
+Detected project type
+- Python CLI project
+
+Important files found
+- README.md
+- AGENTS.md
+- PROJECT_PLAN.md
+- pyproject.toml
+- src/codex_starter/cli.py
+- tests/test_cli.py
+
+Missing recommended files
+- None. The recommended starter files are present.
+
+Suggested next actions
+- Run tests with: python -m pytest
+- Update PROJECT_PLAN.md when the project purpose becomes clearer.
+- Add a formatter or linter when coding conventions are chosen.
+- Keep secrets and production credentials out of the repository.
+```
 
 ## Maintenance
 
