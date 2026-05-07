@@ -20,6 +20,7 @@ Codex-1 is a minimal Python CLI starter project. It provides a small package, a 
 |-- src/
 |   `-- codex_starter/
 |       |-- __init__.py
+|       |-- __main__.py
 |       `-- cli.py
 `-- tests/
     `-- test_cli.py
@@ -36,6 +37,8 @@ python -m pip install -e ".[dev]"
 Run the CLI:
 
 ```sh
+python -m codex_starter
+python -m codex_starter --name "Your Project"
 codex-1
 codex-1 --name "Your Project"
 ```
