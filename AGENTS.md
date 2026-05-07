@@ -2,30 +2,52 @@
 
 ## Repository Layout
 
-This repository is currently in its initial setup stage.
+This repository is a minimal Python CLI starter project.
 
-- `README.md` - project overview and maintenance notes.
-- `AGENTS.md` - repository instructions for Codex and future contributors.
-
-No application source, framework configuration, package manifest, tests, or deployment files are present yet.
+- `README.md` - project overview, setup, run, and test instructions.
+- `PROJECT_PLAN.md` - proposed lightweight project direction.
+- `pyproject.toml` - Python package metadata, console script, and pytest configuration.
+- `src/codex_starter/` - application package.
+- `src/codex_starter/cli.py` - CLI parser and entry point.
+- `tests/` - pytest tests.
 
 ## Detected Stack
 
-- Language: not defined yet.
-- Framework: not defined yet.
-- Package manager: not defined yet.
+- Language: Python 3.10+
+- Framework: none
+- Package manager: pip
+- Test runner: pytest
 
 ## Commands
 
-No install, run, test, lint, or build commands are currently defined.
+Install dependencies:
 
-When tooling is added, document the exact commands in both `README.md` and this file.
+```sh
+python -m pip install -e ".[dev]"
+```
+
+Run the CLI:
+
+```sh
+codex-1
+codex-1 --name "Your Project"
+```
+
+Run tests:
+
+```sh
+python -m pytest
+```
+
+Lint command: not defined yet.
+
+Build command: not defined yet.
 
 ## Coding Rules
 
 - Keep changes small, focused, and easy to review.
-- Follow existing project structure once application code is introduced.
-- Prefer simple, explicit code over premature abstractions.
+- Prefer standard-library Python unless a dependency clearly pays for itself.
+- Keep CLI behavior deterministic and easy to test.
 - Add or update tests when behavior is added or changed.
 - Document new setup, run, validation, and build commands as part of the same change that introduces them.
 
@@ -43,4 +65,5 @@ Do not add, edit, expose, move, or delete:
 - Secrets, API keys, tokens, cookies, passwords, private keys, wallet files, seed phrases, or credentials.
 - Production deployment settings, infrastructure, DNS, billing, or live service configuration.
 - Legal or license files unless explicitly requested.
+- Crypto, mining, trading, or automation behavior unless the repository explicitly requests it.
 - Important project files without a clear reason documented in the PR.
