@@ -9,6 +9,7 @@ This repository is a minimal Python CLI starter project.
 - `pyproject.toml` - Python package metadata, console script, and pytest configuration.
 - `src/codex_starter/` - application package.
 - `src/codex_starter/cli.py` - CLI parser and entry point.
+- `src/codex_starter/__main__.py` - module execution entry point for `python -m codex_starter`.
 - `tests/` - pytest tests.
 
 ## Detected Stack
@@ -29,6 +30,8 @@ python -m pip install -e ".[dev]"
 Run the CLI:
 
 ```sh
+python -m codex_starter
+python -m codex_starter --name "Your Project"
 codex-1
 codex-1 --name "Your Project"
 ```
