@@ -1,28 +1,52 @@
 # Codex-1
 
-Codex-1 is currently an initial repository scaffold. Use this README to document the project's purpose, setup instructions, and validation commands as the project grows.
+Codex-1 is a minimal Python CLI starter project. It provides a small package, a command-line entry point, and a basic test suite so future work can grow from a working foundation.
 
 ## Project Status
 
-No language, framework, package manager, application source, tests, or build tooling are defined yet.
+- Language: Python 3.10+
+- Framework: none
+- Package manager: pip
+- Test runner: pytest
+
+## Project Structure
+
+```text
+.
+|-- AGENTS.md
+|-- PROJECT_PLAN.md
+|-- README.md
+|-- pyproject.toml
+|-- src/
+|   `-- codex_starter/
+|       |-- __init__.py
+|       `-- cli.py
+`-- tests/
+    `-- test_cli.py
+```
 
 ## Development
 
-There are currently no install, run, test, lint, or build commands.
-
-When project tooling is added, document the commands here in this format:
+Install the project with development dependencies:
 
 ```sh
-# install dependencies
-
-# run locally
-
-# test
-
-# lint
-
-# build
+python -m pip install -e ".[dev]"
 ```
+
+Run the CLI:
+
+```sh
+codex-1
+codex-1 --name "Your Project"
+```
+
+Run tests:
+
+```sh
+python -m pytest
+```
+
+There is no separate lint or build command yet.
 
 ## Maintenance
 
