@@ -28,7 +28,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 1 | Laravel Installation | ✅ Selesai & PR merged | `codex/task-1-laravel-installation` | https://github.com/Exloses/Codex-1/pull/4 |
 | Task 2 | Database Migrations | ✅ Selesai & PR merged | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
 | Task 3 | Models & Relationships | ✅ Selesai & PR merged | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
-| Task 4 | Services Layer | ✅ Selesai, PR pending review | `codex/task-4-services-layer` | PR akan dibuat setelah push |
+| Task 4 | Services Layer | ✅ Selesai, PR pending review | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
 | Task 5 | Background Jobs | ⏳ Belum dimulai | - | - |
 | Task 6 | Schedulers & Commands | ⏳ Belum dimulai | - | - |
 | Task 7 | Routes | ⏳ Belum dimulai | - | - |
