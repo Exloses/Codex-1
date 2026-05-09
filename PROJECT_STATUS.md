@@ -27,8 +27,8 @@ Platform e-commerce dropship global dengan 3 panel:
 |------|------|--------|--------|----|
 | Task 1 | Laravel Installation | ✅ Selesai & PR merged | `codex/task-1-laravel-installation` | https://github.com/Exloses/Codex-1/pull/4 |
 | Task 2 | Database Migrations | ✅ Selesai & PR merged | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
-| Task 3 | Models & Relationships | ✅ Selesai, PR pending review | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
-| Task 4 | Services Layer | ⏳ Belum dimulai | - | - |
+| Task 3 | Models & Relationships | ✅ Selesai & PR merged | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
+| Task 4 | Services Layer | ✅ Selesai, PR pending review | `codex/task-4-services-layer` | PR akan dibuat setelah push |
 | Task 5 | Background Jobs | ⏳ Belum dimulai | - | - |
 | Task 6 | Schedulers & Commands | ⏳ Belum dimulai | - | - |
 | Task 7 | Routes | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 3 sudah selesai dan sedang menunggu review PR #6. Jangan mulai Task 4 sampai owner menyatakan PR Task 3 sudah merge.
+**Task sedang dikerjakan:** Tidak ada. Task 4 sudah selesai dan siap untuk PR review. Jangan mulai Task 5 sampai owner menyatakan PR Task 4 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -125,6 +125,23 @@ Task 3:
 - Added Spatie HasRoles and helper methods to User.
 - Added relationship methods, casts, guarded mass-assignment defaults, and Product media integration.
 - Validated model loading with tinker relationship checks.
+
+Task 4:
+- Created service files:
+  app/Services/CurrencyService.php
+  app/Services/StripeService.php
+  app/Services/PayPalService.php
+  app/Services/EasyPostService.php
+  app/Services/DropshipService.php
+  app/Services/AffiliateService.php
+  app/Services/LoyaltyService.php
+- Modified files:
+  app/Providers/AppServiceProvider.php
+  config/services.php
+  PROJECT_STATUS.md
+- Registered all service classes in AppServiceProvider.
+- Added placeholder-only service config for Open Exchange Rates, Stripe, PayPal, and EasyPost.
+- Validated service container resolution and application boot.
 ```
 
 ---
@@ -201,14 +218,12 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 3:
-- php -l app/Models/*.php: semua model no syntax errors
-- php artisan migrate:fresh --force: berhasil
-- php artisan tinker User::first() dan Product::with('vendor')->first(): berhasil, output tinker-ok
-- php artisan tinker relationship sanity check: berhasil, output relations-ok
-- php artisan test: 25 tests passed, 61 assertions
+Validasi terakhir Task 4:
+- php -l app/Services/*.php, app/Providers/AppServiceProvider.php, config/services.php: no syntax errors
+- php artisan tinker app(App\Services\CurrencyService::class): berhasil, output currency-service-ok
+- php artisan tinker resolve semua service Task 4: berhasil, output all-services-ok
 - php artisan about: berhasil
-- php artisan route:list: berhasil, 35 routes
+- php artisan test: 25 tests passed, 61 assertions
 ```
 
 ---
@@ -234,10 +249,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 4 — Services Layer
-Branch yang akan dibuat: codex/task-4-services-layer
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 4
-Status: Tunggu owner menyatakan PR Task 3 sudah merge sebelum checkout main, pull, dan mulai branch Task 4.
+Task berikutnya: Task 5 — Background Jobs
+Branch yang akan dibuat: codex/task-5-background-jobs
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 5
+Status: Tunggu owner menyatakan PR Task 4 sudah merge sebelum checkout main, pull, dan mulai branch Task 5.
 ```
 
 ---
@@ -262,6 +277,7 @@ Status: Tunggu owner menyatakan PR Task 3 sudah merge sebelum checkout main, pul
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Task 4 services layer selesai, menunggu PR review | Codex |
 | 2026-05-10 | Context checkpoint: Task 1-2 merged, Task 3 PR open, tidak ada task aktif | Codex |
 | 2026-05-10 | Task 3 models dan relationships selesai, menunggu PR review | Codex |
 | 2026-05-08 | Task 2 migrations selesai dan tervalidasi lokal | Codex |
