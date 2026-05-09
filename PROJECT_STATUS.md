@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 7 sudah selesai dan siap untuk PR review. Jangan mulai Task 8 sampai owner menyatakan PR Task 7 sudah merge.
+**Task sedang dikerjakan:** Tidak ada task aktif 🔄. Task 7 sudah selesai dan siap untuk PR review di PR #10. Jangan mulai Task 8 sampai owner menyatakan PR Task 7 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -298,6 +298,7 @@ Task berikutnya: Task 8 — Controllers
 Branch yang akan dibuat: codex/task-8-controllers
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 8
 Status: Tunggu owner menyatakan PR Task 7 sudah merge sebelum checkout main, pull, dan mulai branch Task 8.
+Checkpoint 78%: Tidak ada pekerjaan coding aktif. Branch saat ini codex/task-7-routes sudah push ke origin dan PR #10 masih pending review.
 ```
 
 ---
@@ -322,6 +323,7 @@ Status: Tunggu owner menyatakan PR Task 7 sudah merge sebelum checkout main, pul
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Checkpoint context 78%: Task 1-6 merged, Task 7 PR open, tidak ada task aktif | Codex |
 | 2026-05-10 | Task 7 routes dan stub controllers selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 6 schedulers dan commands selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 5 background jobs selesai, menunggu PR review | Codex |
