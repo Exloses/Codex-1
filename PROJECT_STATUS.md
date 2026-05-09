@@ -30,8 +30,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 3 | Models & Relationships | ✅ Selesai & PR merged | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
 | Task 4 | Services Layer | ✅ Selesai & PR merged | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
 | Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
-| Task 6 | Schedulers & Commands | ✅ Selesai, PR pending review | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
-| Task 7 | Routes | ⏳ Belum dimulai | - | - |
+| Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
+| Task 7 | Routes | ✅ Selesai, PR pending review | `codex/task-7-routes` | PR akan dibuat setelah push |
 | Task 8 | Controllers | ⏳ Belum dimulai | - | - |
 | Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
 | Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 6 sudah selesai dan siap untuk PR review. Jangan mulai Task 7 sampai owner menyatakan PR Task 6 sudah merge.
+**Task sedang dikerjakan:** Tidak ada. Task 7 sudah selesai dan siap untuk PR review. Jangan mulai Task 8 sampai owner menyatakan PR Task 7 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -170,6 +170,22 @@ Task 6:
   PROJECT_STATUS.md
 - Registered command discovery with withCommands().
 - Registered scheduler in routes/console.php for all six Task 6 commands.
+
+Task 7:
+- Replaced routes/web.php with complete Task 7 route map.
+- Created placeholder controller stubs for all Task 7 controllers.
+- Added shared placeholder response trait:
+  app/Http/Controllers/Concerns/ReturnsPlaceholderResponses.php
+- Created controller groups:
+  app/Http/Controllers/Auth/AuthController.php
+  app/Http/Controllers/Auth/SocialAuthController.php
+  app/Http/Controllers/Storefront/*.php
+  app/Http/Controllers/Vendor/*.php
+  app/Http/Controllers/AffiliateController.php
+  app/Http/Controllers/ShippingController.php
+  app/Http/Controllers/CurrencyController.php
+- Modified bootstrap/app.php to register Spatie role middleware alias and exclude webhook/stripe from CSRF validation.
+- Stripe webhook route also uses route-level withoutMiddleware for Laravel CSRF middleware classes.
 ```
 
 ---
@@ -246,14 +262,13 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 6:
-- php -l app/Console/Commands/*.php, routes/console.php, bootstrap/app.php: no syntax errors
-- php artisan list: semua command Task 6 muncul
-- php artisan currency:update --help: berhasil
-- php artisan schedule:list: semua schedule Task 6 muncul
-- Manual command smoke test: semua command Task 6 berhasil dieksekusi lokal
+Validasi terakhir Task 7:
+- php -l app/Http/Controllers/**/*.php, routes/web.php, bootstrap/app.php: no syntax errors
+- php artisan route:list: berhasil
+- Duplicate route name check: no-duplicate-route-names
+- Total route count: 103 routes
+- Stripe webhook CSRF handling: bootstrap CSRF exception for webhook/stripe plus route-level withoutMiddleware
 - php artisan about: berhasil
-- php artisan test: 25 tests passed, 61 assertions
 ```
 
 ---
@@ -279,10 +294,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 7 — Routes
-Branch yang akan dibuat: codex/task-7-routes
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 7
-Status: Tunggu owner menyatakan PR Task 6 sudah merge sebelum checkout main, pull, dan mulai branch Task 7.
+Task berikutnya: Task 8 — Controllers
+Branch yang akan dibuat: codex/task-8-controllers
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 8
+Status: Tunggu owner menyatakan PR Task 7 sudah merge sebelum checkout main, pull, dan mulai branch Task 8.
 ```
 
 ---
@@ -307,6 +322,7 @@ Status: Tunggu owner menyatakan PR Task 6 sudah merge sebelum checkout main, pul
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Task 7 routes dan stub controllers selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 6 schedulers dan commands selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 5 background jobs selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 4 services layer selesai, menunggu PR review | Codex |
