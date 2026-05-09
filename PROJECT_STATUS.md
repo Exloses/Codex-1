@@ -31,7 +31,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 4 | Services Layer | ✅ Selesai & PR merged | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
 | Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
 | Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
-| Task 7 | Routes | ✅ Selesai, PR pending review | `codex/task-7-routes` | PR akan dibuat setelah push |
+| Task 7 | Routes | ✅ Selesai, PR pending review | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
 | Task 8 | Controllers | ⏳ Belum dimulai | - | - |
 | Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
 | Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
