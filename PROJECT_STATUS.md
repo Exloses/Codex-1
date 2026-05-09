@@ -29,8 +29,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 2 | Database Migrations | ✅ Selesai & PR merged | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
 | Task 3 | Models & Relationships | ✅ Selesai & PR merged | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
 | Task 4 | Services Layer | ✅ Selesai & PR merged | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
-| Task 5 | Background Jobs | ✅ Selesai, PR pending review | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
-| Task 6 | Schedulers & Commands | ⏳ Belum dimulai | - | - |
+| Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
+| Task 6 | Schedulers & Commands | ✅ Selesai, PR pending review | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
 | Task 7 | Routes | ⏳ Belum dimulai | - | - |
 | Task 8 | Controllers | ⏳ Belum dimulai | - | - |
 | Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 5 sudah selesai dan siap untuk PR review. Jangan mulai Task 6 sampai owner menyatakan PR Task 5 sudah merge.
+**Task sedang dikerjakan:** Tidak ada. Task 6 sudah selesai dan siap untuk PR review. Jangan mulai Task 7 sampai owner menyatakan PR Task 6 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -155,6 +155,21 @@ Task 5:
 - SendEmailJob uses 3 retries and 60s backoff.
 - UpdateCurrencyRatesJob refreshes CurrencyService cache.
 - Redis was not reachable on Windows localhost, so .env.example now uses QUEUE_CONNECTION=database.
+
+Task 6:
+- Created command files:
+  app/Console/Commands/UpdateCurrencyRates.php
+  app/Console/Commands/ReleaseCommissions.php
+  app/Console/Commands/CancelUnpaidOrders.php
+  app/Console/Commands/CheckStockNotifications.php
+  app/Console/Commands/CheckPriceDropAlerts.php
+  app/Console/Commands/CheckAffiliateTiers.php
+- Modified files:
+  bootstrap/app.php
+  routes/console.php
+  PROJECT_STATUS.md
+- Registered command discovery with withCommands().
+- Registered scheduler in routes/console.php for all six Task 6 commands.
 ```
 
 ---
@@ -231,13 +246,12 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 5:
-- php -l app/Jobs/*.php: no syntax errors
-- Redis port 6379 check: failed/timed out, fallback database queue used
-- jobs table migration already exists: database/migrations/0001_01_01_000002_create_jobs_table.php
-- php artisan migrate --force: berhasil, Nothing to migrate
-- php artisan queue:work --once --stop-when-empty: berhasil
-- php artisan tinker instantiate SendEmailJob dan UpdateCurrencyRatesJob: berhasil, output jobs-ok
+Validasi terakhir Task 6:
+- php -l app/Console/Commands/*.php, routes/console.php, bootstrap/app.php: no syntax errors
+- php artisan list: semua command Task 6 muncul
+- php artisan currency:update --help: berhasil
+- php artisan schedule:list: semua schedule Task 6 muncul
+- Manual command smoke test: semua command Task 6 berhasil dieksekusi lokal
 - php artisan about: berhasil
 - php artisan test: 25 tests passed, 61 assertions
 ```
@@ -265,10 +279,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 6 — Schedulers & Commands
-Branch yang akan dibuat: codex/task-6-schedulers-commands
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 6
-Status: Tunggu owner menyatakan PR Task 5 sudah merge sebelum checkout main, pull, dan mulai branch Task 6.
+Task berikutnya: Task 7 — Routes
+Branch yang akan dibuat: codex/task-7-routes
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 7
+Status: Tunggu owner menyatakan PR Task 6 sudah merge sebelum checkout main, pull, dan mulai branch Task 7.
 ```
 
 ---
@@ -293,6 +307,7 @@ Status: Tunggu owner menyatakan PR Task 5 sudah merge sebelum checkout main, pul
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Task 6 schedulers dan commands selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 5 background jobs selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 4 services layer selesai, menunggu PR review | Codex |
 | 2026-05-10 | Context checkpoint: Task 1-2 merged, Task 3 PR open, tidak ada task aktif | Codex |
