@@ -30,7 +30,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 3 | Models & Relationships | ✅ Selesai & PR merged | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
 | Task 4 | Services Layer | ✅ Selesai & PR merged | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
 | Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
-| Task 6 | Schedulers & Commands | ✅ Selesai, PR pending review | `codex/task-6-schedulers-commands` | PR akan dibuat setelah push |
+| Task 6 | Schedulers & Commands | ✅ Selesai, PR pending review | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
 | Task 7 | Routes | ⏳ Belum dimulai | - | - |
 | Task 8 | Controllers | ⏳ Belum dimulai | - | - |
 | Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
