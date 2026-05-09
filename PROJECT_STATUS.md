@@ -26,8 +26,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task | Nama | Status | Branch | PR |
 |------|------|--------|--------|----|
 | Task 1 | Laravel Installation | ✅ Selesai & PR merged | `codex/task-1-laravel-installation` | https://github.com/Exloses/Codex-1/pull/4 |
-| Task 2 | Database Migrations | ✅ Selesai, PR pending review | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
-| Task 3 | Models & Relationships | ⏳ Belum dimulai | - | - |
+| Task 2 | Database Migrations | ✅ Selesai & PR merged | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
+| Task 3 | Models & Relationships | ✅ Selesai, PR pending review | `codex/task-3-models-relationships` | Pending |
 | Task 4 | Services Layer | ⏳ Belum dimulai | - | - |
 | Task 5 | Background Jobs | ⏳ Belum dimulai | - | - |
 | Task 6 | Schedulers & Commands | ⏳ Belum dimulai | - | - |
@@ -80,6 +80,12 @@ Task 2:
 - Updated users migration with profile/localization/status columns
 - Added dropship platform migration with 33 domain tables
 - Validated migrations with SQLite migrate:fresh on Windows localhost
+
+Task 3:
+- Added Eloquent models for all Task 2 domain tables and blueprint relationships
+- Added Spatie HasRoles and helper methods to User
+- Added relationship methods, casts, and guarded mass-assignment defaults
+- Validated model loading with tinker relationship checks
 ```
 
 ---
@@ -180,9 +186,9 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 3 — Models & Relationships
-Branch yang akan dibuat: codex/task-3-models-relationships
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 3
+Task berikutnya: Task 4 — Services Layer
+Branch yang akan dibuat: codex/task-4-services-layer
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 4
 ```
 
 ---
@@ -207,6 +213,7 @@ Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 3
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Task 3 models dan relationships selesai, menunggu PR review | Codex |
 | 2026-05-08 | Task 2 migrations selesai dan tervalidasi lokal | Codex |
 | 2026-05-08 | Task 1 ditandai selesai setelah PR merge | Codex |
 | [DATE] | File dibuat pertama kali | Codex |
