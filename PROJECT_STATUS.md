@@ -25,8 +25,8 @@ Platform e-commerce dropship global dengan 3 panel:
 
 | Task | Nama | Status | Branch | PR |
 |------|------|--------|--------|----|
-| Task 1 | Laravel Installation | ⏳ Belum dimulai | - | - |
-| Task 2 | Database Migrations | ⏳ Belum dimulai | - | - |
+| Task 1 | Laravel Installation | ✅ Selesai & PR merged | `codex/task-1-laravel-installation` | https://github.com/Exloses/Codex-1/pull/4 |
+| Task 2 | Database Migrations | ✅ Selesai, PR pending review | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
 | Task 3 | Models & Relationships | ⏳ Belum dimulai | - | - |
 | Task 4 | Services Layer | ⏳ Belum dimulai | - | - |
 | Task 5 | Background Jobs | ⏳ Belum dimulai | - | - |
@@ -69,7 +69,17 @@ Platform e-commerce dropship global dengan 3 panel:
 <!-- Codex update bagian ini setiap task selesai -->
 
 ```
-Belum ada file yang dibuat.
+Task 1:
+- Laravel 11 project scaffold
+- Breeze Vue/Inertia SSR authentication scaffolding
+- Filament v3 admin panel installation
+- Spatie Permission and Media Library configs/migrations
+- Safe .env.example placeholders
+
+Task 2:
+- Updated users migration with profile/localization/status columns
+- Added dropship platform migration with 33 domain tables
+- Validated migrations with SQLite migrate:fresh on Windows localhost
 ```
 
 ---
@@ -79,9 +89,18 @@ Belum ada file yang dibuat.
 <!-- Codex update setelah Task 2 selesai -->
 
 ```
-Migrations: Belum dijalankan
+Migrations: Berhasil dijalankan dengan php artisan migrate:fresh --force
 Seeders: Belum dijalankan
-Tables: -
+Tables:
+- Task 2 domain tables: users, vendors, categories, size_guides, products, product_attributes,
+  product_attribute_values, product_variants, addresses, cart_items, orders, order_items,
+  dropship_orders, shipping_zones, shipping_rates, reviews, banners, coupons, wishlists,
+  loyalty_points, loyalty_transactions, stock_notifications, return_requests, affiliates,
+  affiliate_clicks, affiliate_commissions, affiliate_payout_methods, affiliate_payouts,
+  support_tickets, ticket_replies, newsletter_subscribers, product_questions, product_answers,
+  faqs
+- Package/framework tables also present: password_reset_tokens, sessions, cache, jobs,
+  permissions/roles pivot tables, media
 ```
 
 ---
@@ -161,9 +180,9 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 1 — Laravel Installation
-Branch yang akan dibuat: codex/task-1-laravel-installation
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 1
+Task berikutnya: Task 3 — Models & Relationships
+Branch yang akan dibuat: codex/task-3-models-relationships
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 3
 ```
 
 ---
@@ -188,6 +207,8 @@ Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 1
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-08 | Task 2 migrations selesai dan tervalidasi lokal | Codex |
+| 2026-05-08 | Task 1 ditandai selesai setelah PR merge | Codex |
 | [DATE] | File dibuat pertama kali | Codex |
 
 ---
