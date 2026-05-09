@@ -26,8 +26,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task | Nama | Status | Branch | PR |
 |------|------|--------|--------|----|
 | Task 1 | Laravel Installation | ✅ Selesai & PR merged | `codex/task-1-laravel-installation` | https://github.com/Exloses/Codex-1/pull/4 |
-| Task 2 | Database Migrations | ✅ Selesai, PR pending review | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
-| Task 3 | Models & Relationships | ⏳ Belum dimulai | - | - |
+| Task 2 | Database Migrations | ✅ Selesai & PR merged | `codex/task-2-database-migrations` | https://github.com/Exloses/Codex-1/pull/5 |
+| Task 3 | Models & Relationships | ✅ Selesai, PR pending review | `codex/task-3-models-relationships` | https://github.com/Exloses/Codex-1/pull/6 |
 | Task 4 | Services Layer | ⏳ Belum dimulai | - | - |
 | Task 5 | Background Jobs | ⏳ Belum dimulai | - | - |
 | Task 6 | Schedulers & Commands | ⏳ Belum dimulai | - | - |
@@ -66,6 +66,8 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
+**Task sedang dikerjakan:** Tidak ada. Task 3 sudah selesai dan sedang menunggu review PR #6. Jangan mulai Task 4 sampai owner menyatakan PR Task 3 sudah merge.
+
 <!-- Codex update bagian ini setiap task selesai -->
 
 ```
@@ -80,6 +82,49 @@ Task 2:
 - Updated users migration with profile/localization/status columns
 - Added dropship platform migration with 33 domain tables
 - Validated migrations with SQLite migrate:fresh on Windows localhost
+
+Task 3:
+- Created model files:
+  app/Models/Address.php
+  app/Models/Affiliate.php
+  app/Models/AffiliateClick.php
+  app/Models/AffiliateCommission.php
+  app/Models/AffiliatePayout.php
+  app/Models/AffiliatePayoutMethod.php
+  app/Models/Banner.php
+  app/Models/CartItem.php
+  app/Models/Category.php
+  app/Models/Coupon.php
+  app/Models/DropshipOrder.php
+  app/Models/Faq.php
+  app/Models/LoyaltyPoint.php
+  app/Models/LoyaltyTransaction.php
+  app/Models/NewsletterSubscriber.php
+  app/Models/Order.php
+  app/Models/OrderItem.php
+  app/Models/Product.php
+  app/Models/ProductAnswer.php
+  app/Models/ProductAttribute.php
+  app/Models/ProductAttributeValue.php
+  app/Models/ProductQuestion.php
+  app/Models/ProductVariant.php
+  app/Models/ReturnRequest.php
+  app/Models/Review.php
+  app/Models/ShippingRate.php
+  app/Models/ShippingZone.php
+  app/Models/SizeGuide.php
+  app/Models/StockNotification.php
+  app/Models/SupportTicket.php
+  app/Models/TicketReply.php
+  app/Models/Vendor.php
+  app/Models/Wishlist.php
+  app/Models/Withdrawal.php
+- Modified files:
+  app/Models/User.php
+  PROJECT_STATUS.md
+- Added Spatie HasRoles and helper methods to User.
+- Added relationship methods, casts, guarded mass-assignment defaults, and Product media integration.
+- Validated model loading with tinker relationship checks.
 ```
 
 ---
@@ -155,6 +200,15 @@ Buyer:    buyer@demo.com       / Buyer123!
 
 ```
 Tidak ada error saat ini.
+
+Validasi terakhir Task 3:
+- php -l app/Models/*.php: semua model no syntax errors
+- php artisan migrate:fresh --force: berhasil
+- php artisan tinker User::first() dan Product::with('vendor')->first(): berhasil, output tinker-ok
+- php artisan tinker relationship sanity check: berhasil, output relations-ok
+- php artisan test: 25 tests passed, 61 assertions
+- php artisan about: berhasil
+- php artisan route:list: berhasil, 35 routes
 ```
 
 ---
@@ -164,11 +218,11 @@ Tidak ada error saat ini.
 <!-- Codex update setelah Task 1 selesai -->
 
 ```
-Git:      Belum dicek
-PHP:      Belum dicek
-Composer: Belum dicek
-Node.js:  Belum dicek
-npm:      Belum dicek
+Git:      Tersedia
+PHP:      E:\Codex\tools\php-8.3\php.exe (8.3.31)
+Composer: E:\Codex\tools\composer.phar (2.9.7)
+Node.js:  E:\Codex\tools\node-v24.15.0-win-x64 (24.15.0)
+npm:      11.12.1
 MySQL:    Belum dicek
 Redis:    Belum dicek
 ```
@@ -180,9 +234,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 3 — Models & Relationships
-Branch yang akan dibuat: codex/task-3-models-relationships
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 3
+Task berikutnya: Task 4 — Services Layer
+Branch yang akan dibuat: codex/task-4-services-layer
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 4
+Status: Tunggu owner menyatakan PR Task 3 sudah merge sebelum checkout main, pull, dan mulai branch Task 4.
 ```
 
 ---
@@ -207,6 +262,8 @@ Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 3
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Context checkpoint: Task 1-2 merged, Task 3 PR open, tidak ada task aktif | Codex |
+| 2026-05-10 | Task 3 models dan relationships selesai, menunggu PR review | Codex |
 | 2026-05-08 | Task 2 migrations selesai dan tervalidasi lokal | Codex |
 | 2026-05-08 | Task 1 ditandai selesai setelah PR merge | Codex |
 | [DATE] | File dibuat pertama kali | Codex |
