@@ -53,6 +53,18 @@ return [
         'api_key' => env('EASYPOST_API_KEY', 'EZTKXXXXXXXXXXXXXXXXXXXXXXXX'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URL', 'http://localhost:8000/auth/google/callback'),
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID', 'YOUR_FACEBOOK_APP_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET', 'YOUR_FACEBOOK_APP_SECRET'),
+        'redirect' => env('FACEBOOK_REDIRECT_URL', 'http://localhost:8000/auth/facebook/callback'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

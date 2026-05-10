@@ -31,8 +31,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 4 | Services Layer | ✅ Selesai & PR merged | `codex/task-4-services-layer` | https://github.com/Exloses/Codex-1/pull/7 |
 | Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
 | Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
-| Task 7 | Routes | ✅ Selesai, PR pending review | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
-| Task 8 | Controllers | ⏳ Belum dimulai | - | - |
+| Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
+| Task 8 | Controllers | ✅ Selesai, siap PR | `codex/task-8-controllers` | Akan dibuat |
 | Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
 | Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
 | Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada task aktif 🔄. Task 7 sudah selesai dan siap untuk PR review di PR #10. Jangan mulai Task 8 sampai owner menyatakan PR Task 7 sudah merge.
+**Task sedang dikerjakan:** Task 8 Controllers sudah selesai dan siap dibuatkan PR dari branch `codex/task-8-controllers`. Jangan mulai Task 9 sampai owner menyatakan PR Task 8 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -186,6 +186,59 @@ Task 7:
   app/Http/Controllers/CurrencyController.php
 - Modified bootstrap/app.php to register Spatie role middleware alias and exclude webhook/stripe from CSRF validation.
 - Stripe webhook route also uses route-level withoutMiddleware for Laravel CSRF middleware classes.
+
+Task 8:
+- Implemented all Task 8 controllers:
+  app/Http/Controllers/Auth/AuthController.php
+  app/Http/Controllers/Auth/SocialAuthController.php
+  app/Http/Controllers/Storefront/StorefrontController.php
+  app/Http/Controllers/Storefront/ProductController.php
+  app/Http/Controllers/Storefront/CategoryController.php
+  app/Http/Controllers/Storefront/CartController.php
+  app/Http/Controllers/Storefront/CheckoutController.php
+  app/Http/Controllers/Storefront/PaymentController.php
+  app/Http/Controllers/Storefront/AccountController.php
+  app/Http/Controllers/Storefront/WishlistController.php
+  app/Http/Controllers/Storefront/TrackingController.php
+  app/Http/Controllers/Storefront/ReviewController.php
+  app/Http/Controllers/Storefront/ReturnController.php
+  app/Http/Controllers/Storefront/InvoiceController.php
+  app/Http/Controllers/Storefront/NewsletterController.php
+  app/Http/Controllers/Storefront/SupportTicketController.php
+  app/Http/Controllers/Storefront/FaqController.php
+  app/Http/Controllers/Storefront/LoyaltyController.php
+  app/Http/Controllers/Storefront/NotificationController.php
+  app/Http/Controllers/Storefront/StockNotificationController.php
+  app/Http/Controllers/Storefront/PriceAlertController.php
+  app/Http/Controllers/Storefront/ProductQAController.php
+  app/Http/Controllers/Vendor/VendorDashboardController.php
+  app/Http/Controllers/Vendor/VendorProductController.php
+  app/Http/Controllers/Vendor/VendorOrderController.php
+  app/Http/Controllers/Vendor/VendorFinanceController.php
+  app/Http/Controllers/Vendor/VendorSettingsController.php
+  app/Http/Controllers/AffiliateController.php
+  app/Http/Controllers/ShippingController.php
+  app/Http/Controllers/CurrencyController.php
+- Created Form Request classes:
+  app/Http/Requests/AuthorizedRequest.php
+  app/Http/Requests/Auth/ForgotPasswordRequest.php
+  app/Http/Requests/Auth/RegisterRequest.php
+  app/Http/Requests/Auth/ResetPasswordRequest.php
+  app/Http/Requests/Api/ShippingRatesRequest.php
+  app/Http/Requests/Storefront/*.php
+  app/Http/Requests/Vendor/*.php
+  app/Http/Requests/Affiliate/*.php
+- Created Policy classes:
+  app/Policies/AddressPolicy.php
+  app/Policies/OrderPolicy.php
+  app/Policies/ProductPolicy.php
+  app/Policies/ReturnRequestPolicy.php
+  app/Policies/SupportTicketPolicy.php
+  app/Policies/VendorPolicy.php
+- Modified config/services.php with placeholder-only Google/Facebook Socialite configuration.
+- Modified resources/views/app.blade.php to load the Inertia app entry without requiring Task 10 Vue page chunks during server-side validation.
+- Deleted the Task 7 placeholder response trait after replacing all placeholder controller actions.
+- Storefront product responses explicitly avoid exposing vendor_price.
 ```
 
 ---
@@ -262,13 +315,18 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 7:
-- php -l app/Http/Controllers/**/*.php, routes/web.php, bootstrap/app.php: no syntax errors
+Validasi terakhir Task 8:
+- php -l app/Http/Controllers/**/*.php, app/Http/Requests/**/*.php, app/Policies/**/*.php: no syntax errors
 - php artisan route:list: berhasil
-- Duplicate route name check: no-duplicate-route-names
+- Duplicate route name check: none
 - Total route count: 103 routes
-- Stripe webhook CSRF handling: bootstrap CSRF exception for webhook/stripe plus route-level withoutMiddleware
 - php artisan about: berhasil
+- php artisan serve --host=127.0.0.1 --port=8000: berhasil boot
+- curl http://127.0.0.1:8000: HTTP 200
+
+Catatan:
+- Guest checkout persistence masih mengembalikan 422 karena migrations Task 2 membuat orders.user_id non-nullable; Task 17 akan menangani guest checkout penuh sesuai blueprint.
+- Vendor withdrawal action akan mengembalikan 422 jika tabel withdrawals belum tersedia.
 ```
 
 ---
@@ -294,11 +352,11 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 8 — Controllers
-Branch yang akan dibuat: codex/task-8-controllers
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 8
-Status: Tunggu owner menyatakan PR Task 7 sudah merge sebelum checkout main, pull, dan mulai branch Task 8.
-Checkpoint 78%: Tidak ada pekerjaan coding aktif. Branch saat ini codex/task-7-routes sudah push ke origin dan PR #10 masih pending review.
+Task berikutnya: Task 9 — Filament Admin Panel
+Branch yang akan dibuat nanti: codex/task-9-filament-admin
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 9
+Status: JANGAN mulai Task 9 sampai owner menyatakan PR Task 8 sudah merge.
+Task 8 branch: codex/task-8-controllers
 ```
 
 ---
@@ -323,6 +381,7 @@ Checkpoint 78%: Tidak ada pekerjaan coding aktif. Branch saat ini codex/task-7-r
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-10 | Task 8 controllers, form requests, policies selesai dan siap PR | Codex |
 | 2026-05-10 | Checkpoint context 78%: Task 1-6 merged, Task 7 PR open, tidak ada task aktif | Codex |
 | 2026-05-10 | Task 7 routes dan stub controllers selesai, menunggu PR review | Codex |
 | 2026-05-10 | Task 6 schedulers dan commands selesai, menunggu PR review | Codex |

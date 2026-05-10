@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers\Storefront;
 
-use App\Http\Controllers\Concerns\ReturnsPlaceholderResponses;
 use App\Http\Controllers\Controller;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class NotificationController extends Controller
 {
-    use ReturnsPlaceholderResponses;
-
-    public function index()
+    public function index(): Response
     {
-        return $this->placeholder(__METHOD__);
+        return Inertia::render('Account/Notifications', [
+            'notifications' => auth()->user()->notifications()->latest()->paginate(20),
+            'unreadCount' => auth()->user()->unreadNotifications()->count(),
+        ]);
     }
 
     public function markAllRead()
     {
-        return $this->placeholder(__METHOD__);
+        auth()->user()->unreadNotifications->markAsRead();
+
+        return $this->ok();
     }
 }

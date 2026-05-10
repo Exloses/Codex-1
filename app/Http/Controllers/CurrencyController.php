@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\ReturnsPlaceholderResponses;
+use App\Services\CurrencyService;
+use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
-    use ReturnsPlaceholderResponses;
-
-    public function getRates()
+    public function getRates(Request $request, CurrencyService $currencyService)
     {
-        return $this->placeholder(__METHOD__);
+        $amount = (float) $request->input('amount', 1);
+        $currency = strtoupper($request->input('currency', 'USD'));
+
+        return $this->ok([
+            'base' => 'USD',
+            'rates' => $currencyService->getRates(),
+            'converted' => $currencyService->convert($amount, $currency),
+        ]);
     }
 }

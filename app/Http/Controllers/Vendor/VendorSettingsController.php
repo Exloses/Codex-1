@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers\Vendor;
 
-use App\Http\Controllers\Concerns\ReturnsPlaceholderResponses;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Vendor\VendorSettingsRequest;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class VendorSettingsController extends Controller
 {
-    use ReturnsPlaceholderResponses;
-
-    public function index()
+    public function index(): Response
     {
-        return $this->placeholder(__METHOD__);
+        $vendor = auth()->user()->vendor;
+        abort_if(! $vendor, 403, 'Vendor profile not found.');
+        $this->authorize('manage', $vendor);
+
+        return Inertia::render('Vendor/Settings/Index', ['vendor' => $vendor]);
     }
 
-    public function update()
+    public function update(VendorSettingsRequest $request)
     {
-        return $this->placeholder(__METHOD__);
+        $vendor = $request->user()->vendor;
+        abort_if(! $vendor, 403, 'Vendor profile not found.');
+        $this->authorize('manage', $vendor);
+
+        $vendor->update($request->validated());
+
+        return redirect()->route('vendor.settings');
     }
 }

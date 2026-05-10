@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Concerns\ReturnsPlaceholderResponses;
+use App\Http\Requests\Api\ShippingRatesRequest;
+use App\Services\EasyPostService;
 
 class ShippingController extends Controller
 {
-    use ReturnsPlaceholderResponses;
-
-    public function getRates()
+    public function getRates(ShippingRatesRequest $request, EasyPostService $easyPostService)
     {
-        return $this->placeholder(__METHOD__);
+        $rates = $easyPostService->getRates(
+            destinationAddress: $request->validated('destination'),
+            parcel: $request->validated('parcel'),
+        );
+
+        return $this->ok(['rates' => $rates]);
     }
 }
