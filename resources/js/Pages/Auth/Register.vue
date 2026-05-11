@@ -9,6 +9,9 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const form = useForm({
     name: '',
     email: '',
+    country: 'US',
+    currency: 'USD',
+    language: 'en',
     password: '',
     password_confirmation: '',
 });
@@ -23,6 +26,21 @@ const submit = () => {
 <template>
     <GuestLayout>
         <Head title="Register" />
+
+        <div class="mb-6 grid gap-2 sm:grid-cols-2">
+            <Link
+                :href="route('social.redirect', 'google')"
+                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+                Register with Google
+            </Link>
+            <Link
+                :href="route('social.redirect', 'facebook')"
+                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+                Register with Facebook
+            </Link>
+        </div>
 
         <form @submit.prevent="submit">
             <div>
@@ -54,6 +72,24 @@ const submit = () => {
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                <div>
+                    <InputLabel for="country" value="Country" />
+                    <TextInput id="country" v-model="form.country" class="mt-1 block w-full" maxlength="2" />
+                    <InputError class="mt-2" :message="form.errors.country" />
+                </div>
+                <div>
+                    <InputLabel for="currency" value="Currency" />
+                    <TextInput id="currency" v-model="form.currency" class="mt-1 block w-full" maxlength="3" />
+                    <InputError class="mt-2" :message="form.errors.currency" />
+                </div>
+                <div>
+                    <InputLabel for="language" value="Language" />
+                    <TextInput id="language" v-model="form.language" class="mt-1 block w-full" maxlength="5" />
+                    <InputError class="mt-2" :message="form.errors.language" />
+                </div>
             </div>
 
             <div class="mt-4">

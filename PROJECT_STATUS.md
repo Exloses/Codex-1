@@ -33,8 +33,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
 | Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
-| Task 9 | Filament Admin Panel | ✅ Selesai, PR pending review | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
-| Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
+| Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
+| Task 10 | Vue Frontend | ✅ Selesai, siap PR | `codex/task-10-vue-frontend` | Akan dibuat |
 | Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 9 Filament Admin Panel selesai dan PR #12 sudah dibuat dari branch `codex/task-9-filament-admin`. Jangan mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
+**Task sedang dikerjakan:** Task 10 Vue Frontend selesai di branch `codex/task-10-vue-frontend` dan siap dibuatkan PR. Jangan mulai Task 11 sampai PR Task 10 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -267,6 +267,32 @@ Task 9:
 - Modified app/Models/User.php to restrict Filament admin panel access to active users with the admin role.
 - Improved UserResource password handling and role assignment field.
 - Improved ShippingZoneResource country input and nested shipping rate management.
+
+Task 10:
+- Created persistent project memory file:
+  PROJECT_MEMORY.md
+- Created reusable frontend pieces:
+  resources/js/Layouts/StorefrontLayout.vue
+  resources/js/Components/ProductCard.vue
+  resources/js/Components/EmptyState.vue
+  resources/js/Components/StatusBadge.vue
+- Created Storefront pages:
+  resources/js/Pages/Storefront/Home.vue
+  resources/js/Pages/Storefront/ProductIndex.vue
+  resources/js/Pages/Storefront/ProductShow.vue
+  resources/js/Pages/Storefront/Cart.vue
+  resources/js/Pages/Storefront/Checkout.vue
+  resources/js/Pages/Storefront/TrackOrder.vue
+  resources/js/Pages/Storefront/CheckoutSuccess.vue
+  resources/js/Pages/Storefront/Faq.vue
+- Created account/vendor/affiliate Inertia pages for all controller render targets:
+  resources/js/Pages/Account/*.vue
+  resources/js/Pages/Vendor/**/*.vue
+  resources/js/Pages/Affiliate/*.vue
+- Updated Auth/Login.vue and Auth/Register.vue with social login buttons and global buyer registration fields.
+- Updated ResetPassword.vue and Profile password form to match the active route names.
+- Restored Breeze-compatible dashboard, profile, email verification, and password confirmation routes in routes/web.php.
+- Updated AuthController login/register redirects to use the dashboard route, which redirects authenticated users into their account panel.
 ```
 
 ---
@@ -343,13 +369,13 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 9:
-- php -l app/Filament/**/*.php, app/Models/User.php, app/Providers/Filament/AdminPanelProvider.php: no syntax errors
+Validasi terakhir Task 10:
+- php -l routes/web.php, app/Http/Controllers/Auth/AuthController.php: no syntax errors
 - php artisan about: berhasil
-- php artisan route:list --path=admin: berhasil, 48 admin routes terdaftar
-- php artisan tinker widget discovery: berhasil, 5 Task 9 widgets terdaftar di panel admin
-- php artisan test: gagal pada test Breeze lama karena route `dashboard`, `/profile`, `/verify-email`, `/confirm-password`, dan `verification.verify` tidak ada setelah route map Task 7/8. Tidak ada failure spesifik Task 9.
+- php artisan route:list: berhasil, 158 routes terdaftar
+- php artisan test: berhasil, 25 tests / 61 assertions
 - npm run build: berhasil
+- Browser check: http://127.0.0.1:8000 dan /track-order render StorefrontLayout dan konten Task 10
 ```
 
 ---
@@ -375,11 +401,11 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 10 — Vue Frontend
-Branch yang akan dibuat nanti: codex/task-10-vue-frontend
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 10
-Status: JANGAN mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
-Task 9 branch: codex/task-9-filament-admin
+Task berikutnya: Task 11 — Security Middleware
+Branch yang akan dibuat nanti: codex/task-11-security-middleware
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 11
+Status: JANGAN mulai Task 11 sampai owner menyatakan PR Task 10 sudah merge.
+Task 10 branch: codex/task-10-vue-frontend
 ```
 
 ---
@@ -404,6 +430,8 @@ Task 9 branch: codex/task-9-filament-admin
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali | Codex |
+| 2026-05-11 | Task 10 dimulai setelah Task 9 merged; PROJECT_MEMORY.md dibuat | Codex |
 | 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, PR #12 dibuat | Codex |
 | 2026-05-10 | Task 8 controllers, form requests, policies selesai dan siap PR | Codex |
 | 2026-05-10 | Checkpoint context 78%: Task 1-6 merged, Task 7 PR open, tidak ada task aktif | Codex |
