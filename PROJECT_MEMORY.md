@@ -7,7 +7,7 @@
 
 - Active task: Task 10 — Vue Frontend
 - Branch: `codex/task-10-vue-frontend`
-- Status: Completed locally, pending PR creation/review.
+- Status: Completed locally; PR #13 pending review.
 - Scope: Vue/Inertia storefront pages, components, layout, and Breeze route/test synchronization.
 - Do not start Task 11 until Task 10 is merged.
 
@@ -56,3 +56,4 @@
   - `php artisan route:list`
   - `php artisan test` with 25 tests and 61 assertions
   - Browser render check for `http://127.0.0.1:8000` and `/track-order`
+- Pull request: https://github.com/Exloses/Codex-1/pull/13

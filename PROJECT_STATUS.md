@@ -34,7 +34,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
-| Task 10 | Vue Frontend | ✅ Selesai, siap PR | `codex/task-10-vue-frontend` | Akan dibuat |
+| Task 10 | Vue Frontend | ✅ Selesai, PR pending review | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
 | Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 10 Vue Frontend selesai di branch `codex/task-10-vue-frontend` dan siap dibuatkan PR. Jangan mulai Task 11 sampai PR Task 10 sudah merge.
+**Task sedang dikerjakan:** Task 10 Vue Frontend selesai dan PR #13 sudah dibuat dari branch `codex/task-10-vue-frontend`. Jangan mulai Task 11 sampai PR Task 10 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -430,7 +430,7 @@ Task 10 branch: codex/task-10-vue-frontend
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
-| 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali | Codex |
+| 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali; PR #13 dibuat | Codex |
 | 2026-05-11 | Task 10 dimulai setelah Task 9 merged; PROJECT_MEMORY.md dibuat | Codex |
 | 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, PR #12 dibuat | Codex |
 | 2026-05-10 | Task 8 controllers, form requests, policies selesai dan siap PR | Codex |
