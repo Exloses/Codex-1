@@ -37,6 +37,21 @@ const submit = () => {
             {{ status }}
         </div>
 
+        <div class="mb-6 grid gap-2 sm:grid-cols-2">
+            <Link
+                :href="route('social.redirect', 'google')"
+                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+                Login with Google
+            </Link>
+            <Link
+                :href="route('social.redirect', 'facebook')"
+                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+                Login with Facebook
+            </Link>
+        </div>
+
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
