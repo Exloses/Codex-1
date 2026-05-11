@@ -33,7 +33,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
 | Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
-| Task 9 | Filament Admin Panel | ✅ Selesai, siap PR | `codex/task-9-filament-admin` | Akan dibuat |
+| Task 9 | Filament Admin Panel | ✅ Selesai, PR pending review | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
 | Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
 | Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 9 Filament Admin Panel selesai di branch `codex/task-9-filament-admin` dan siap dibuatkan PR. Jangan mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
+**Task sedang dikerjakan:** Task 9 Filament Admin Panel selesai dan PR #12 sudah dibuat dari branch `codex/task-9-filament-admin`. Jangan mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -404,7 +404,7 @@ Task 9 branch: codex/task-9-filament-admin
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
-| 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, siap PR | Codex |
+| 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, PR #12 dibuat | Codex |
 | 2026-05-10 | Task 8 controllers, form requests, policies selesai dan siap PR | Codex |
 | 2026-05-10 | Checkpoint context 78%: Task 1-6 merged, Task 7 PR open, tidak ada task aktif | Codex |
 | 2026-05-10 | Task 7 routes dan stub controllers selesai, menunggu PR review | Codex |
