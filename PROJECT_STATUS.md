@@ -32,8 +32,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 5 | Background Jobs | ✅ Selesai & PR merged | `codex/task-5-background-jobs` | https://github.com/Exloses/Codex-1/pull/8 |
 | Task 6 | Schedulers & Commands | ✅ Selesai & PR merged | `codex/task-6-schedulers-commands` | https://github.com/Exloses/Codex-1/pull/9 |
 | Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
-| Task 8 | Controllers | ✅ Selesai, siap PR | `codex/task-8-controllers` | Akan dibuat |
-| Task 9 | Filament Admin Panel | ⏳ Belum dimulai | - | - |
+| Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
+| Task 9 | Filament Admin Panel | ✅ Selesai, siap PR | `codex/task-9-filament-admin` | Akan dibuat |
 | Task 10 | Vue Frontend | ⏳ Belum dimulai | - | - |
 | Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 8 Controllers sudah selesai dan siap dibuatkan PR dari branch `codex/task-8-controllers`. Jangan mulai Task 9 sampai owner menyatakan PR Task 8 sudah merge.
+**Task sedang dikerjakan:** Task 9 Filament Admin Panel selesai di branch `codex/task-9-filament-admin` dan siap dibuatkan PR. Jangan mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -239,6 +239,34 @@ Task 8:
 - Modified resources/views/app.blade.php to load the Inertia app entry without requiring Task 10 Vue page chunks during server-side validation.
 - Deleted the Task 7 placeholder response trait after replacing all placeholder controller actions.
 - Storefront product responses explicitly avoid exposing vendor_price.
+
+Task 9:
+- Created Filament resources and CRUD pages for:
+  app/Filament/Resources/UserResource.php
+  app/Filament/Resources/VendorResource.php
+  app/Filament/Resources/ProductResource.php
+  app/Filament/Resources/OrderResource.php
+  app/Filament/Resources/DropshipOrderResource.php
+  app/Filament/Resources/CategoryResource.php
+  app/Filament/Resources/BannerResource.php
+  app/Filament/Resources/ShippingZoneResource.php
+  app/Filament/Resources/CouponResource.php
+  app/Filament/Resources/AffiliateResource.php
+  app/Filament/Resources/AffiliatePayoutResource.php
+  app/Filament/Resources/ReturnRequestResource.php
+  app/Filament/Resources/SupportTicketResource.php
+  app/Filament/Resources/FaqResource.php
+  app/Filament/Resources/NewsletterSubscriberResource.php
+- Created Filament dashboard widgets:
+  app/Filament/Widgets/StatsOverview.php
+  app/Filament/Widgets/RevenueChart.php
+  app/Filament/Widgets/OrdersChart.php
+  app/Filament/Widgets/RecentOrders.php
+  app/Filament/Widgets/TopAffiliates.php
+- Modified app/Providers/Filament/AdminPanelProvider.php to register the Task 9 dashboard widgets.
+- Modified app/Models/User.php to restrict Filament admin panel access to active users with the admin role.
+- Improved UserResource password handling and role assignment field.
+- Improved ShippingZoneResource country input and nested shipping rate management.
 ```
 
 ---
@@ -315,18 +343,13 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 8:
-- php -l app/Http/Controllers/**/*.php, app/Http/Requests/**/*.php, app/Policies/**/*.php: no syntax errors
-- php artisan route:list: berhasil
-- Duplicate route name check: none
-- Total route count: 103 routes
+Validasi terakhir Task 9:
+- php -l app/Filament/**/*.php, app/Models/User.php, app/Providers/Filament/AdminPanelProvider.php: no syntax errors
 - php artisan about: berhasil
-- php artisan serve --host=127.0.0.1 --port=8000: berhasil boot
-- curl http://127.0.0.1:8000: HTTP 200
-
-Catatan:
-- Guest checkout persistence masih mengembalikan 422 karena migrations Task 2 membuat orders.user_id non-nullable; Task 17 akan menangani guest checkout penuh sesuai blueprint.
-- Vendor withdrawal action akan mengembalikan 422 jika tabel withdrawals belum tersedia.
+- php artisan route:list --path=admin: berhasil, 48 admin routes terdaftar
+- php artisan tinker widget discovery: berhasil, 5 Task 9 widgets terdaftar di panel admin
+- php artisan test: gagal pada test Breeze lama karena route `dashboard`, `/profile`, `/verify-email`, `/confirm-password`, dan `verification.verify` tidak ada setelah route map Task 7/8. Tidak ada failure spesifik Task 9.
+- npm run build: berhasil
 ```
 
 ---
@@ -352,11 +375,11 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 9 — Filament Admin Panel
-Branch yang akan dibuat nanti: codex/task-9-filament-admin
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 9
-Status: JANGAN mulai Task 9 sampai owner menyatakan PR Task 8 sudah merge.
-Task 8 branch: codex/task-8-controllers
+Task berikutnya: Task 10 — Vue Frontend
+Branch yang akan dibuat nanti: codex/task-10-vue-frontend
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 10
+Status: JANGAN mulai Task 10 sampai owner menyatakan PR Task 9 sudah merge.
+Task 9 branch: codex/task-9-filament-admin
 ```
 
 ---
@@ -381,6 +404,7 @@ Task 8 branch: codex/task-8-controllers
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, siap PR | Codex |
 | 2026-05-10 | Task 8 controllers, form requests, policies selesai dan siap PR | Codex |
 | 2026-05-10 | Checkpoint context 78%: Task 1-6 merged, Task 7 PR open, tidak ada task aktif | Codex |
 | 2026-05-10 | Task 7 routes dan stub controllers selesai, menunggu PR review | Codex |

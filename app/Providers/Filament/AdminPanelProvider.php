@@ -2,6 +2,11 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\OrdersChart;
+use App\Filament\Widgets\RecentOrders;
+use App\Filament\Widgets\RevenueChart;
+use App\Filament\Widgets\StatsOverview;
+use App\Filament\Widgets\TopAffiliates;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -38,7 +43,11 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                StatsOverview::class,
+                RevenueChart::class,
+                OrdersChart::class,
+                RecentOrders::class,
+                TopAffiliates::class,
             ])
             ->middleware([
                 EncryptCookies::class,
