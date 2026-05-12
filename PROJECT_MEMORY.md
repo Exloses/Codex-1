@@ -6,12 +6,12 @@
 ## Current Task
 
 - Active task: None
-- Last completed task: Task 11 - Security Middleware
-- Branch: `codex/task-11-security-middleware`
-- Status: Completed locally; PR #14 pending review.
-- Pull request: https://github.com/Exloses/Codex-1/pull/14
-- Scope: Security headers, user currency/language middleware, Inertia shared props, and rate limiters.
-- Do not start Task 12 until Task 11 is merged.
+- Last completed task: Task 12 - Email Notifications
+- Branch: `codex/task-12-email-notifications`
+- Status: Completed locally; PR #15 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/15
+- Scope: Laravel notification classes, mail/database delivery, responsive Blade email templates, notifications table migration, and local log mailer setup.
+- Do not start Task 13 until Task 12 is merged.
 
 ---
 
@@ -29,9 +29,10 @@
 
 ## Recent Baseline
 
-- Task 1-10 are merged into `main`.
+- Task 1-11 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
+- Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
 
 ---
 
@@ -71,3 +72,26 @@
   - `php artisan serve` on `http://127.0.0.1:8000`
   - `curl -I http://127.0.0.1:8000/` shows security headers
   - `curl -L http://127.0.0.1:8000/admin` returns 200 after admin login redirect
+
+---
+
+## Task 12 Completed Work
+
+- Created `app/Notifications/GlobalDropshipNotification.php` for common mail payload, database payload, money formatting, order item, address, URL, and date helpers.
+- Created all 14 requested notification classes:
+  - order confirmation, shipped order, new dropship order, vendor approval
+  - affiliate welcome, commission earned, tier upgrade, payout approved, payout paid
+  - stock available, price drop, loyalty points earned, return request update, welcome
+- Every notification class defines `via()`, `toMail()`, and `toDatabase()` and returns `['mail', 'database']` from `via()`.
+- Created `resources/views/emails/layout.blade.php` with responsive max-width 600px blue/white branding, GlobalDropship header, unsubscribe link, support email from config, and company address.
+- Created the 14 requested email templates under `resources/views/emails/`.
+- Ran `php artisan notifications:table` and `php artisan migrate`; `notifications` table migration was created and applied.
+- Updated `.env.example` to `MAIL_MAILER=log` for local testing; emails are written to `storage/logs/laravel.log`.
+- Task 12 validation passed:
+  - `php -l` for all notification PHP files
+  - `php artisan about`
+  - `php artisan migrate`
+  - `php artisan test` with 28 tests and 108 assertions
+  - `php artisan tinker` manual `WelcomeNotification` send after creating a local validation user because the database initially had no users
+  - `storage/logs/laravel.log` confirmed `Welcome to GlobalDropship`
+  - `npm run build`
