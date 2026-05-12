@@ -35,7 +35,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
-| Task 11 | Security Middleware | ✅ Selesai, PR pending review | `codex/task-11-security-middleware` | - |
+| Task 11 | Security Middleware | ✅ Selesai, PR pending review | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 11 Security Middleware selesai dan siap review.
+**Task sedang dikerjakan:** Tidak ada. Task 11 Security Middleware selesai dan PR #14 siap review.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -428,6 +428,7 @@ Branch yang akan dibuat nanti: codex/task-12-email-notifications
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 12
 Status: JANGAN mulai Task 12 sampai owner menyatakan PR Task 11 sudah merge.
 Task 11 branch: codex/task-11-security-middleware
+Task 11 PR: https://github.com/Exloses/Codex-1/pull/14
 ```
 
 ---
@@ -452,7 +453,7 @@ Task 11 branch: codex/task-11-security-middleware
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
-| 2026-05-12 | Task 11 Security Middleware selesai; security headers, user currency middleware, rate limiters, tests, dan validasi lokal hijau | Codex |
+| 2026-05-12 | Task 11 Security Middleware selesai; PR #14 dibuat | Codex |
 | 2026-05-12 | Task 11 Security Middleware dimulai setelah PR #13 merge ke main | Codex |
 | 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali; PR #13 dibuat | Codex |
 | 2026-05-11 | Task 10 dimulai setelah Task 9 merged; PROJECT_MEMORY.md dibuat | Codex |

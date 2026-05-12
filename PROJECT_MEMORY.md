@@ -8,7 +8,8 @@
 - Active task: None
 - Last completed task: Task 11 - Security Middleware
 - Branch: `codex/task-11-security-middleware`
-- Status: Completed locally; PR pending review.
+- Status: Completed locally; PR #14 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/14
 - Scope: Security headers, user currency/language middleware, Inertia shared props, and rate limiters.
 - Do not start Task 12 until Task 11 is merged.
 
