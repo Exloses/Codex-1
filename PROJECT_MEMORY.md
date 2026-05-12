@@ -8,8 +8,8 @@
 - Active task: None
 - Last completed task: Task 13 - Database Seeders
 - Branch: `codex/task-13-database-seeders`
-- Status: Completed locally; PR will be created from this branch.
-- Pull request: Pending creation.
+- Status: Completed locally; PR #16 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/16
 - Scope: Demo roles, users, categories, size guides, shipping zones, banners, FAQs, vendors, products, product variants, and README demo credentials.
 - Do not start Task 14 until Task 13 is merged.
 

@@ -37,7 +37,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
-| Task 13 | Database Seeders | ✅ Selesai, PR siap dibuat | `codex/task-13-database-seeders` | - |
+| Task 13 | Database Seeders | ✅ Selesai, PR pending review | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
@@ -484,7 +484,7 @@ Branch yang akan dibuat nanti: codex/task-14-performance
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 14
 Status: JANGAN mulai Task 14 sampai owner merge PR Task 13.
 Task 13 branch: codex/task-13-database-seeders
-Task 13 PR: Akan dibuat setelah branch di-push.
+Task 13 PR: https://github.com/Exloses/Codex-1/pull/16
 ```
 
 ---
@@ -512,7 +512,7 @@ Task 13 PR: Akan dibuat setelah branch di-push.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
-| 2026-05-12 | Task 13 Database Seeders selesai; branch siap dibuatkan PR | Codex |
+| 2026-05-12 | Task 13 Database Seeders selesai; PR #16 dibuat | Codex |
 | 2026-05-12 | Task 13 Database Seeders dimulai setelah Task 12 merged ke main | Codex |
 | 2026-05-12 | Task 12 Email Notifications selesai; PR #15 dibuat | Codex |
 | 2026-05-12 | Task 12 Email Notifications dimulai setelah Task 11 merged ke main | Codex |
