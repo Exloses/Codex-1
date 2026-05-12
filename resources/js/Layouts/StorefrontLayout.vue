@@ -17,8 +17,9 @@ const deferredPrompt = ref(null);
 const newsletterForm = useForm({ email: '' });
 
 const user = computed(() => page.props.auth?.user);
-const selectedCurrency = computed(() => page.props.auth?.user?.currency || 'USD');
-const selectedLanguage = computed(() => page.props.auth?.user?.language || 'en');
+const availableCurrencies = computed(() => page.props.availableCurrencies || ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR']);
+const selectedCurrency = computed(() => page.props.currency || page.props.auth?.user?.currency || 'USD');
+const selectedLanguage = computed(() => page.props.language || page.props.auth?.user?.language || 'en');
 
 const navItems = [
     { label: 'Home', href: route('home') },
@@ -104,10 +105,7 @@ const subscribe = () => {
                     :value="selectedCurrency"
                     @change="setPreference('currency', $event.target.value)"
                 >
-                    <option>USD</option>
-                    <option>IDR</option>
-                    <option>SGD</option>
-                    <option>EUR</option>
+                    <option v-for="currency in availableCurrencies" :key="currency" :value="currency">{{ currency }}</option>
                 </select>
 
                 <select

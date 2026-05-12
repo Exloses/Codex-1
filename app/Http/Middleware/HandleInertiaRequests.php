@@ -39,6 +39,9 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            'currency' => $request->session()->get('currency', 'USD'),
+            'language' => $request->session()->get('language', 'en'),
+            'availableCurrencies' => ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR'],
         ];
     }
 }

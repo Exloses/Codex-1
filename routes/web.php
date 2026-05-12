@@ -43,13 +43,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
-    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->middleware('throttle:auth')->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:auth')->name('password.update');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -96,8 +96,8 @@ Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'uns
 Route::post('/preferences/currency', [PreferenceController::class, 'setCurrency'])->name('preferences.currency');
 Route::post('/preferences/language', [PreferenceController::class, 'setLanguage'])->name('preferences.language');
 
-Route::post('/api/shipping/rates', [ShippingController::class, 'getRates'])->name('api.shipping.rates');
-Route::get('/api/currency/rates', [CurrencyController::class, 'getRates'])->name('api.currency.rates');
+Route::post('/api/shipping/rates', [ShippingController::class, 'getRates'])->middleware('throttle:api')->name('api.shipping.rates');
+Route::get('/api/currency/rates', [CurrencyController::class, 'getRates'])->middleware('throttle:api')->name('api.currency.rates');
 
 Route::post('/webhook/stripe', [PaymentController::class, 'stripeWebhook'])
     ->withoutMiddleware([ValidateCsrfToken::class, VerifyCsrfToken::class])
@@ -115,9 +115,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
     Route::post('/checkout/redeem-points', [CheckoutController::class, 'redeemPoints'])->name('checkout.redeem-points');
 
-    Route::post('/payment/stripe/intent', [PaymentController::class, 'createStripeIntent'])->name('payment.stripe.intent');
-    Route::post('/payment/paypal/create', [PaymentController::class, 'createPayPalOrder'])->name('payment.paypal.create');
-    Route::post('/payment/paypal/capture', [PaymentController::class, 'capturePayPalOrder'])->name('payment.paypal.capture');
+    Route::post('/payment/stripe/intent', [PaymentController::class, 'createStripeIntent'])->middleware('throttle:payment')->name('payment.stripe.intent');
+    Route::post('/payment/paypal/create', [PaymentController::class, 'createPayPalOrder'])->middleware('throttle:payment')->name('payment.paypal.create');
+    Route::post('/payment/paypal/capture', [PaymentController::class, 'capturePayPalOrder'])->middleware('throttle:payment')->name('payment.paypal.capture');
 
     Route::prefix('account')->name('account.')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('index');
