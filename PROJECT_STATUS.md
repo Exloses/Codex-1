@@ -34,8 +34,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 7 | Routes | ✅ Selesai & PR merged | `codex/task-7-routes` | https://github.com/Exloses/Codex-1/pull/10 |
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
-| Task 10 | Vue Frontend | ✅ Selesai, PR pending review | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
-| Task 11 | Security Middleware | ⏳ Belum dimulai | - | - |
+| Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
+| Task 11 | Security Middleware | ✅ Selesai, PR pending review | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 10 Vue Frontend selesai dan PR #13 sudah dibuat dari branch `codex/task-10-vue-frontend`. Jangan mulai Task 11 sampai PR Task 10 sudah merge.
+**Task sedang dikerjakan:** Tidak ada. Task 11 Security Middleware selesai dan PR #14 siap review.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -293,6 +293,24 @@ Task 10:
 - Updated ResetPassword.vue and Profile password form to match the active route names.
 - Restored Breeze-compatible dashboard, profile, email verification, and password confirmation routes in routes/web.php.
 - Updated AuthController login/register redirects to use the dashboard route, which redirects authenticated users into their account panel.
+
+Task 11:
+- Created security middleware:
+  app/Http/Middleware/SecurityHeaders.php
+  app/Http/Middleware/SetUserCurrency.php
+- Modified middleware/bootstrap files:
+  bootstrap/app.php
+  app/Http/Middleware/HandleInertiaRequests.php
+- Modified rate limiter and route files:
+  app/Providers/AppServiceProvider.php
+  routes/web.php
+- Updated storefront layout to consume shared currency preferences:
+  resources/js/Layouts/StorefrontLayout.vue
+- Added Task 11 test coverage:
+  tests/Feature/SecurityMiddlewareTest.php
+- Security headers now include X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, and CSP allowlists for Stripe, PayPal, Tawk.to, and Cloudinary.
+- Currency/language cookies are normalized into session and shared to all Inertia pages with availableCurrencies.
+- Named rate limiters are attached to auth, payment, and API routes. Stripe webhook CSRF exclusion remains unchanged.
 ```
 
 ---
@@ -369,13 +387,17 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 10:
-- php -l routes/web.php, app/Http/Controllers/Auth/AuthController.php: no syntax errors
+Validasi terakhir Task 11:
+- php -l untuk middleware, bootstrap/app.php, AppServiceProvider.php, HandleInertiaRequests.php, routes/web.php: no syntax errors
 - php artisan about: berhasil
 - php artisan route:list: berhasil, 158 routes terdaftar
-- php artisan test: berhasil, 25 tests / 61 assertions
+- php artisan route:list -v filter auth/payment/api: throttle:auth, throttle:payment, throttle:api terpasang
+- php artisan test: berhasil, 28 tests / 108 assertions
 - npm run build: berhasil
-- Browser check: http://127.0.0.1:8000 dan /track-order render StorefrontLayout dan konten Task 10
+- php artisan serve: berhasil di http://127.0.0.1:8000
+- curl -I http://127.0.0.1:8000/: 200 OK dan security headers muncul
+- curl -L http://127.0.0.1:8000/admin: 200 OK, Filament login/admin redirect dapat diakses
+- Browser plugin: tidak ada active Codex browser pane, jadi validasi browser visual diganti dengan HTTP status/render checks
 ```
 
 ---
@@ -401,11 +423,12 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 11 — Security Middleware
-Branch yang akan dibuat nanti: codex/task-11-security-middleware
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 11
-Status: JANGAN mulai Task 11 sampai owner menyatakan PR Task 10 sudah merge.
-Task 10 branch: codex/task-10-vue-frontend
+Task berikutnya: Task 12 — Email Notifications
+Branch yang akan dibuat nanti: codex/task-12-email-notifications
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 12
+Status: JANGAN mulai Task 12 sampai owner menyatakan PR Task 11 sudah merge.
+Task 11 branch: codex/task-11-security-middleware
+Task 11 PR: https://github.com/Exloses/Codex-1/pull/14
 ```
 
 ---
@@ -430,6 +453,8 @@ Task 10 branch: codex/task-10-vue-frontend
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-12 | Task 11 Security Middleware selesai; PR #14 dibuat | Codex |
+| 2026-05-12 | Task 11 Security Middleware dimulai setelah PR #13 merge ke main | Codex |
 | 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali; PR #13 dibuat | Codex |
 | 2026-05-11 | Task 10 dimulai setelah Task 9 merged; PROJECT_MEMORY.md dibuat | Codex |
 | 2026-05-11 | Task 9 Filament admin resources dan dashboard widgets selesai, PR #12 dibuat | Codex |

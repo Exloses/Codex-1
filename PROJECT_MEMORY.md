@@ -5,11 +5,13 @@
 
 ## Current Task
 
-- Active task: Task 10 — Vue Frontend
-- Branch: `codex/task-10-vue-frontend`
-- Status: Completed locally; PR #13 pending review.
-- Scope: Vue/Inertia storefront pages, components, layout, and Breeze route/test synchronization.
-- Do not start Task 11 until Task 10 is merged.
+- Active task: None
+- Last completed task: Task 11 - Security Middleware
+- Branch: `codex/task-11-security-middleware`
+- Status: Completed locally; PR #14 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/14
+- Scope: Security headers, user currency/language middleware, Inertia shared props, and rate limiters.
+- Do not start Task 12 until Task 11 is merged.
 
 ---
 
@@ -20,27 +22,16 @@
 - Never merge pull requests.
 - Storefront must never expose `vendor_price`.
 - Prices are stored in USD; frontend can display converted/selected currency labels.
+- Stripe webhook CSRF exclusion must remain unchanged.
 - Windows localhost is the target environment.
 
 ---
 
 ## Recent Baseline
 
-- Task 1-9 are merged into `main`.
-- Task 9 added Filament admin resources and dashboard widgets.
-- Existing issue entering Task 10: Breeze feature tests fail because default Breeze routes/pages are not synchronized with the Task 7/8 route map.
-- Task 10 fixed the Breeze route/test drift by restoring compatible dashboard, profile, verify-email, confirm-password, and password update routes.
-
----
-
-## Task 10 Targets
-
-- `StorefrontLayout.vue` with navbar, social login buttons, currency selector, language selector, cart icon, notification bell, wishlist icon, footer, newsletter form, payment/carrier logos, Tawk.to widget hook, and PWA install prompt.
-- `Home.vue` with hero carousel, trust badges, category grid, flash sale, featured products, and newsletter section.
-- `ProductShow.vue` with gallery, zoom, variant selector, size guide modal, stock state, cart/wishlist actions, Q&A, reviews, shipping estimator, share buttons, stock/price alerts.
-- `Cart.vue` with item list, quantity updates, custom notes, coupon input, loyalty redemption, and order summary.
-- `Checkout.vue` with address/guest step, shipping step, and payment step placeholders for Stripe/PayPal.
-- `TrackOrder.vue` with guest tracking form and timeline.
+- Task 1-10 are merged into `main`.
+- Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
+- Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 
 ---
 
@@ -50,10 +41,33 @@
 - Added storefront pages: Home, ProductIndex, ProductShow, Cart, Checkout, TrackOrder, CheckoutSuccess, and FAQ.
 - Added account, vendor, and affiliate pages for every current Inertia render target.
 - Updated auth pages with social login links and route-name fixes.
-- Validation passed:
+- Task 10 validation passed:
   - `npm run build`
   - `php artisan about`
   - `php artisan route:list`
   - `php artisan test` with 25 tests and 61 assertions
   - Browser render check for `http://127.0.0.1:8000` and `/track-order`
 - Pull request: https://github.com/Exloses/Codex-1/pull/13
+
+---
+
+## Task 11 Completed Work
+
+- Added `app/Http/Middleware/SecurityHeaders.php` with X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, and a CSP allowlist for self, Stripe.js, PayPal, Tawk.to, and Cloudinary.
+- Added `app/Http/Middleware/SetUserCurrency.php` to normalize `currency` and `language` cookies into session and set the app locale.
+- Registered `SecurityHeaders` globally and `SetUserCurrency` in the web middleware stack before Inertia sharing.
+- Shared `currency`, `language`, and `availableCurrencies` from `HandleInertiaRequests`.
+- Registered named rate limiters: `auth` 10/min per IP, `payment` 5/hour per user ID or IP, `api` 60/min per IP.
+- Applied throttles to requested auth, payment, and API routes.
+- Updated `StorefrontLayout.vue` to use shared currency/language props and the shared available currency list.
+- Added `tests/Feature/SecurityMiddlewareTest.php`.
+- Task 11 validation passed:
+  - `php -l` on changed PHP files
+  - `php artisan about`
+  - `php artisan route:list`
+  - `php artisan route:list -v` filters for auth/payment/api throttles
+  - `php artisan test` with 28 tests and 108 assertions
+  - `npm run build`
+  - `php artisan serve` on `http://127.0.0.1:8000`
+  - `curl -I http://127.0.0.1:8000/` shows security headers
+  - `curl -L http://127.0.0.1:8000/admin` returns 200 after admin login redirect
