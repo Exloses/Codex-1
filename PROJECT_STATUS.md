@@ -35,8 +35,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 8 | Controllers | ✅ Selesai & PR merged | `codex/task-8-controllers` | https://github.com/Exloses/Codex-1/pull/11 |
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
-| Task 11 | Security Middleware | ✅ Selesai, PR pending review | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
-| Task 12 | Email Notifications | ⏳ Belum dimulai | - | - |
+| Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
+| Task 12 | Email Notifications | ✅ Selesai, PR siap dibuat | `codex/task-12-email-notifications` | - |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 11 Security Middleware selesai dan PR #14 siap review.
+**Task sedang dikerjakan:** Tidak ada. Task 12 Email Notifications selesai dan branch siap PR.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -311,6 +311,44 @@ Task 11:
 - Security headers now include X-Frame-Options, X-Content-Type-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, and CSP allowlists for Stripe, PayPal, Tawk.to, and Cloudinary.
 - Currency/language cookies are normalized into session and shared to all Inertia pages with availableCurrencies.
 - Named rate limiters are attached to auth, payment, and API routes. Stripe webhook CSRF exclusion remains unchanged.
+
+Task 12:
+- Created notification classes:
+  app/Notifications/GlobalDropshipNotification.php
+  app/Notifications/OrderConfirmationNotification.php
+  app/Notifications/OrderShippedNotification.php
+  app/Notifications/NewDropshipOrderNotification.php
+  app/Notifications/VendorApprovedNotification.php
+  app/Notifications/AffiliateWelcomeNotification.php
+  app/Notifications/AffiliateCommissionEarnedNotification.php
+  app/Notifications/AffiliateTierUpgradeNotification.php
+  app/Notifications/AffiliatePayoutApprovedNotification.php
+  app/Notifications/AffiliatePayoutPaidNotification.php
+  app/Notifications/StockAvailableNotification.php
+  app/Notifications/PriceDropNotification.php
+  app/Notifications/LoyaltyPointsEarnedNotification.php
+  app/Notifications/ReturnRequestUpdateNotification.php
+  app/Notifications/WelcomeNotification.php
+- Created email Blade layout and templates:
+  resources/views/emails/layout.blade.php
+  resources/views/emails/order-confirmation.blade.php
+  resources/views/emails/order-shipped.blade.php
+  resources/views/emails/new-dropship-order.blade.php
+  resources/views/emails/vendor-approved.blade.php
+  resources/views/emails/affiliate-welcome.blade.php
+  resources/views/emails/affiliate-commission-earned.blade.php
+  resources/views/emails/affiliate-tier-upgrade.blade.php
+  resources/views/emails/affiliate-payout-approved.blade.php
+  resources/views/emails/affiliate-payout-paid.blade.php
+  resources/views/emails/stock-available.blade.php
+  resources/views/emails/price-drop.blade.php
+  resources/views/emails/loyalty-points-earned.blade.php
+  resources/views/emails/return-request-update.blade.php
+  resources/views/emails/welcome.blade.php
+- Created Laravel notifications table migration:
+  database/migrations/2026_05_12_111521_create_notifications_table.php
+- Modified .env.example to use MAIL_MAILER=log for local email testing.
+- All Task 12 notifications deliver through mail and database channels and write database payloads.
 ```
 
 ---
@@ -331,7 +369,7 @@ Tables:
   support_tickets, ticket_replies, newsletter_subscribers, product_questions, product_answers,
   faqs
 - Package/framework tables also present: password_reset_tokens, sessions, cache, jobs,
-  permissions/roles pivot tables, media
+  permissions/roles pivot tables, media, notifications
 ```
 
 ---
@@ -387,17 +425,15 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 11:
-- php -l untuk middleware, bootstrap/app.php, AppServiceProvider.php, HandleInertiaRequests.php, routes/web.php: no syntax errors
+Validasi terakhir Task 12:
+- php artisan notifications:table: berhasil membuat migration notifications
+- php artisan migrate: berhasil; tabel notifications dibuat, rerun menunjukkan nothing to migrate
+- php -l untuk seluruh app/Notifications/*.php: no syntax errors
 - php artisan about: berhasil
-- php artisan route:list: berhasil, 158 routes terdaftar
-- php artisan route:list -v filter auth/payment/api: throttle:auth, throttle:payment, throttle:api terpasang
 - php artisan test: berhasil, 28 tests / 108 assertions
+- php artisan tinker manual WelcomeNotification: berhasil setelah membuat user lokal karena database awal tidak memiliki user
+- storage/logs/laravel.log berisi output email Welcome to GlobalDropship
 - npm run build: berhasil
-- php artisan serve: berhasil di http://127.0.0.1:8000
-- curl -I http://127.0.0.1:8000/: 200 OK dan security headers muncul
-- curl -L http://127.0.0.1:8000/admin: 200 OK, Filament login/admin redirect dapat diakses
-- Browser plugin: tidak ada active Codex browser pane, jadi validasi browser visual diganti dengan HTTP status/render checks
 ```
 
 ---
@@ -423,12 +459,12 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 12 — Email Notifications
-Branch yang akan dibuat nanti: codex/task-12-email-notifications
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 12
-Status: JANGAN mulai Task 12 sampai owner menyatakan PR Task 11 sudah merge.
-Task 11 branch: codex/task-11-security-middleware
-Task 11 PR: https://github.com/Exloses/Codex-1/pull/14
+Task berikutnya: Task 13 — Database Seeders
+Branch yang akan dibuat nanti: codex/task-13-database-seeders
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 13
+Status: JANGAN mulai Task 13 sampai owner merge PR Task 12.
+Task 12 branch: codex/task-12-email-notifications
+Task 12 PR: Akan dibuat setelah branch di-push.
 ```
 
 ---
@@ -443,6 +479,8 @@ Task 11 PR: https://github.com/Exloses/Codex-1/pull/14
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
 - Semua harga disimpan dalam USD di database
 - Konversi mata uang hanya dilakukan di frontend/view
+- Email lokal menggunakan MAIL_MAILER=log dan output muncul di storage/logs/laravel.log
+- Task 12 notifications selalu mengirim via mail dan database channel
 ```
 
 ---
@@ -453,6 +491,8 @@ Task 11 PR: https://github.com/Exloses/Codex-1/pull/14
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-12 | Task 12 Email Notifications selesai; branch siap dibuatkan PR | Codex |
+| 2026-05-12 | Task 12 Email Notifications dimulai setelah Task 11 merged ke main | Codex |
 | 2026-05-12 | Task 11 Security Middleware selesai; PR #14 dibuat | Codex |
 | 2026-05-12 | Task 11 Security Middleware dimulai setelah PR #13 merge ke main | Codex |
 | 2026-05-11 | Task 10 Vue frontend selesai; Breeze route tests hijau kembali; PR #13 dibuat | Codex |
