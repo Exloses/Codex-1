@@ -36,8 +36,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
-| Task 12 | Email Notifications | ✅ Selesai, PR pending review | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
-| Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
+| Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
+| Task 13 | Database Seeders | ✅ Selesai, PR siap dibuat | `codex/task-13-database-seeders` | - |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 12 Email Notifications selesai dan branch siap PR.
+**Task sedang dikerjakan:** Tidak ada. Task 13 Database Seeders selesai dan branch siap PR.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -349,6 +349,20 @@ Task 12:
   database/migrations/2026_05_12_111521_create_notifications_table.php
 - Modified .env.example to use MAIL_MAILER=log for local email testing.
 - All Task 12 notifications deliver through mail and database channels and write database payloads.
+
+Task 13:
+- Created seeders:
+  database/seeders/RoleSeeder.php
+  database/seeders/AdminSeeder.php
+  database/seeders/CategorySeeder.php
+  database/seeders/ShippingZoneSeeder.php
+  database/seeders/BannerSeeder.php
+  database/seeders/FaqSeeder.php
+  database/seeders/VendorSeeder.php
+  database/seeders/ProductSeeder.php
+- Modified database/seeders/DatabaseSeeder.php to call Task 13 seeders in order and create buyer demo users.
+- Modified README.md with demo credentials.
+- Seeded roles admin/vendor/buyer, admin demo, buyer demo, 5 categories with size guides, 3 shipping zones with rates, 3 banners, 20 FAQs, 2 approved vendors, 10 products, and 40 product variants.
 ```
 
 ---
@@ -358,8 +372,8 @@ Task 12:
 <!-- Codex update setelah Task 2 selesai -->
 
 ```
-Migrations: Berhasil dijalankan dengan php artisan migrate:fresh --force
-Seeders: Belum dijalankan
+Migrations: Berhasil dijalankan dengan php artisan migrate:fresh --seed
+Seeders: Berhasil dijalankan untuk Task 13 demo data
 Tables:
 - Task 2 domain tables: users, vendors, categories, size_guides, products, product_attributes,
   product_attribute_values, product_variants, addresses, cart_items, orders, order_items,
@@ -370,6 +384,13 @@ Tables:
   faqs
 - Package/framework tables also present: password_reset_tokens, sessions, cache, jobs,
   permissions/roles pivot tables, media, notifications
+Seeded counts:
+- users: 5
+- vendors: 2
+- categories: 5
+- products: 10
+- product_variants: 40
+- faqs: 20
 ```
 
 ---
@@ -425,15 +446,14 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 12:
-- php artisan notifications:table: berhasil membuat migration notifications
-- php artisan migrate: berhasil; tabel notifications dibuat, rerun menunjukkan nothing to migrate
-- php -l untuk seluruh app/Notifications/*.php: no syntax errors
-- php artisan about: berhasil
+Validasi terakhir Task 13:
+- php -l untuk seluruh database/seeders/*.php: no syntax errors
+- php artisan migrate:fresh --seed: berhasil
+- php artisan tinker counts: users=5, products=10, categories=5, vendors=2
+- Login admin@platform.com ke /admin: berhasil via HTTP session; /admin status 200
+- Login vendor1@demo.com ke /vendor/dashboard: berhasil via HTTP session; /vendor/dashboard status 200
 - php artisan test: berhasil, 28 tests / 108 assertions
-- php artisan tinker manual WelcomeNotification: berhasil setelah membuat user lokal karena database awal tidak memiliki user
-- storage/logs/laravel.log berisi output email Welcome to GlobalDropship
-- npm run build: berhasil
+- Browser plugin dicoba untuk validasi lokal, tetapi tab navigation timeout; validasi login dilakukan via HTTP session dengan CSRF dan cookie Laravel.
 ```
 
 ---
@@ -459,12 +479,12 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 13 — Database Seeders
-Branch yang akan dibuat nanti: codex/task-13-database-seeders
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 13
-Status: JANGAN mulai Task 13 sampai owner merge PR Task 12.
-Task 12 branch: codex/task-12-email-notifications
-Task 12 PR: https://github.com/Exloses/Codex-1/pull/15
+Task berikutnya: Task 14 — Performance Optimization
+Branch yang akan dibuat nanti: codex/task-14-performance
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 14
+Status: JANGAN mulai Task 14 sampai owner merge PR Task 13.
+Task 13 branch: codex/task-13-database-seeders
+Task 13 PR: Akan dibuat setelah branch di-push.
 ```
 
 ---
@@ -481,6 +501,7 @@ Task 12 PR: https://github.com/Exloses/Codex-1/pull/15
 - Konversi mata uang hanya dilakukan di frontend/view
 - Email lokal menggunakan MAIL_MAILER=log dan output muncul di storage/logs/laravel.log
 - Task 12 notifications selalu mengirim via mail dan database channel
+- Demo credentials tersedia di README.md untuk admin, vendor1, vendor2, dan buyer.
 ```
 
 ---
@@ -491,6 +512,8 @@ Task 12 PR: https://github.com/Exloses/Codex-1/pull/15
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-12 | Task 13 Database Seeders selesai; branch siap dibuatkan PR | Codex |
+| 2026-05-12 | Task 13 Database Seeders dimulai setelah Task 12 merged ke main | Codex |
 | 2026-05-12 | Task 12 Email Notifications selesai; PR #15 dibuat | Codex |
 | 2026-05-12 | Task 12 Email Notifications dimulai setelah Task 11 merged ke main | Codex |
 | 2026-05-12 | Task 11 Security Middleware selesai; PR #14 dibuat | Codex |

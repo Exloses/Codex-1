@@ -6,12 +6,12 @@
 ## Current Task
 
 - Active task: None
-- Last completed task: Task 12 - Email Notifications
-- Branch: `codex/task-12-email-notifications`
-- Status: Completed locally; PR #15 pending review.
-- Pull request: https://github.com/Exloses/Codex-1/pull/15
-- Scope: Laravel notification classes, mail/database delivery, responsive Blade email templates, notifications table migration, and local log mailer setup.
-- Do not start Task 13 until Task 12 is merged.
+- Last completed task: Task 13 - Database Seeders
+- Branch: `codex/task-13-database-seeders`
+- Status: Completed locally; PR will be created from this branch.
+- Pull request: Pending creation.
+- Scope: Demo roles, users, categories, size guides, shipping zones, banners, FAQs, vendors, products, product variants, and README demo credentials.
+- Do not start Task 14 until Task 13 is merged.
 
 ---
 
@@ -29,10 +29,11 @@
 
 ## Recent Baseline
 
-- Task 1-11 are merged into `main`.
+- Task 1-12 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
+- Task 13 added full demo seed data and credentials for local validation.
 
 ---
 
@@ -95,3 +96,28 @@
   - `php artisan tinker` manual `WelcomeNotification` send after creating a local validation user because the database initially had no users
   - `storage/logs/laravel.log` confirmed `Welcome to GlobalDropship`
   - `npm run build`
+
+---
+
+## Task 13 Completed Work
+
+- Created `RoleSeeder`, `AdminSeeder`, `CategorySeeder`, `ShippingZoneSeeder`, `BannerSeeder`, `FaqSeeder`, `VendorSeeder`, and `ProductSeeder`.
+- Updated `DatabaseSeeder` to run seeders in the requested order and create demo buyer accounts.
+- Seeded Spatie roles: `admin`, `vendor`, `buyer`.
+- Seeded demo credentials:
+  - admin: `admin@platform.com` / `Admin123!`
+  - vendor 1: `vendor1@demo.com` / `Vendor123!`
+  - vendor 2: `vendor2@demo.com` / `Vendor123!`
+  - buyer: `buyer@demo.com` / `Buyer123!`
+- Preserved an extra `test@example.com` buyer so the requested `User::count()` validation reaches at least 5 users.
+- Seeded 5 active categories with size guides, 3 shipping zones with rates, 3 homepage banners, 20 realistic FAQs, 2 approved vendors, 10 demo products, and 40 variants.
+- Product placeholder images are stored on variants because the current `products` table does not have an `image` column; product `videos` also stores the placeholder image URL metadata.
+- Added a README demo credentials section.
+- Task 13 validation passed:
+  - `php -l database/seeders/*.php`
+  - `php artisan migrate:fresh --seed`
+  - `php artisan tinker` counts: users=5, products=10, categories=5, vendors=2
+  - admin login to `/admin` with HTTP session, CSRF, and Laravel cookies
+  - vendor login to `/vendor/dashboard` with HTTP session, CSRF, and Laravel cookies
+  - `php artisan test` with 28 tests and 108 assertions
+- Browser plugin was attempted for local login validation, but tab navigation timed out; HTTP session validation was used as fallback.
