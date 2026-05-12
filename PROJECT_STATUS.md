@@ -36,7 +36,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 9 | Filament Admin Panel | ✅ Selesai & PR merged | `codex/task-9-filament-admin` | https://github.com/Exloses/Codex-1/pull/12 |
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
-| Task 12 | Email Notifications | ✅ Selesai, PR siap dibuat | `codex/task-12-email-notifications` | - |
+| Task 12 | Email Notifications | ✅ Selesai, PR pending review | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
 | Task 13 | Database Seeders | ⏳ Belum dimulai | - | - |
 | Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
@@ -464,7 +464,7 @@ Branch yang akan dibuat nanti: codex/task-13-database-seeders
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 13
 Status: JANGAN mulai Task 13 sampai owner merge PR Task 12.
 Task 12 branch: codex/task-12-email-notifications
-Task 12 PR: Akan dibuat setelah branch di-push.
+Task 12 PR: https://github.com/Exloses/Codex-1/pull/15
 ```
 
 ---
@@ -491,7 +491,7 @@ Task 12 PR: Akan dibuat setelah branch di-push.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
-| 2026-05-12 | Task 12 Email Notifications selesai; branch siap dibuatkan PR | Codex |
+| 2026-05-12 | Task 12 Email Notifications selesai; PR #15 dibuat | Codex |
 | 2026-05-12 | Task 12 Email Notifications dimulai setelah Task 11 merged ke main | Codex |
 | 2026-05-12 | Task 11 Security Middleware selesai; PR #14 dibuat | Codex |
 | 2026-05-12 | Task 11 Security Middleware dimulai setelah PR #13 merge ke main | Codex |

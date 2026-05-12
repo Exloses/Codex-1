@@ -8,8 +8,8 @@
 - Active task: None
 - Last completed task: Task 12 - Email Notifications
 - Branch: `codex/task-12-email-notifications`
-- Status: Completed locally; PR will be created from this branch.
-- Pull request: Pending creation.
+- Status: Completed locally; PR #15 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/15
 - Scope: Laravel notification classes, mail/database delivery, responsive Blade email templates, notifications table migration, and local log mailer setup.
 - Do not start Task 13 until Task 12 is merged.
 
