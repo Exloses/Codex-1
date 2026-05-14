@@ -18,6 +18,7 @@ class VendorOrderController extends Controller
 
         return Inertia::render('Vendor/Orders/Index', [
             'orders' => $vendor->dropshipOrders()
+                ->select(['id', 'order_id', 'vendor_id', 'dropship_number', 'status', 'vendor_total_idr', 'tracking_number', 'carrier', 'created_at'])
                 ->with('order:id,order_number,total_usd,status,payment_status,created_at')
                 ->latest()
                 ->paginate(20),

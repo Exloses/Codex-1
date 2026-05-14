@@ -19,8 +19,14 @@ class VendorFinanceController extends Controller
 
         return Inertia::render('Vendor/Finance/Index', [
             'vendor' => $vendor,
-            'dropshipOrders' => $vendor->dropshipOrders()->latest()->paginate(20),
-            'withdrawals' => Schema::hasTable('withdrawals') ? $vendor->withdrawals()->latest()->paginate(20) : [],
+            'dropshipOrders' => $vendor->dropshipOrders()
+                ->select(['id', 'order_id', 'vendor_id', 'dropship_number', 'status', 'vendor_total_idr', 'is_paid_to_vendor', 'paid_at', 'created_at'])
+                ->with('order:id,order_number,total_usd,status')
+                ->latest()
+                ->paginate(20),
+            'withdrawals' => Schema::hasTable('withdrawals')
+                ? $vendor->withdrawals()->select(['id', 'vendor_id', 'amount_idr', 'status', 'notes', 'created_at'])->latest()->paginate(20)
+                : [],
         ]);
     }
 

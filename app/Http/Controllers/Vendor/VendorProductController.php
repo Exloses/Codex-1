@@ -17,7 +17,11 @@ class VendorProductController extends Controller
         $vendor = $this->currentVendor();
 
         return Inertia::render('Vendor/Products/Index', [
-            'products' => $vendor->products()->with('category:id,name,slug')->latest()->paginate(20),
+            'products' => $vendor->products()
+                ->select(['id', 'vendor_id', 'category_id', 'name', 'slug', 'selling_price', 'stock', 'is_active', 'updated_at'])
+                ->with('category:id,name,slug')
+                ->latest()
+                ->paginate(20),
         ]);
     }
 
@@ -44,7 +48,12 @@ class VendorProductController extends Controller
         $this->authorize('manage', $product);
 
         return Inertia::render('Vendor/Products/Edit', [
-            'product' => $product->load('category', 'variants', 'attributes.values'),
+            'product' => $product->load([
+                'category:id,name,slug',
+                'variants:id,product_id,combination,sku,price,vendor_price,stock,image,updated_at',
+                'attributes:id,product_id,name,sort_order',
+                'attributes.values:id,attribute_id,value,color_hex,sort_order',
+            ]),
             'categories' => Category::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }

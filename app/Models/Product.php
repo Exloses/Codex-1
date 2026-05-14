@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StorefrontCache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,12 @@ class Product extends Model implements HasMedia
     use InteractsWithMedia;
 
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::saved(fn (Product $product) => StorefrontCache::invalidateProducts($product));
+        static::deleted(fn (Product $product) => StorefrontCache::invalidateProducts($product));
+    }
 
     protected function casts(): array
     {

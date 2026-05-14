@@ -6,12 +6,12 @@
 ## Current Task
 
 - Active task: None
-- Last completed task: Task 13 - Database Seeders
-- Branch: `codex/task-13-database-seeders`
-- Status: Completed locally; PR #16 pending review.
-- Pull request: https://github.com/Exloses/Codex-1/pull/16
-- Scope: Demo roles, users, categories, size guides, shipping zones, banners, FAQs, vendors, products, product variants, and README demo credentials.
-- Do not start Task 14 until Task 13 is merged.
+- Last completed task: Task 14 - Performance Optimization
+- Branch: `codex/task-14-performance`
+- Status: Completed locally; PR #17 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/17
+- Scope: Local-safe caching, invalidation, query optimization, queue readiness notes, and Vite build preparation.
+- Do not start Task 15 until Task 14 PR is merged.
 
 ---
 
@@ -29,11 +29,44 @@
 
 ## Recent Baseline
 
-- Task 1-12 are merged into `main`.
+- Task 1-13 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
 - Task 13 added full demo seed data and credentials for local validation.
+- Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
+
+---
+
+## Task 14 Starting Notes
+
+- Use `Cache::remember()` for public storefront data: homepage, categories, banners, product listing/detail, public FAQs, and active currencies.
+- Use explicit `Cache::forget()` invalidation that works with file/database cache drivers; do not rely on cache tags.
+- Keep Windows localhost safe: do not require Redis, do not deploy, and run `php artisan optimize:clear` after any temporary optimization validation.
+- Queue worker validation should prefer `php artisan queue:work --once`; Redis-specific worker command is only appropriate if Redis is available.
+- Preserve Task 10 Inertia payloads and keep `vendor_price` hidden from storefront responses.
+
+---
+
+## Task 14 Completed Work
+
+- Created `app/Services/StorefrontCache.php` with explicit keys, TTLs, versioned dynamic cache keys, and invalidation helpers that work without cache tags.
+- Cache keys added: `storefront.home`, `storefront.categories`, `storefront.banners`, `products.index.[version/hash]`, `storefront.category.[version/hash]`, `products.show.[version/hash]`, `faqs.public.[version/hash]`, and `currencies.active.[version/hash]`.
+- Cached public storefront data in `StorefrontController`, `ProductController`, `CategoryController`, `FaqController`, and `CurrencyController`.
+- Added model event invalidation for `Product`, `ProductVariant`, `Category`, `Banner`, `Faq`, `Review`, `ProductQuestion`, `ProductAnswer`, and `SizeGuide`.
+- Optimized cart, checkout, account orders, product listing/detail, vendor products, vendor orders, vendor finance, and vendor dashboard queries with eager loading and safe select columns.
+- Updated `.env.example` to default local cache/session fallback to `CACHE_STORE=database` and `SESSION_DRIVER=file`; `QUEUE_CONNECTION=database` remains the local-safe queue default.
+- Updated `vite.config.js` with client chunk splitting and dependency pre-bundling preparation; no PWA feature was enabled.
+- Added `tests/Feature/StorefrontPerformanceTest.php`.
+- Validation passed:
+  - `php artisan about`
+  - `php artisan route:list`
+  - `php artisan test` with 30 tests / 122 assertions
+  - `npm run build`
+  - `php artisan optimize:clear`
+  - `php artisan queue:work --once`
+  - Browser smoke for homepage, product listing, product detail, and unauthenticated cart/checkout redirects.
+- Local validation used `CACHE_STORE=database`, `SESSION_DRIVER=file`, and `QUEUE_CONNECTION=database`; Redis was not required.
 
 ---
 

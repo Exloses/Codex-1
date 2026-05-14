@@ -58,7 +58,11 @@ class CurrencyService
 
     public function refreshRates(): array
     {
-        return $this->getRates(forceRefresh: true);
+        $rates = $this->getRates(forceRefresh: true);
+
+        StorefrontCache::invalidateCurrencies();
+
+        return $rates;
     }
 
     private function fetchRates(): array

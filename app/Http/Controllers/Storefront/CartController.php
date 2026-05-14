@@ -14,6 +14,7 @@ class CartController extends Controller
     {
         return Inertia::render('Storefront/Cart', [
             'items' => CartItem::query()
+                ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
                 ->with(['product:id,name,slug,selling_price,stock,weight', 'productVariant:id,product_id,combination,price,stock,image'])
                 ->where('user_id', auth()->id())
                 ->get(),
@@ -44,7 +45,10 @@ class CartController extends Controller
         $item = CartItem::query()->where('user_id', $request->user()->id)->findOrFail($id);
         $item->update($request->safe()->only(['quantity']));
 
-        return $this->ok(['item' => $item]);
+        return $this->ok(['item' => $item->load([
+            'product:id,name,slug,selling_price,stock,weight',
+            'productVariant:id,product_id,combination,price,stock,image',
+        ])]);
     }
 
     public function destroy(int $id)
