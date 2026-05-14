@@ -39,7 +39,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
-| Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only, PR akan dibuat | `codex/task-15-deploy-oracle` | - |
+| Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only, PR open | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
@@ -505,6 +505,7 @@ Branch yang akan dibuat nanti setelah PR Task 15 merged: codex/task-16-social-lo
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 16 dan PROMPT_TEMPLATES.md Task 16
 Status: JANGAN mulai Task 16 sampai owner merge PR Task 15.
 Task 15 branch: codex/task-15-deploy-oracle
+Task 15 PR: https://github.com/Exloses/Codex-1/pull/18
 Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
 ```
 
@@ -538,6 +539,7 @@ Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracl
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-14 | Task 15 PR #18 dibuat; menunggu review/merge owner | Codex |
 | 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation selesai lokal; branch siap PR | Codex |
 | 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation dimulai setelah Task 14 merged ke main | Codex |
 | 2026-05-14 | Task 14 Performance Optimization selesai lokal; branch siap PR | Codex |

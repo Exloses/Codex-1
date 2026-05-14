@@ -8,7 +8,8 @@
 - Active task: None
 - Last completed task: Task 15 - Oracle Cloud Deployment Preparation
 - Branch: `codex/task-15-deploy-oracle`
-- Status: Task 15 completed locally as preparation only; PR will be created.
+- Status: Task 15 completed as preparation only; PR #18 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/18
 - Scope: Create Oracle Cloud deployment documentation, safe production env example, Nginx/Supervisor samples, deployment checklist, README reference, and project status updates.
 - Deployment actual is postponed because the Oracle Cloud account/server is not available yet.
 - Do not deploy to production, do not access Oracle Cloud, do not SSH to any server, and do not use real credentials.
