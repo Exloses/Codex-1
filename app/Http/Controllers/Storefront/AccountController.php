@@ -32,7 +32,10 @@ class AccountController extends Controller
     public function orders(): Response
     {
         return Inertia::render('Account/Orders', [
-            'orders' => auth()->user()->orders()->latest()->paginate(15),
+            'orders' => auth()->user()->orders()
+                ->select(['id', 'user_id', 'order_number', 'status', 'total_usd', 'payment_status', 'created_at'])
+                ->latest()
+                ->paginate(15),
         ]);
     }
 
@@ -42,15 +45,22 @@ class AccountController extends Controller
 
         return Inertia::render('Account/OrderDetail', [
             'order' => $order->load([
+                'items:id,order_id,product_id,product_variant_id,vendor_id,quantity,price_usd,subtotal_usd',
                 'items.product:id,name,slug,selling_price,compare_price,stock,average_rating',
-                'dropshipOrders',
+                'items.productVariant:id,product_id,combination,price,stock,image',
+                'dropshipOrders:id,order_id,vendor_id,dropship_number,status,tracking_number,carrier,shipped_at,delivered_at',
             ]),
         ]);
     }
 
     public function addresses(): Response
     {
-        return Inertia::render('Account/Addresses', ['addresses' => auth()->user()->addresses()->latest()->get()]);
+        return Inertia::render('Account/Addresses', [
+            'addresses' => auth()->user()->addresses()
+                ->select(['id', 'user_id', 'full_name', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default'])
+                ->latest()
+                ->get(),
+        ]);
     }
 
     public function storeAddress(AddressRequest $request)

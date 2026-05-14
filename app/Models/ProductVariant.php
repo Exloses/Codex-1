@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StorefrontCache;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ProductVariant extends Model
 {
     protected $guarded = [];
+
+    protected static function booted(): void
+    {
+        static::saved(fn (ProductVariant $variant) => StorefrontCache::invalidateProducts($variant->product));
+        static::deleted(fn (ProductVariant $variant) => StorefrontCache::invalidateProducts($variant->product));
+    }
 
     protected function casts(): array
     {

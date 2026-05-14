@@ -19,10 +19,15 @@ class CheckoutController extends Controller
     public function index(): Response
     {
         return Inertia::render('Storefront/Checkout', [
-            'cartItems' => CartItem::query()->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock'])
+            'cartItems' => CartItem::query()
+                ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
+                ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock'])
                 ->where('user_id', auth()->id())
                 ->get(),
-            'addresses' => auth()->user()?->addresses()->get() ?? [],
+            'addresses' => auth()->user()?->addresses()
+                ->select(['id', 'user_id', 'full_name', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default'])
+                ->latest()
+                ->get() ?? [],
         ]);
     }
 
@@ -38,7 +43,10 @@ class CheckoutController extends Controller
         $this->authorize('view', $order);
 
         return Inertia::render('Storefront/CheckoutSuccess', [
-            'order' => $order->load('items.product:id,name,slug,selling_price,compare_price,stock,average_rating'),
+            'order' => $order->load([
+                'items:id,order_id,product_id,product_variant_id,vendor_id,quantity,price_usd,subtotal_usd',
+                'items.product:id,name,slug,selling_price,compare_price,stock,average_rating',
+            ]),
         ]);
     }
 
@@ -62,7 +70,13 @@ class CheckoutController extends Controller
     private function createOrderFromCart(CheckoutRequest $request): Order
     {
         $user = $request->user();
-        $cartItems = CartItem::query()->with(['product', 'productVariant'])->where('user_id', $user->id)->get();
+        $cartItems = CartItem::query()
+            ->with([
+                'product:id,vendor_id,name,slug,selling_price,stock',
+                'productVariant:id,product_id,price,stock',
+            ])
+            ->where('user_id', $user->id)
+            ->get();
         abort_if($cartItems->isEmpty(), 422, 'Cart is empty.');
 
         return DB::transaction(function () use ($request, $user, $cartItems) {

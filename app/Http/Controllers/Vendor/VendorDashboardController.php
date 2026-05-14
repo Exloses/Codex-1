@@ -29,7 +29,12 @@ class VendorDashboardController extends Controller
                 'shipped_orders' => DropshipOrder::query()->where('vendor_id', $vendor->id)->where('status', 'shipped')->count(),
                 'balance_idr' => $vendor->balance_idr,
             ],
-            'recentOrders' => $vendor->dropshipOrders()->with('order:id,order_number,total_usd,status')->latest()->limit(10)->get(),
+            'recentOrders' => $vendor->dropshipOrders()
+                ->select(['id', 'order_id', 'vendor_id', 'dropship_number', 'status', 'vendor_total_idr', 'created_at'])
+                ->with('order:id,order_number,total_usd,status')
+                ->latest()
+                ->limit(10)
+                ->get(),
         ]);
     }
 

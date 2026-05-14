@@ -37,8 +37,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 10 | Vue Frontend | ✅ Selesai & PR merged | `codex/task-10-vue-frontend` | https://github.com/Exloses/Codex-1/pull/13 |
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
-| Task 13 | Database Seeders | ✅ Selesai, PR pending review | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
-| Task 14 | Performance Optimization | ⏳ Belum dimulai | - | - |
+| Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
+| Task 14 | Performance Optimization | ✅ Selesai lokal, PR pending review | `codex/task-14-performance` | - |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 13 Database Seeders selesai dan branch siap PR.
+**Task sedang dikerjakan:** Tidak ada. Task 14 Performance Optimization selesai lokal dan siap PR.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -363,6 +363,15 @@ Task 13:
 - Modified database/seeders/DatabaseSeeder.php to call Task 13 seeders in order and create buyer demo users.
 - Modified README.md with demo credentials.
 - Seeded roles admin/vendor/buyer, admin demo, buyer demo, 5 categories with size guides, 3 shipping zones with rates, 3 banners, 20 FAQs, 2 approved vendors, 10 products, and 40 product variants.
+
+Task 14:
+- Created app/Services/StorefrontCache.php to centralize local-safe cache keys, TTLs, versioning, and invalidation without cache tags.
+- Added cached storefront payloads for homepage, banners, categories, product listing filters/pages, category listing pages, product detail/related products, public FAQs, and currency API responses.
+- Added cache invalidation on Product, ProductVariant, Category, Banner, Faq, Review, ProductQuestion, ProductAnswer, and SizeGuide model changes.
+- Optimized storefront/account/vendor queries with eager loading and specific select columns where safe for existing Inertia payloads.
+- Updated .env.example to use CACHE_STORE=database and SESSION_DRIVER=file for Windows localhost fallback; QUEUE_CONNECTION remains database.
+- Updated vite.config.js with safe production build chunk splitting and dependency pre-bundling preparation, without enabling PWA.
+- Added tests/Feature/StorefrontPerformanceTest.php for cached page rendering and cache version invalidation.
 ```
 
 ---
@@ -391,6 +400,7 @@ Seeded counts:
 - products: 10
 - product_variants: 40
 - faqs: 20
+Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
 ---
@@ -446,14 +456,15 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 13:
-- php -l untuk seluruh database/seeders/*.php: no syntax errors
-- php artisan migrate:fresh --seed: berhasil
-- php artisan tinker counts: users=5, products=10, categories=5, vendors=2
-- Login admin@platform.com ke /admin: berhasil via HTTP session; /admin status 200
-- Login vendor1@demo.com ke /vendor/dashboard: berhasil via HTTP session; /vendor/dashboard status 200
-- php artisan test: berhasil, 28 tests / 108 assertions
-- Browser plugin dicoba untuk validasi lokal, tetapi tab navigation timeout; validasi login dilakukan via HTTP session dengan CSRF dan cookie Laravel.
+Validasi terakhir Task 14:
+- php artisan about: berhasil dengan CACHE_STORE=database, QUEUE_CONNECTION=database, SESSION_DRIVER=file.
+- php artisan route:list: berhasil, 158 routes.
+- php artisan test: berhasil, 30 tests / 122 assertions.
+- npm run build: berhasil untuk Vite client build dan SSR build.
+- php artisan optimize:clear: berhasil; cache bootstrap/config/routes/views dibersihkan kembali.
+- php artisan queue:work --once: berhasil exit 0 dengan database queue.
+- php artisan db:seed: berhasil untuk mengembalikan demo data lokal setelah test.
+- Browser smoke di http://127.0.0.1:8000: homepage, product listing, product detail, cart redirect unauthenticated, dan checkout redirect unauthenticated berhasil render tanpa error aplikasi baru.
 ```
 
 ---
@@ -479,12 +490,11 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 14 — Performance Optimization
-Branch yang akan dibuat nanti: codex/task-14-performance
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 14
-Status: JANGAN mulai Task 14 sampai owner merge PR Task 13.
-Task 13 branch: codex/task-13-database-seeders
-Task 13 PR: https://github.com/Exloses/Codex-1/pull/16
+Task berikutnya: Task 15 — Oracle Cloud Deployment
+Branch yang akan dibuat nanti: codex/task-15-deploy-oracle
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 15
+Status: JANGAN mulai Task 15 sampai owner merge PR Task 14.
+Task 14 branch: codex/task-14-performance
 ```
 
 ---
@@ -494,7 +504,10 @@ Task 13 PR: https://github.com/Exloses/Codex-1/pull/16
 <!-- Codex catat hal-hal penting yang perlu diingat -->
 
 ```
-- Redis tidak tersedia di Windows → Gunakan CACHE_DRIVER=file
+- Redis tidak tersedia/ tidak wajib di Windows → gunakan CACHE_STORE=database atau file, QUEUE_CONNECTION=database, SESSION_DRIVER=file.
+- Task 14 cache keys: storefront.home, storefront.categories, storefront.banners, products.index.[version/hash], storefront.category.[version/hash], products.show.[version/hash], faqs.public.[version/hash], currencies.active.[version/hash].
+- Task 14 invalidation tidak memakai cache tags agar aman untuk file/database/array cache drivers.
+- Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
 - Semua harga disimpan dalam USD di database
@@ -512,6 +525,8 @@ Task 13 PR: https://github.com/Exloses/Codex-1/pull/16
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-14 | Task 14 Performance Optimization selesai lokal; branch siap PR | Codex |
+| 2026-05-14 | Task 14 Performance Optimization dimulai setelah Task 13 merged ke main | Codex |
 | 2026-05-12 | Task 13 Database Seeders selesai; PR #16 dibuat | Codex |
 | 2026-05-12 | Task 13 Database Seeders dimulai setelah Task 12 merged ke main | Codex |
 | 2026-05-12 | Task 12 Email Notifications selesai; PR #15 dibuat | Codex |
