@@ -38,7 +38,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
-| Task 14 | Performance Optimization | ✅ Selesai lokal, PR pending review | `codex/task-14-performance` | - |
+| Task 14 | Performance Optimization | ✅ Selesai lokal, PR pending review | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
 | Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
@@ -495,6 +495,7 @@ Branch yang akan dibuat nanti: codex/task-15-deploy-oracle
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 15
 Status: JANGAN mulai Task 15 sampai owner merge PR Task 14.
 Task 14 branch: codex/task-14-performance
+Task 14 PR: https://github.com/Exloses/Codex-1/pull/17
 ```
 
 ---

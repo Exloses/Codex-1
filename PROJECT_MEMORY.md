@@ -8,8 +8,8 @@
 - Active task: None
 - Last completed task: Task 14 - Performance Optimization
 - Branch: `codex/task-14-performance`
-- Status: Completed locally; branch ready for PR.
-- Pull request: Pending creation.
+- Status: Completed locally; PR #17 pending review.
+- Pull request: https://github.com/Exloses/Codex-1/pull/17
 - Scope: Local-safe caching, invalidation, query optimization, queue readiness notes, and Vite build preparation.
 - Do not start Task 15 until Task 14 PR is merged.
 
