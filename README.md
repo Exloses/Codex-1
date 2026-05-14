@@ -14,6 +14,17 @@
 - Vendor: `vendor2@demo.com` / `Vendor123!`
 - Buyer: `buyer@demo.com` / `Buyer123!`
 
+## Oracle Cloud Deployment Preparation
+
+Task 15 prepared deployment documentation and safe sample configuration for a future Oracle Cloud production setup. The actual deployment has not been performed because the Oracle Cloud account/server is not available yet.
+
+- Deployment guide: [docs/deployment/oracle-cloud.md](docs/deployment/oracle-cloud.md)
+- Manual checklist: [docs/deployment/deploy-checklist.md](docs/deployment/deploy-checklist.md)
+- Example production environment: [.env.production.example](.env.production.example)
+- Sample Nginx and Supervisor configs are in [docs/deployment](docs/deployment).
+
+Do not commit real credentials, API keys, tokens, SSH keys, passwords, or a real Laravel `APP_KEY`. Replace placeholders only on the actual server when the owner is ready to deploy.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

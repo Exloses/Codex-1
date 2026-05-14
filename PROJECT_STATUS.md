@@ -38,8 +38,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 11 | Security Middleware | ✅ Selesai & PR merged | `codex/task-11-security-middleware` | https://github.com/Exloses/Codex-1/pull/14 |
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
-| Task 14 | Performance Optimization | ✅ Selesai lokal, PR pending review | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
-| Task 15 | Oracle Cloud Deployment | ⏳ Belum dimulai | - | - |
+| Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
+| Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only, PR akan dibuat | `codex/task-15-deploy-oracle` | - |
 | Task 16 | Social Login | ⏳ Belum dimulai | - | - |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 14 Performance Optimization selesai lokal dan siap PR.
+**Task sedang dikerjakan:** Tidak ada. Task 15 Oracle Cloud Deployment Preparation selesai lokal dan siap PR. Deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -372,6 +372,16 @@ Task 14:
 - Updated .env.example to use CACHE_STORE=database and SESSION_DRIVER=file for Windows localhost fallback; QUEUE_CONNECTION remains database.
 - Updated vite.config.js with safe production build chunk splitting and dependency pre-bundling preparation, without enabling PWA.
 - Added tests/Feature/StorefrontPerformanceTest.php for cached page rendering and cache version invalidation.
+
+Task 15:
+- Created docs/deployment/oracle-cloud.md with Oracle Cloud deployment preparation guide, production prerequisites, required software, Laravel setup steps, queue/scheduler/Nginx/SSL notes, backup/rollback strategy, and smoke test checklist.
+- Created .env.production.example with safe placeholders only and no real APP_KEY or secrets.
+- Created docs/deployment/nginx-dropship-platform.conf as a placeholder-domain Laravel Nginx sample for PHP 8.3 FPM.
+- Created docs/deployment/supervisor-laravel-worker.conf as a Redis queue worker Supervisor sample.
+- Created docs/deployment/deploy-checklist.md as a manual future deployment checklist.
+- Updated README.md with Oracle Cloud Deployment Preparation references and credential safety warning.
+- Updated PROJECT_STATUS.md and PROJECT_MEMORY.md with Task 15 preparation-only context.
+- No production deployment was performed, no Oracle Cloud login was attempted, no SSH/server access was attempted, and no real credentials were used.
 ```
 
 ---
@@ -456,15 +466,15 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 14:
-- php artisan about: berhasil dengan CACHE_STORE=database, QUEUE_CONNECTION=database, SESSION_DRIVER=file.
+Validasi terakhir Task 15:
+- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe karena php tidak ada di PATH.
 - php artisan route:list: berhasil, 158 routes.
 - php artisan test: berhasil, 30 tests / 122 assertions.
-- npm run build: berhasil untuk Vite client build dan SSR build.
-- php artisan optimize:clear: berhasil; cache bootstrap/config/routes/views dibersihkan kembali.
-- php artisan queue:work --once: berhasil exit 0 dengan database queue.
-- php artisan db:seed: berhasil untuk mengembalikan demo data lokal setelah test.
-- Browser smoke di http://127.0.0.1:8000: homepage, product listing, product detail, cart redirect unauthenticated, dan checkout redirect unauthenticated berhasil render tanpa error aplikasi baru.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd karena npm tidak ada di PATH.
+- git ls-files .env: kosong, .env tidak tracked.
+- Secret/placeholder scan untuk .env.production.example, docs/deployment, README.md, PROJECT_STATUS.md, dan PROJECT_MEMORY.md: tidak menemukan secret asli; semua credential adalah placeholder.
+- Tidak ada command remote/SSH/deploy yang dijalankan.
+- Tidak ada perubahan aplikasi runtime selain dokumentasi dan contoh konfigurasi deployment.
 ```
 
 ---
@@ -490,12 +500,12 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 15 — Oracle Cloud Deployment
-Branch yang akan dibuat nanti: codex/task-15-deploy-oracle
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 15
-Status: JANGAN mulai Task 15 sampai owner merge PR Task 14.
-Task 14 branch: codex/task-14-performance
-Task 14 PR: https://github.com/Exloses/Codex-1/pull/17
+Task berikutnya: Task 16 - Social Login
+Branch yang akan dibuat nanti setelah PR Task 15 merged: codex/task-16-social-login
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 16 dan PROMPT_TEMPLATES.md Task 16
+Status: JANGAN mulai Task 16 sampai owner merge PR Task 15.
+Task 15 branch: codex/task-15-deploy-oracle
+Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
 ```
 
 ---
@@ -508,6 +518,8 @@ Task 14 PR: https://github.com/Exloses/Codex-1/pull/17
 - Redis tidak tersedia/ tidak wajib di Windows → gunakan CACHE_STORE=database atau file, QUEUE_CONNECTION=database, SESSION_DRIVER=file.
 - Task 14 cache keys: storefront.home, storefront.categories, storefront.banners, products.index.[version/hash], storefront.category.[version/hash], products.show.[version/hash], faqs.public.[version/hash], currencies.active.[version/hash].
 - Task 14 invalidation tidak memakai cache tags agar aman untuk file/database/array cache drivers.
+- Task 15 hanya deployment preparation. Jangan deploy production, jangan login Oracle Cloud, jangan SSH, dan jangan gunakan credential asli sampai owner menyiapkan akun/server.
+- Task 15 deliverables: docs/deployment/oracle-cloud.md, docs/deployment/deploy-checklist.md, docs/deployment/nginx-dropship-platform.conf, docs/deployment/supervisor-laravel-worker.conf, .env.production.example, README.md update.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -526,6 +538,8 @@ Task 14 PR: https://github.com/Exloses/Codex-1/pull/17
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation selesai lokal; branch siap PR | Codex |
+| 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation dimulai setelah Task 14 merged ke main | Codex |
 | 2026-05-14 | Task 14 Performance Optimization selesai lokal; branch siap PR | Codex |
 | 2026-05-14 | Task 14 Performance Optimization dimulai setelah Task 13 merged ke main | Codex |
 | 2026-05-12 | Task 13 Database Seeders selesai; PR #16 dibuat | Codex |
