@@ -6,12 +6,14 @@
 ## Current Task
 
 - Active task: None
-- Last completed task: Task 14 - Performance Optimization
-- Branch: `codex/task-14-performance`
-- Status: Completed locally; PR #17 pending review.
-- Pull request: https://github.com/Exloses/Codex-1/pull/17
-- Scope: Local-safe caching, invalidation, query optimization, queue readiness notes, and Vite build preparation.
-- Do not start Task 15 until Task 14 PR is merged.
+- Last completed task: Task 15 - Oracle Cloud Deployment Preparation
+- Branch: `codex/task-15-deploy-oracle`
+- Status: Task 15 completed as preparation only; PR #18 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/18
+- Scope: Create Oracle Cloud deployment documentation, safe production env example, Nginx/Supervisor samples, deployment checklist, README reference, and project status updates.
+- Deployment actual is postponed because the Oracle Cloud account/server is not available yet.
+- Do not deploy to production, do not access Oracle Cloud, do not SSH to any server, and do not use real credentials.
+- Next task after Task 15 PR is merged: Task 16 - Social Login. Do not start Task 16 now.
 
 ---
 
@@ -29,12 +31,63 @@
 
 ## Recent Baseline
 
-- Task 1-13 are merged into `main`.
+- Task 1-14 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
 - Task 13 added full demo seed data and credentials for local validation.
 - Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
+
+---
+
+## Task 15 Starting Notes
+
+- Work is documentation/config sample only on Windows localhost.
+- Oracle Cloud account/server is not available; all production deployment actions must remain documented commands, not executed remote actions.
+- Use safe placeholders only in `.env.production.example`; never include a real `APP_KEY`, API key, token, password, SSH key, or secret.
+- Deployment target examples should use `/var/www/dropship-platform`, `yourdomain.com`, PHP 8.3 FPM, Redis queues/cache/session, MySQL, Nginx, Supervisor, Git, Composer, and Node.js LTS.
+- Required deliverables:
+  - `docs/deployment/oracle-cloud.md`
+  - `.env.production.example`
+  - `docs/deployment/nginx-dropship-platform.conf`
+  - `docs/deployment/supervisor-laravel-worker.conf`
+  - `docs/deployment/deploy-checklist.md`
+  - README deployment preparation reference
+- Validation requested after documentation changes:
+  - `php artisan about`
+  - `php artisan route:list`
+  - `php artisan test`
+  - `npm run build`
+  - verify `.env` is not staged/committed
+  - verify docs/env examples use placeholders only
+
+---
+
+## Task 15 Completed Work
+
+- Created `docs/deployment/oracle-cloud.md` as the main future Oracle Cloud deployment preparation guide.
+- Created `.env.production.example` with safe placeholders only, including APP, DB, Redis, mail, Stripe, PayPal, EasyPost, Open Exchange, Cloudinary, Google/Facebook OAuth, and Tawk values.
+- Created `docs/deployment/nginx-dropship-platform.conf` with placeholder `yourdomain.com`, Laravel public root, PHP 8.3 FPM socket, gzip, hidden file denial, and basic security headers.
+- Created `docs/deployment/supervisor-laravel-worker.conf` for Redis queue workers with `www-data`, 2 processes, restart behavior, and storage log paths.
+- Created `docs/deployment/deploy-checklist.md` as a manual future deployment checklist covering pre-deploy, provisioning, packages, PHP extensions, MySQL/Redis, app setup, env, frontend build, migrations, queue, scheduler, Nginx, SSL, smoke tests, and rollback.
+- Updated `README.md` with Oracle Cloud Deployment Preparation references.
+- Updated `PROJECT_STATUS.md` and `PROJECT_MEMORY.md`.
+- No production deployment was performed.
+- No Oracle Cloud login, SSH access, remote server command, or real credential handling was performed.
+- Validation passed:
+  - `php artisan about` via `E:\Codex\tools\php-8.3\php.exe` because `php` is not in PATH.
+  - `php artisan route:list` with 158 routes.
+  - `php artisan test` with 30 tests / 122 assertions.
+  - `npm run build` via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd` because `npm` is not in PATH.
+  - `.env` is not tracked by Git.
+  - Placeholder/secret scan found no real secrets in Task 15 files.
+
+---
+
+## Next Task Gate
+
+- Next task: Task 16 - Social Login.
+- Do not start Task 16 until the Task 15 PR is merged by the owner.
 
 ---
 
