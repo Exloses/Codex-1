@@ -135,12 +135,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/loyalty-points', [LoyaltyController::class, 'index'])->name('loyalty');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+        Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
+        Route::get('/support/create', [SupportTicketController::class, 'create'])->name('support.create');
     });
 
     Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
     Route::get('/returns/{return}', [ReturnController::class, 'show'])->name('returns.show');
+    Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
+    Route::get('/support/create', [SupportTicketController::class, 'create'])->name('support.create');
     Route::post('/support', [SupportTicketController::class, 'store'])->name('support.store');
     Route::get('/support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('/support/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('support.reply');

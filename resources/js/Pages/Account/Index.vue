@@ -40,6 +40,7 @@ const form = useForm({
                     <Link :href="route('account.wishlist')">Wishlist</Link>
                     <Link :href="route('account.loyalty')">Loyalty points</Link>
                     <Link :href="route('account.notifications')">Notifications</Link>
+                    <Link :href="route('account.support.index')">Support tickets</Link>
                 </nav>
             </div>
         </section>

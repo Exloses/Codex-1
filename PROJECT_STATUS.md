@@ -41,8 +41,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
 | Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
-| Task 17 | Guest Checkout | ✅ Selesai; PR open | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
-| Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
+| Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
+| Task 18 | Live Chat & Support | ✅ Selesai lokal; draft PR pending | `codex/task-18-livechat-support` | Pending |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
 | Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
 | Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 17 Guest Checkout selesai lokal di branch `codex/task-17-guest-checkout`; draft PR #20 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 18 Live Chat & Support selesai lokal di branch `codex/task-18-livechat-support`; draft PR pending creation.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -401,6 +401,19 @@ Task 17:
 - Updated tracking request/controller flow so order tracking requires order number plus email and rejects wrong guest email.
 - Updated `Checkout.vue`, `CheckoutSuccess.vue`, `TrackOrder.vue`, and `ProductCard.vue` for public cart/checkout, guest address form, validation errors, guest order hints, and add-to-cart actions.
 - Added `tests/Feature/GuestCheckoutTest.php` covering guest cart checkout, guest order persistence, guest cart clearing, tracking with correct/wrong email, authenticated checkout preservation, and `vendor_price` non-exposure in cart/checkout responses.
+
+Task 18:
+- Created `app/Support/TawkSettings.php` for safe Tawk.to enablement checks and shared Inertia config.
+- Updated `config/services.php`, `HandleInertiaRequests`, and `StorefrontLayout.vue` so Tawk.to loads only when non-placeholder env values are configured, stays disabled during tests, avoids duplicate script injection, handles load failure, and sets logged-in visitor name/email.
+- Added `database/migrations/2026_05_15_180000_fix_ticket_replies_support_ticket_foreign_key.php` to correct `ticket_replies.ticket_id` so replies reference `support_tickets`.
+- Updated `SupportTicket` model with constrained statuses/priorities and unique ticket number generation.
+- Completed `SupportTicketController` index/create/store/show/reply flows with eager loading, buyer-owned order validation, authorization, status updates, and notifications.
+- Added support ticket notifications and email templates for new tickets and replies.
+- Added account support pages under `resources/js/Pages/Account/Support/` for list, create, and detail/reply workflows.
+- Updated account/storefront navigation with support links.
+- Upgraded Filament `SupportTicketResource` with searchable fields, status/priority filters, badges, latest-first sorting, editable status/priority, and admin staff reply action.
+- Added `tests/Feature/SupportTicketTest.php` covering create, list/view authorization, reply authorization, buyer replies, ticket number generation, and Tawk disabled behavior.
+- Updated README with Tawk.to/support setup notes.
 ```
 
 ---
@@ -433,6 +446,8 @@ Task 17 migration:
 - `2026_05_15_120000_enable_guest_checkout_orders` applied successfully on local SQLite.
 - `orders.user_id` is nullable for guest orders.
 - Guest snapshot fields added: guest_phone, guest_address_line1, guest_address_line2, guest_city, guest_state, guest_postal_code, guest_country.
+Task 18 migration:
+- `2026_05_15_180000_fix_ticket_replies_support_ticket_foreign_key` ensures `ticket_replies.ticket_id` references `support_tickets`.
 Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
@@ -527,6 +542,20 @@ Validasi Task 17 lokal:
 - npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd.
 - HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/cart`, `/checkout`, dan `/track-order` semua 200.
 - Browser plugin tidak tersedia lewat tool discovery pada sesi ini; fallback validasi HTTP/build digunakan.
+
+Validasi Task 18 lokal:
+- PR #20 Task 17 terkonfirmasi merged ke main; branch `codex/task-18-livechat-support` dibuat dari main terbaru.
+- php artisan migrate: berhasil, Nothing to migrate setelah migration Task 18 tersedia/applied.
+- php -l pada file PHP Task 18: berhasil.
+- php artisan test --filter=SupportTicketTest: berhasil 6 tests / 42 assertions.
+- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe.
+- php artisan route:list: berhasil, 162 routes.
+- php artisan route:list --path=support: berhasil, 10 routes termasuk account support aliases dan Filament support resource.
+- php artisan route:list --path=account/support: berhasil, 2 routes.
+- php artisan test: berhasil, 44 tests / 221 assertions.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd untuk client dan SSR.
+- HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/cart`, `/checkout`, dan `/track-order` semua 200.
+- HTTP smoke auth redirects: `/support` dan `/account/support` 302 ke `/login`; `/admin/support-tickets` 302 ke `/admin/login`.
 ```
 
 ---
@@ -552,14 +581,15 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 18 - Live Chat & Support, hanya setelah PR Task 17 merged oleh owner.
-Branch yang akan dibuat nanti: codex/task-18-livechat-support
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 18 dan PROMPT_TEMPLATES.md Task 18
-Status: Task 17 selesai lokal di branch codex/task-17-guest-checkout; draft PR #20 dibuat.
-Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
-Task 16 status: merged ke main.
+Task berikutnya: Task 19 - Wishlist, hanya setelah PR Task 18 merged oleh owner.
+Branch yang akan dibuat nanti: codex/task-19-wishlist
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 19 dan PROMPT_TEMPLATES.md Task 19
+Status: Task 18 selesai lokal di branch codex/task-18-livechat-support; draft PR pending creation.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
+Task 17 status: merged ke main.
+Task 18 branch: codex/task-18-livechat-support
+Task 18 PR: Pending
 ```
 
 ---
@@ -577,6 +607,9 @@ Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 - Task 16 memakai placeholder OAuth aman saja. Jangan gunakan atau minta Google/Facebook OAuth credential asli, jangan edit `.env`, dan jangan melakukan network OAuth test yang butuh credential asli.
 - Task 17 guest checkout memakai session cart untuk guest dan `cart_items` untuk user login; guest order menyimpan email/nama/alamat di tabel `orders`, bukan membuat user palsu.
 - Guest success page dilindungi session atau signed URL sementara; tracking guest wajib order_number + email.
+- Task 18 Tawk.to memakai placeholder `VITE_TAWK_PROPERTY_ID` dan `VITE_TAWK_WIDGET_ID`; script live chat tidak dimuat jika nilai kosong/placeholder atau saat automated tests.
+- Task 18 support tickets hanya untuk user login; buyer hanya boleh melihat/reply tiket sendiri, admin dapat kelola status/prioritas dan reply dari Filament.
+- Task 18 memperbaiki FK `ticket_replies.ticket_id` agar mengarah ke `support_tickets`.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -595,6 +628,8 @@ Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 18 Live Chat & Support selesai lokal; validasi migrate, about, route:list, support tests, full test, dan npm build berhasil | Codex |
+| 2026-05-15 | PR #20 Task 17 terkonfirmasi merged ke main; Task 18 dimulai di branch `codex/task-18-livechat-support` | Codex |
 | 2026-05-15 | Task 17 draft PR #20 dibuat: https://github.com/Exloses/Codex-1/pull/20 | Codex |
 | 2026-05-15 | Task 17 Guest Checkout selesai lokal; validasi migrate, about, route:list, test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-15 | PR #19 Task 16 terkonfirmasi merged ke main; Task 17 dimulai di branch `codex/task-17-guest-checkout` | Codex |

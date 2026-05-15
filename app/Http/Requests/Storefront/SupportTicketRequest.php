@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Storefront;
 
 use App\Http\Requests\AuthorizedRequest;
+use App\Models\SupportTicket;
+use Illuminate\Validation\Rule;
 
 class SupportTicketRequest extends AuthorizedRequest
 {
@@ -11,9 +13,12 @@ class SupportTicketRequest extends AuthorizedRequest
         return [
             'subject' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
-            'category' => ['nullable', 'string', 'max:100'],
-            'priority' => ['nullable', 'string', 'max:50'],
-            'order_id' => ['nullable', 'integer', 'exists:orders,id'],
+            'priority' => ['nullable', 'string', Rule::in(SupportTicket::priorities())],
+            'order_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('orders', 'id')->where(fn ($query) => $query->where('user_id', $this->user()->id)),
+            ],
         ];
     }
 }

@@ -65,6 +65,11 @@ return [
         'redirect' => env('FACEBOOK_REDIRECT_URL', 'http://localhost:8000/auth/facebook/callback'),
     ],
 
+    'tawk' => [
+        'property_id' => env('VITE_TAWK_PROPERTY_ID', 'YOUR_TAWK_PROPERTY_ID'),
+        'widget_id' => env('VITE_TAWK_WIDGET_ID', 'YOUR_TAWK_WIDGET_ID'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
