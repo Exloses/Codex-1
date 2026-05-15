@@ -46,6 +46,19 @@ FACEBOOK_CLIENT_SECRET=YOUR_FACEBOOK_CLIENT_SECRET
 FACEBOOK_REDIRECT_URL=http://localhost:8000/auth/facebook/callback
 ```
 
+## Live Chat and Support
+
+Task 18 adds the account support ticket workflow and optional Tawk.to live chat. Tawk.to stays disabled unless both values are present and not placeholders, and it is also disabled during automated tests.
+
+Use safe placeholders in committed examples only:
+
+```env
+VITE_TAWK_PROPERTY_ID=YOUR_TAWK_PROPERTY_ID
+VITE_TAWK_WIDGET_ID=YOUR_TAWK_WIDGET_ID
+```
+
+Logged-in buyers can open support tickets from `/support`, attach a recent order when relevant, and reply from the ticket detail page. Admins manage tickets in Filament under Customer Support, including status, priority, filters, and staff replies.
+
 ## Oracle Cloud Deployment Preparation
 
 Task 15 prepared deployment documentation and safe sample configuration for a future Oracle Cloud production setup. The actual deployment has not been performed because the Oracle Cloud account/server is not available yet.

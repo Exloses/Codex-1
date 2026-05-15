@@ -1,6 +1,7 @@
 <script setup>
 import {
     BellIcon,
+    ChatBubbleLeftRightIcon,
     HeartIcon,
     MagnifyingGlassIcon,
     ShoppingBagIcon,
@@ -8,7 +9,7 @@ import {
     UserCircleIcon,
 } from '@heroicons/vue/24/outline';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const page = usePage();
 const showMobileMenu = ref(false);
@@ -17,6 +18,7 @@ const deferredPrompt = ref(null);
 const newsletterForm = useForm({ email: '' });
 
 const user = computed(() => page.props.auth?.user);
+const tawk = computed(() => page.props.services?.tawk || { enabled: false, propertyId: null, widgetId: null });
 const availableCurrencies = computed(() => page.props.availableCurrencies || ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR']);
 const selectedCurrency = computed(() => page.props.currency || page.props.auth?.user?.currency || 'USD');
 const selectedLanguage = computed(() => page.props.language || page.props.auth?.user?.language || 'en');
@@ -26,6 +28,7 @@ const navItems = [
     { label: 'Products', href: route('products.index') },
     { label: 'Track', href: route('track.index') },
     { label: 'FAQ', href: route('faq.index') },
+    { label: 'Support', href: route('support.index') },
     { label: 'Affiliate', href: route('affiliate.landing') },
 ];
 
@@ -37,6 +40,46 @@ const setPreference = (type, value) => {
     );
 };
 
+const configureTawkVisitor = () => {
+    if (!tawk.value.enabled || !window.Tawk_API || !user.value) return;
+
+    const visitor = {
+        name: user.value.name || '',
+        email: user.value.email || '',
+    };
+
+    window.Tawk_API.visitor = visitor;
+
+    if (typeof window.Tawk_API.setAttributes === 'function' && visitor.email) {
+        window.Tawk_API.setAttributes(visitor, () => {});
+    }
+};
+
+const loadTawkWidget = () => {
+    if (!tawk.value.enabled || !tawk.value.propertyId || !tawk.value.widgetId) return;
+
+    window.Tawk_API = window.Tawk_API || {};
+    window.Tawk_LoadStart = window.Tawk_LoadStart || new Date();
+    window.Tawk_API.onLoad = configureTawkVisitor;
+
+    if (document.getElementById('tawk-widget')) {
+        configureTawkVisitor();
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'tawk-widget';
+    script.async = true;
+    script.src = `https://embed.tawk.to/${tawk.value.propertyId}/${tawk.value.widgetId}`;
+    script.charset = 'UTF-8';
+    script.setAttribute('crossorigin', '*');
+    script.onload = configureTawkVisitor;
+    script.onerror = () => {
+        console.warn('Tawk.to widget could not be loaded.');
+    };
+    document.body.appendChild(script);
+};
+
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
@@ -44,17 +87,10 @@ onMounted(() => {
         showInstallPrompt.value = true;
     });
 
-    const propertyId = import.meta.env.VITE_TAWK_PROPERTY_ID;
-    const widgetId = import.meta.env.VITE_TAWK_WIDGET_ID;
-
-    if (propertyId && widgetId && !document.getElementById('tawk-widget')) {
-        const script = document.createElement('script');
-        script.id = 'tawk-widget';
-        script.async = true;
-        script.src = `https://embed.tawk.to/${propertyId}/${widgetId}`;
-        document.body.appendChild(script);
-    }
+    loadTawkWidget();
 });
+
+watch([user, tawk], loadTawkWidget);
 
 const installPwa = async () => {
     if (!deferredPrompt.value) return;
@@ -127,6 +163,9 @@ const subscribe = () => {
                     <Link :href="route('cart.index')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Cart">
                         <ShoppingBagIcon class="h-5 w-5" />
                     </Link>
+                    <Link :href="route('support.index')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Support">
+                        <ChatBubbleLeftRightIcon class="h-5 w-5" />
+                    </Link>
                 </div>
 
                 <Link
@@ -154,9 +193,10 @@ const subscribe = () => {
                     <Link v-for="item in navItems" :key="item.label" :href="item.href" class="rounded-md px-3 py-2 text-sm font-medium hover:bg-zinc-100">
                         {{ item.label }}
                     </Link>
-                    <div class="grid grid-cols-3 gap-2 pt-2">
+                    <div class="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-4">
                         <Link :href="route('cart.index')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Cart</Link>
                         <Link :href="route('account.wishlist')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Wishlist</Link>
+                        <Link :href="route('support.index')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Support</Link>
                         <Link :href="user ? route('account.index') : route('login')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Account</Link>
                     </div>
                 </div>

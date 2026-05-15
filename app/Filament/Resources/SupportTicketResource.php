@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SupportTicketResource\Pages;
 use App\Models\SupportTicket;
+use App\Notifications\SupportTicketReplyNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -14,29 +15,39 @@ class SupportTicketResource extends Resource
 {
     protected static ?string $model = SupportTicket::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+
+    protected static ?string $navigationGroup = 'Customer Support';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name'),
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('guest_email')
                     ->email(),
                 Forms\Components\TextInput::make('guest_name'),
                 Forms\Components\Select::make('order_id')
-                    ->relationship('order', 'id'),
+                    ->relationship('order', 'order_number')
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('ticket_number')
-                    ->required(),
+                    ->required()
+                    ->disabled()
+                    ->dehydrated(),
                 Forms\Components\TextInput::make('subject')
                     ->required(),
                 Forms\Components\Textarea::make('message')
                     ->required()
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('status')
+                Forms\Components\Select::make('status')
+                    ->options(array_combine(SupportTicket::statuses(), SupportTicket::statuses()))
                     ->required(),
-                Forms\Components\TextInput::make('priority')
+                Forms\Components\Select::make('priority')
+                    ->options(array_combine(SupportTicket::priorities(), SupportTicket::priorities()))
                     ->required(),
             ]);
     }
@@ -46,22 +57,41 @@ class SupportTicketResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
+                    ->label('Customer')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('guest_email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('guest_name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('order.id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('order.order_number')
+                    ->label('Order')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ticket_number')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('subject')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(44),
                 Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        SupportTicket::STATUS_OPEN => 'warning',
+                        SupportTicket::STATUS_PENDING_CUSTOMER => 'info',
+                        SupportTicket::STATUS_RESOLVED => 'success',
+                        SupportTicket::STATUS_CLOSED => 'gray',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('priority')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        SupportTicket::PRIORITY_LOW => 'gray',
+                        SupportTicket::PRIORITY_NORMAL => 'info',
+                        SupportTicket::PRIORITY_HIGH => 'warning',
+                        SupportTicket::PRIORITY_URGENT => 'danger',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -73,16 +103,40 @@ class SupportTicketResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(array_combine(SupportTicket::statuses(), SupportTicket::statuses())),
+                Tables\Filters\SelectFilter::make('priority')
+                    ->options(array_combine(SupportTicket::priorities(), SupportTicket::priorities())),
             ])
             ->actions([
+                Tables\Actions\Action::make('reply')
+                    ->icon('heroicon-m-paper-airplane')
+                    ->form([
+                        Forms\Components\Textarea::make('message')
+                            ->required()
+                            ->maxLength(5000),
+                    ])
+                    ->action(function (SupportTicket $record, array $data): void {
+                        $reply = $record->replies()->create([
+                            'user_id' => auth()->id(),
+                            'message' => $data['message'],
+                            'is_staff' => true,
+                        ]);
+
+                        $record->update(['status' => SupportTicket::STATUS_PENDING_CUSTOMER]);
+
+                        if ($record->user) {
+                            $record->user->notify(new SupportTicketReplyNotification($record, $reply->load('user')));
+                        }
+                    }),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

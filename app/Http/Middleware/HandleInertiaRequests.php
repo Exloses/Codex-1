@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\TawkSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -46,6 +47,9 @@ class HandleInertiaRequests extends Middleware
             'currency' => $request->session()->get('currency', 'USD'),
             'language' => $request->session()->get('language', 'en'),
             'availableCurrencies' => ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR'],
+            'services' => [
+                'tawk' => fn () => TawkSettings::publicConfig(),
+            ],
         ];
     }
 }

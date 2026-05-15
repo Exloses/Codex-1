@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 17 - Guest Checkout
-- Last completed task: Task 16 - Social Login
-- Branch: `codex/task-17-guest-checkout`
-- Status: Task 17 completed locally; draft PR #20 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/20
-- Scope: Allow checkout without registration while preserving authenticated checkout.
-- Task 16 PR #19 is merged into `main` via merge commit `37792ac`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 18.
-- Next task after Task 17 is merged: Task 18 - Live Chat & Support.
+- Active task: Task 18 - Live Chat & Support Ticket
+- Last completed task: Task 17 - Guest Checkout
+- Branch: `codex/task-18-livechat-support`
+- Status: Task 18 completed locally; draft PR #21 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/21
+- Scope: Optional Tawk.to live chat plus authenticated buyer support ticket workflow and admin support handling.
+- Task 17 PR #20 is merged into `main`; post-merge validation on main passed before this branch.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 19.
+- Next task after Task 18 is merged: Task 19 - Wishlist.
 
 ---
 
@@ -38,6 +38,47 @@
 - Task 13 added full demo seed data and credentials for local validation.
 - Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
 - Task 16 added Google/Facebook Socialite login with placeholder-only OAuth configuration.
+- Task 17 added guest checkout, session guest cart support, guest order success protection, and guest tracking by order number plus email.
+
+---
+
+## Task 18 Completed Work
+
+- Created branch `codex/task-18-livechat-support` from updated `main`.
+- Added `app/Support/TawkSettings.php` and shared safe Tawk.to public config through Inertia.
+- Tawk.to is disabled when env values are missing, empty, placeholders, or while automated tests are running.
+- Storefront Tawk.to loading now uses shared config, avoids duplicate script injection, sets logged-in visitor name/email, and logs script load failure without breaking the app.
+- `.env.example` already contains safe placeholders:
+  - `VITE_TAWK_PROPERTY_ID=YOUR_TAWK_PROPERTY_ID`
+  - `VITE_TAWK_WIDGET_ID=YOUR_TAWK_WIDGET_ID`
+- Added a Task 18 migration to fix the existing `ticket_replies.ticket_id` foreign key so replies reference `support_tickets`, not a non-existent `tickets` table.
+- Completed support ticket routes for index, create, store, show, and reply, with `/support` and account aliases under `/account/support`.
+- Added account support ticket pages:
+  - `resources/js/Pages/Account/Support/Index.vue`
+  - `resources/js/Pages/Account/Support/Create.vue`
+  - `resources/js/Pages/Account/Support/Show.vue`
+- Support tickets now use constrained statuses/priorities and unique `TCK-YYYYMMDD-XXXXXXXX` ticket numbers.
+- Support ticket order selection is restricted to the authenticated buyer's own orders.
+- Added support ticket notifications and email templates for ticket creation and replies.
+- Admin Filament `SupportTicketResource` now has searchable customer/ticket fields, status/priority filters, badges, latest-first sorting, editable status/priority, and a staff reply action.
+- Updated account/storefront navigation with support links.
+- Updated README with local Tawk.to/support setup notes.
+- No real Tawk.to credentials, OAuth secrets, payment secrets, API keys, or `.env` changes were used.
+
+## Task 18 Validation
+
+- `php artisan migrate`: passed locally; no pending migrations after the Task 18 migration had been applied during test database refresh.
+- `php -l` on Task 18 PHP files: passed.
+- `php artisan test --filter=SupportTicketTest`: passed, 6 tests / 42 assertions.
+- `php artisan test`: passed, 44 tests / 221 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- `php artisan about`: passed via `E:\Codex\tools\php-8.3\php.exe`.
+- `php artisan route:list`: passed with 162 routes.
+- `php artisan route:list --path=support`: passed with 10 support routes, including account aliases and Filament support resource routes.
+- `php artisan route:list --path=account/support`: passed with 2 account support routes.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/cart`, `/checkout`, and `/track-order` returned 200; `/support` and `/account/support` redirected to `/login`; `/admin/support-tickets` redirected to `/admin/login`.
+- Guest checkout tests still pass.
+- Admin replies from Filament were implemented; no Task 18 admin-reply limitation remains.
 
 ---
 
