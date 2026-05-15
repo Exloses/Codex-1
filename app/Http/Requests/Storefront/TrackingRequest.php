@@ -10,7 +10,7 @@ class TrackingRequest extends AuthorizedRequest
     {
         return [
             'order_number' => ['required', 'string', 'max:100'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
         ];
     }
 }

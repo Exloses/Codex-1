@@ -6,14 +6,22 @@ import axios from 'axios';
 import { ref } from 'vue';
 
 const order = ref(null);
+const error = ref('');
 const form = useForm({
     order_number: '',
     email: '',
 });
 
 const submit = async () => {
-    const response = await axios.post(route('track.order'), form.data());
-    order.value = response.data.order;
+    error.value = '';
+    order.value = null;
+
+    try {
+        const response = await axios.post(route('track.order'), form.data());
+        order.value = response.data.order;
+    } catch (e) {
+        error.value = 'No order matched that order number and email.';
+    }
 };
 </script>
 
@@ -28,9 +36,10 @@ const submit = async () => {
             <form class="mt-6 rounded-lg border border-zinc-200 bg-white p-5" @submit.prevent="submit">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <input v-model="form.order_number" required class="rounded-md border-zinc-300 text-sm" placeholder="ORD-20260511-ABCDEFGH" />
-                    <input v-model="form.email" type="email" class="rounded-md border-zinc-300 text-sm" placeholder="buyer@example.com" />
+                    <input v-model="form.email" required type="email" class="rounded-md border-zinc-300 text-sm" placeholder="buyer@example.com" />
                 </div>
                 <button class="mt-4 rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white">Track</button>
+                <p v-if="error" class="mt-3 text-sm text-rose-600">{{ error }}</p>
             </form>
 
             <div v-if="order" class="mt-8 rounded-lg border border-zinc-200 bg-white p-5">

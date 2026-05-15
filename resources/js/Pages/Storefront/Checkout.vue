@@ -1,6 +1,6 @@
 <script setup>
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -14,11 +14,19 @@ const props = defineProps({
     },
 });
 
+const page = usePage();
 const step = ref(1);
 const form = useForm({
     address_id: props.addresses[0]?.id || null,
     guest_name: '',
     guest_email: '',
+    guest_phone: '',
+    guest_address_line1: '',
+    guest_address_line2: '',
+    guest_city: '',
+    guest_state: '',
+    guest_postal_code: '',
+    guest_country: 'US',
     shipping_cost_usd: 12,
     buyer_currency: 'USD',
     payment_method: 'stripe',
@@ -29,9 +37,11 @@ const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', cur
 const unitPrice = (item) => Number(item.productVariant?.price || item.product_variant?.price || item.product?.selling_price || 0);
 const subtotal = computed(() => props.cartItems.reduce((sum, item) => sum + unitPrice(item) * Number(item.quantity || 0), 0));
 const total = computed(() => subtotal.value + Number(form.shipping_cost_usd || 0));
+const isGuest = computed(() => !page.props.auth?.user);
+const hasItems = computed(() => props.cartItems.length > 0);
 
 const submit = () => {
-    form.post(route('checkout.store'));
+    form.post(route(isGuest.value ? 'checkout.guest' : 'checkout.store'));
 };
 </script>
 
@@ -43,6 +53,12 @@ const submit = () => {
             <h1 class="text-3xl font-bold tracking-normal">Checkout</h1>
             <div class="mt-6 grid gap-8 lg:grid-cols-[1fr_360px]">
                 <div class="rounded-lg border border-zinc-200 bg-white p-5">
+                    <div v-if="!hasItems" class="mb-6 rounded-md bg-zinc-50 p-4 text-sm text-zinc-600">
+                        Your cart is empty.
+                        <Link :href="route('products.index')" class="font-semibold text-emerald-700">Browse products</Link>
+                        to start checkout.
+                    </div>
+
                     <div class="mb-6 grid grid-cols-3 gap-2 text-sm font-semibold">
                         <button class="rounded-md px-3 py-2" :class="step === 1 ? 'bg-zinc-950 text-white' : 'bg-zinc-100'" @click="step = 1">1. Address</button>
                         <button class="rounded-md px-3 py-2" :class="step === 2 ? 'bg-zinc-950 text-white' : 'bg-zinc-100'" @click="step = 2">2. Shipping</button>
@@ -50,18 +66,75 @@ const submit = () => {
                     </div>
 
                     <div v-if="step === 1" class="space-y-4">
-                        <select v-model="form.address_id" class="w-full rounded-md border-zinc-300 text-sm">
-                            <option :value="null">Use guest/contact information</option>
-                            <option v-for="address in addresses" :key="address.id" :value="address.id">
-                                {{ address.full_name }} — {{ address.city }}, {{ address.country }}
-                            </option>
-                        </select>
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <input v-model="form.guest_name" class="rounded-md border-zinc-300 text-sm" placeholder="Guest name" />
-                            <input v-model="form.guest_email" type="email" class="rounded-md border-zinc-300 text-sm" placeholder="Guest email" />
+                        <div v-if="!isGuest" class="space-y-2">
+                            <label class="text-sm font-semibold">Saved shipping address</label>
+                            <select v-model="form.address_id" class="w-full rounded-md border-zinc-300 text-sm">
+                                <option :value="null">Use account contact information</option>
+                                <option v-for="address in addresses" :key="address.id" :value="address.id">
+                                    {{ address.full_name }} - {{ address.city }}, {{ address.country }}
+                                </option>
+                            </select>
+                            <p v-if="form.errors.address_id" class="text-sm text-rose-600">{{ form.errors.address_id }}</p>
                         </div>
+
+                        <div v-else class="space-y-4">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="text-sm font-semibold">Full name</label>
+                                    <input v-model="form.guest_name" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="Sarah Tan" />
+                                    <p v-if="form.errors.guest_name" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_name }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold">Email</label>
+                                    <input v-model="form.guest_email" type="email" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="buyer@example.com" />
+                                    <p v-if="form.errors.guest_email" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_email }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="text-sm font-semibold">Phone</label>
+                                    <input v-model="form.guest_phone" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="+1 555 0100" />
+                                    <p v-if="form.errors.guest_phone" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_phone }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold">Country code</label>
+                                    <input v-model="form.guest_country" maxlength="2" class="mt-1 w-full rounded-md border-zinc-300 text-sm uppercase" placeholder="US" />
+                                    <p v-if="form.errors.guest_country" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_country }}</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-semibold">Address line 1</label>
+                                <input v-model="form.guest_address_line1" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="123 Market Street" />
+                                <p v-if="form.errors.guest_address_line1" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_address_line1 }}</p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-semibold">Address line 2</label>
+                                <input v-model="form.guest_address_line2" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="Apartment, suite, building" />
+                                <p v-if="form.errors.guest_address_line2" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_address_line2 }}</p>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-3">
+                                <div>
+                                    <label class="text-sm font-semibold">City</label>
+                                    <input v-model="form.guest_city" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="Melbourne" />
+                                    <p v-if="form.errors.guest_city" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_city }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold">State</label>
+                                    <input v-model="form.guest_state" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="VIC" />
+                                    <p v-if="form.errors.guest_state" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_state }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold">Postal code</label>
+                                    <input v-model="form.guest_postal_code" class="mt-1 w-full rounded-md border-zinc-300 text-sm" placeholder="3000" />
+                                    <p v-if="form.errors.guest_postal_code" class="mt-1 text-sm text-rose-600">{{ form.errors.guest_postal_code }}</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <textarea v-model="form.notes" class="w-full rounded-md border-zinc-300 text-sm" rows="3" placeholder="Order notes"></textarea>
-                        <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white" @click="step = 2">Continue</button>
+                        <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="!hasItems" @click="step = 2">Continue</button>
                     </div>
 
                     <div v-if="step === 2" class="space-y-3">
@@ -94,7 +167,7 @@ const submit = () => {
                         <div class="rounded-md bg-zinc-50 p-4 text-sm text-zinc-600">
                             Payment widgets are represented as frontend-ready placeholders; backend intent routes are available for Stripe and PayPal.
                         </div>
-                        <button class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="form.processing" @click="submit">
+                        <button class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="form.processing || !hasItems" @click="submit">
                             Place order
                         </button>
                     </div>

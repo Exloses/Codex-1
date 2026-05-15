@@ -6,24 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\CheckoutRequest;
 use App\Http\Requests\Storefront\GuestCheckoutRequest;
 use App\Jobs\ProcessOrderAfterPayment;
+use App\Jobs\SendEmailJob;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\GuestCartService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CheckoutController extends Controller
 {
-    public function index(): Response
+    public function index(GuestCartService $guestCart): Response
     {
         return Inertia::render('Storefront/Checkout', [
-            'cartItems' => CartItem::query()
-                ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
-                ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock'])
-                ->where('user_id', auth()->id())
-                ->get(),
+            'cartItems' => auth()->check()
+                ? CartItem::query()
+                    ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
+                    ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock'])
+                    ->where('user_id', auth()->id())
+                    ->get()
+                : $guestCart->items(),
             'addresses' => auth()->user()?->addresses()
                 ->select(['id', 'user_id', 'full_name', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default'])
                 ->latest()
@@ -33,14 +39,23 @@ class CheckoutController extends Controller
 
     public function store(CheckoutRequest $request)
     {
+        abort_unless($request->user(), 403);
+
         $order = $this->createOrderFromCart($request);
 
         return redirect()->route('checkout.success', $order);
     }
 
-    public function success(Order $order): Response
+    public function success(Request $request, Order $order): Response
     {
-        $this->authorize('view', $order);
+        if ($order->user_id) {
+            $this->authorize('view', $order);
+        } else {
+            $sessionMatches = (int) $request->session()->get('guest_order_id') === $order->id
+                && $request->session()->get('guest_order_email') === $order->guest_email;
+
+            abort_unless($sessionMatches || $request->hasValidSignature() || $request->user()?->isAdmin(), 403);
+        }
 
         return Inertia::render('Storefront/CheckoutSuccess', [
             'order' => $order->load([
@@ -60,11 +75,21 @@ class CheckoutController extends Controller
         return $this->ok(['discount_usd' => 0, 'message' => 'Point redemption is available through LoyaltyService.']);
     }
 
-    public function guestStore(GuestCheckoutRequest $request)
+    public function guestStore(GuestCheckoutRequest $request, GuestCartService $guestCart)
     {
-        return response()->json([
-            'message' => 'Guest checkout persistence requires nullable order user_id from Task 17. Authenticated checkout is ready.',
-        ], 422);
+        $order = $this->createOrderFromGuestCart($request, $guestCart);
+
+        $guestCart->clear();
+        $request->session()->put('guest_order_id', $order->id);
+        $request->session()->put('guest_order_email', $order->guest_email);
+
+        SendEmailJob::dispatch(
+            $order->guest_email,
+            'Order confirmation: '.$order->order_number,
+            "Thank you {$order->guest_name}. Your order {$order->order_number} has been placed. Track it at ".route('track.index')." using this email address.",
+        );
+
+        return redirect()->to(URL::temporarySignedRoute('checkout.success', now()->addMinutes(30), $order));
     }
 
     private function createOrderFromCart(CheckoutRequest $request): Order
@@ -117,6 +142,64 @@ class CheckoutController extends Controller
 
             if ($order->payment_status === 'paid') {
                 ProcessOrderAfterPayment::dispatch($order);
+            }
+
+            CartItem::query()->where('user_id', $user->id)->delete();
+
+            return $order;
+        });
+    }
+
+    private function createOrderFromGuestCart(GuestCheckoutRequest $request, GuestCartService $guestCart): Order
+    {
+        $cartItems = $guestCart->items(forOrder: true);
+        abort_if($cartItems->isEmpty(), 422, 'Cart is empty.');
+
+        return DB::transaction(function () use ($request, $cartItems) {
+            $subtotal = $cartItems->sum(fn (array $item) => (float) ($item['productVariant']?->price ?? $item['product']->selling_price) * $item['quantity']);
+            $shipping = (float) $request->input('shipping_cost_usd', 0);
+            $discount = (float) $request->input('discount_usd', 0);
+            $total = max(0, $subtotal + $shipping - $discount);
+
+            $order = Order::query()->create([
+                'user_id' => null,
+                'address_id' => null,
+                'order_number' => 'ORD-'.now()->format('Ymd').'-'.Str::upper(Str::random(8)),
+                'guest_email' => $request->validated('guest_email'),
+                'guest_name' => $request->validated('guest_name'),
+                'guest_phone' => $request->validated('guest_phone'),
+                'guest_address_line1' => $request->validated('guest_address_line1'),
+                'guest_address_line2' => $request->validated('guest_address_line2'),
+                'guest_city' => $request->validated('guest_city'),
+                'guest_state' => $request->validated('guest_state'),
+                'guest_postal_code' => $request->validated('guest_postal_code'),
+                'guest_country' => strtoupper($request->validated('guest_country')),
+                'status' => 'pending',
+                'subtotal_usd' => $subtotal,
+                'shipping_cost_usd' => $shipping,
+                'discount_usd' => $discount,
+                'total_usd' => $total,
+                'buyer_currency' => strtoupper($request->input('buyer_currency', 'USD')),
+                'exchange_rate' => 1,
+                'total_buyer_currency' => $total,
+                'payment_status' => 'unpaid',
+                'payment_method' => $request->input('payment_method'),
+                'affiliate_code' => $request->input('affiliate_code'),
+                'notes' => $request->input('notes'),
+            ]);
+
+            foreach ($cartItems as $item) {
+                $price = $item['productVariant']?->price ?? $item['product']->selling_price;
+
+                OrderItem::query()->create([
+                    'order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'product_variant_id' => $item['product_variant_id'],
+                    'vendor_id' => $item['product']->vendor_id,
+                    'quantity' => $item['quantity'],
+                    'price_usd' => $price,
+                    'subtotal_usd' => (float) $price * $item['quantity'],
+                ]);
             }
 
             return $order;

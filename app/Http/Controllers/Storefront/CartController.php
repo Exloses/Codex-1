@@ -5,24 +5,40 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\CartRequest;
 use App\Models\CartItem;
+use App\Services\GuestCartService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CartController extends Controller
 {
-    public function index(): Response
+    public function index(GuestCartService $guestCart): Response
     {
         return Inertia::render('Storefront/Cart', [
-            'items' => CartItem::query()
-                ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
-                ->with(['product:id,name,slug,selling_price,stock,weight', 'productVariant:id,product_id,combination,price,stock,image'])
-                ->where('user_id', auth()->id())
-                ->get(),
+            'items' => auth()->check()
+                ? CartItem::query()
+                    ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
+                    ->with(['product:id,name,slug,selling_price,stock,weight', 'productVariant:id,product_id,combination,price,stock,image'])
+                    ->where('user_id', auth()->id())
+                    ->get()
+                : $guestCart->items(),
         ]);
     }
 
-    public function store(CartRequest $request)
+    public function store(CartRequest $request, GuestCartService $guestCart)
     {
+        if (! $request->user()) {
+            $line = $guestCart->put(
+                $request->integer('product_id'),
+                $request->filled('product_variant_id') ? $request->integer('product_variant_id') : null,
+                $request->integer('quantity', 1),
+                $request->input('custom_note'),
+            );
+
+            return $this->ok([
+                'item' => $guestCart->items()->firstWhere('id', $line['id']),
+            ], 201);
+        }
+
         $item = CartItem::query()->updateOrCreate(
             [
                 'user_id' => $request->user()->id,
@@ -40,8 +56,17 @@ class CartController extends Controller
         ], 201);
     }
 
-    public function update(CartRequest $request, int $id)
+    public function update(CartRequest $request, string $id, GuestCartService $guestCart)
     {
+        if (! $request->user()) {
+            $line = $guestCart->update($id, $request->integer('quantity', 1), $request->input('custom_note'));
+            abort_if(! $line, 404);
+
+            return $this->ok([
+                'item' => $guestCart->items()->firstWhere('id', $line['id']),
+            ]);
+        }
+
         $item = CartItem::query()->where('user_id', $request->user()->id)->findOrFail($id);
         $item->update($request->safe()->only(['quantity']));
 
@@ -51,8 +76,14 @@ class CartController extends Controller
         ])]);
     }
 
-    public function destroy(int $id)
+    public function destroy(string $id, GuestCartService $guestCart)
     {
+        if (! auth()->check()) {
+            $guestCart->remove($id);
+
+            return $this->ok();
+        }
+
         CartItem::query()->where('user_id', auth()->id())->whereKey($id)->delete();
 
         return $this->ok();

@@ -5,16 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 16 - Social Login
-- Last completed task: Task 15 - Oracle Cloud Deployment Preparation
-- Branch: `codex/task-16-social-login`
-- Status: Task 16 completed locally; draft PR #19 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/19
-- Scope: Implement Google and Facebook social login only.
-- Task 15 post-merge status/memory notes were carried from `main` into the Task 16 branch and should be committed on this branch.
-- Do not use or request real Google/Facebook OAuth credentials; use safe placeholders only.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 17.
-- Next task after Task 16 is merged: Task 17 - Guest Checkout.
+- Active task: Task 17 - Guest Checkout
+- Last completed task: Task 16 - Social Login
+- Branch: `codex/task-17-guest-checkout`
+- Status: Task 17 completed locally; PR is being created.
+- Pull request: pending
+- Scope: Allow checkout without registration while preserving authenticated checkout.
+- Task 16 PR #19 is merged into `main` via merge commit `37792ac`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 18.
+- Next task after Task 17 is merged: Task 18 - Live Chat & Support.
 
 ---
 
@@ -32,12 +31,53 @@
 
 ## Recent Baseline
 
-- Task 1-15 are merged into `main`.
+- Task 1-16 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
 - Task 13 added full demo seed data and credentials for local validation.
 - Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
+- Task 16 added Google/Facebook Socialite login with placeholder-only OAuth configuration.
+
+---
+
+## Task 17 Completed Work
+
+- Confirmed Task 16 PR #19 is merged into `main`, then created branch `codex/task-17-guest-checkout` from updated `main`.
+- Added `database/migrations/2026_05_15_120000_enable_guest_checkout_orders.php`.
+- Task 17 migration makes `orders.user_id` nullable and adds guest snapshot fields: `guest_phone`, `guest_address_line1`, `guest_address_line2`, `guest_city`, `guest_state`, `guest_postal_code`, and `guest_country`.
+- Created `app/Services/GuestCartService.php` for session-backed guest carts without fake users.
+- Updated `CartController` so guests can add/view/update/remove cart items through session, while authenticated users keep using `cart_items`.
+- Moved cart routes and checkout display/success/coupon/guest routes outside the auth group; authenticated checkout store and payment routes remain protected.
+- Implemented `CheckoutController::guestStore()` to create guest orders with `user_id = null`, guest contact/shipping fields, order items, totals, session/signed success access, guest cart clearing, and queued confirmation email through `SendEmailJob`.
+- Updated `CheckoutController::success()` so guest orders require the creating session, a valid signed URL, or admin access.
+- Updated tracking validation so `/track-order` requires order number plus email, preventing order lookup without an email.
+- Updated Vue storefront pieces:
+  - `Checkout.vue` now detects guest vs authenticated user, shows guest contact/shipping fields only for guests, posts to `checkout.guest` for guests, and displays validation errors.
+  - `CheckoutSuccess.vue` shows guest tracking hints.
+  - `TrackOrder.vue` requires email and shows a friendly not-found error.
+  - `ProductCard.vue` add-to-cart button now posts to `cart.store`.
+- Added `tests/Feature/GuestCheckoutTest.php` covering guest session cart, guest checkout persistence, guest cart clearing, guest tracking with correct/wrong email, authenticated checkout preservation, and `vendor_price` non-exposure in cart/checkout responses.
+- No real payment credentials, OAuth credentials, API keys, or `.env` changes were used.
+
+## Task 17 Validation
+
+- Baseline `main` before branching:
+  - `php artisan about`: passed via `E:\Codex\tools\php-8.3\php.exe`.
+  - `php artisan route:list`: passed.
+  - `php artisan test`: passed, 34 tests / 155 assertions.
+  - `npm run build`: passed via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+- Task 17 local validation:
+  - `php artisan migrate`: passed.
+  - `php -l` on Task 17 PHP files: passed.
+  - `php artisan test --filter=GuestCheckoutTest`: passed, 4 tests / 24 assertions.
+  - `php artisan about`: passed.
+  - `php artisan route:list`: passed with 158 routes.
+  - `php artisan test`: passed, 38 tests / 179 assertions.
+  - `npm run build`: passed.
+  - `php artisan serve --host=127.0.0.1 --port=8080`: started for HTTP smoke.
+  - HTTP smoke: `/cart`, `/checkout`, `/track-order` all returned 200.
+  - Browser plugin was not available through tool discovery in this session; HTTP/build validation was used as fallback.
 
 ---
 

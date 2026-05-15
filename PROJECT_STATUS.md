@@ -40,8 +40,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
-| Task 16 | Social Login | ✅ Selesai; PR open | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
-| Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
+| Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
+| Task 17 | Guest Checkout | ✅ Selesai lokal; PR pending | `codex/task-17-guest-checkout` | pending |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
 | Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 16 Social Login selesai lokal di branch `codex/task-16-social-login`; draft PR #19 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 17 Guest Checkout selesai lokal di branch `codex/task-17-guest-checkout`; PR sedang dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -392,6 +392,15 @@ Task 16:
 - Added `tests/Feature/Auth/SocialAuthTest.php` with mocked Socialite coverage for invalid provider, redirect availability, new user callback, and existing unverified user callback.
 - Updated `.env.example`, `config/services.php`, and README OAuth setup docs with safe placeholders only.
 - No real Google/Facebook credential was used, no `.env` was edited, and no network OAuth credential test was performed.
+
+Task 17:
+- Created `database/migrations/2026_05_15_120000_enable_guest_checkout_orders.php` to make `orders.user_id` nullable and add guest shipping/contact snapshot fields.
+- Created `app/Services/GuestCartService.php` for session-backed guest cart lines without creating fake users.
+- Updated cart routes and `CartController` so guests can add, view, update, and remove cart items while authenticated users keep using `cart_items`.
+- Updated checkout routes and `CheckoutController` so guests can place orders with `user_id = null`, `guest_email`, `guest_name`, shipping/contact fields, order items, totals, signed/session-protected success access, guest cart clearing, and queued confirmation email.
+- Updated tracking request/controller flow so order tracking requires order number plus email and rejects wrong guest email.
+- Updated `Checkout.vue`, `CheckoutSuccess.vue`, `TrackOrder.vue`, and `ProductCard.vue` for public cart/checkout, guest address form, validation errors, guest order hints, and add-to-cart actions.
+- Added `tests/Feature/GuestCheckoutTest.php` covering guest cart checkout, guest order persistence, guest cart clearing, tracking with correct/wrong email, authenticated checkout preservation, and `vendor_price` non-exposure in cart/checkout responses.
 ```
 
 ---
@@ -420,6 +429,10 @@ Seeded counts:
 - products: 10
 - product_variants: 40
 - faqs: 20
+Task 17 migration:
+- `2026_05_15_120000_enable_guest_checkout_orders` applied successfully on local SQLite.
+- `orders.user_id` is nullable for guest orders.
+- Guest snapshot fields added: guest_phone, guest_address_line1, guest_address_line2, guest_city, guest_state, guest_postal_code, guest_country.
 Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
@@ -500,6 +513,20 @@ Validasi Task 16 lokal:
 - Browser plugin tidak dapat dipakai untuk screenshot karena tidak ada active Codex browser pane di sesi ini; fallback validasi HTTP/build digunakan.
 - `git ls-files .env`: kosong, `.env` tidak tracked.
 - Secret scan Task 16 files: tidak menemukan credential asli.
+
+Validasi Task 17 lokal:
+- PR #19 terkonfirmasi merged ke main melalui merge commit `37792ac`.
+- Baseline main sebelum branch: php artisan about berhasil, route:list berhasil, php artisan test berhasil 34 tests / 155 assertions, npm run build berhasil.
+- Branch `codex/task-17-guest-checkout` dibuat dari main yang sudah memuat Task 16.
+- php artisan migrate: berhasil, termasuk migration Task 17.
+- php -l pada file PHP Task 17: berhasil.
+- php artisan test --filter=GuestCheckoutTest: berhasil 4 tests / 24 assertions.
+- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe.
+- php artisan route:list: berhasil, 158 routes.
+- php artisan test: berhasil, 38 tests / 179 assertions.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd.
+- HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/cart`, `/checkout`, dan `/track-order` semua 200.
+- Browser plugin tidak tersedia lewat tool discovery pada sesi ini; fallback validasi HTTP/build digunakan.
 ```
 
 ---
@@ -525,15 +552,14 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 17 - Guest Checkout, hanya setelah PR Task 16 merged oleh owner.
-Branch yang akan dibuat nanti: codex/task-17-guest-checkout
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 17 dan PROMPT_TEMPLATES.md Task 17
-Status: Task 16 selesai lokal di branch codex/task-16-social-login; draft PR #19 dibuat. Task 17 belum dimulai.
-Task 15 branch: codex/task-15-deploy-oracle
-Task 15 PR: https://github.com/Exloses/Codex-1/pull/18
-Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
-Next setelah PR Task 16 merged oleh owner: Task 17 - Guest Checkout.
+Task berikutnya: Task 18 - Live Chat & Support, hanya setelah PR Task 17 merged oleh owner.
+Branch yang akan dibuat nanti: codex/task-18-livechat-support
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 18 dan PROMPT_TEMPLATES.md Task 18
+Status: Task 17 selesai lokal di branch codex/task-17-guest-checkout; PR sedang dibuat.
 Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
+Task 16 status: merged ke main.
+Task 17 branch: codex/task-17-guest-checkout
+Task 17 PR: pending
 ```
 
 ---
@@ -549,6 +575,8 @@ Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
 - Task 15 hanya deployment preparation. Jangan deploy production, jangan login Oracle Cloud, jangan SSH, dan jangan gunakan credential asli sampai owner menyiapkan akun/server.
 - Task 15 deliverables: docs/deployment/oracle-cloud.md, docs/deployment/deploy-checklist.md, docs/deployment/nginx-dropship-platform.conf, docs/deployment/supervisor-laravel-worker.conf, .env.production.example, README.md update.
 - Task 16 memakai placeholder OAuth aman saja. Jangan gunakan atau minta Google/Facebook OAuth credential asli, jangan edit `.env`, dan jangan melakukan network OAuth test yang butuh credential asli.
+- Task 17 guest checkout memakai session cart untuk guest dan `cart_items` untuk user login; guest order menyimpan email/nama/alamat di tabel `orders`, bukan membuat user palsu.
+- Guest success page dilindungi session atau signed URL sementara; tracking guest wajib order_number + email.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -567,6 +595,8 @@ Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 17 Guest Checkout selesai lokal; validasi migrate, about, route:list, test, npm build, dan HTTP smoke berhasil | Codex |
+| 2026-05-15 | PR #19 Task 16 terkonfirmasi merged ke main; Task 17 dimulai di branch `codex/task-17-guest-checkout` | Codex |
 | 2026-05-15 | Task 16 draft PR #19 dibuat: https://github.com/Exloses/Codex-1/pull/19 | Codex |
 | 2026-05-15 | Task 16 Social Login selesai lokal; validasi php artisan about, route:list, test, npm build, dan smoke HTTP berhasil | Codex |
 | 2026-05-15 | Task 16 Social Login dimulai di branch `codex/task-16-social-login`; catatan post-merge Task 15 dibawa ke branch Task 16 | Codex |
