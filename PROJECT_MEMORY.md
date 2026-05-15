@@ -5,15 +5,16 @@
 
 ## Current Task
 
-- Active task: None
+- Active task: Task 16 - Social Login
 - Last completed task: Task 15 - Oracle Cloud Deployment Preparation
-- Branch: `codex/task-15-deploy-oracle`
-- Status: Task 15 completed as preparation only; PR #18 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/18
-- Scope: Create Oracle Cloud deployment documentation, safe production env example, Nginx/Supervisor samples, deployment checklist, README reference, and project status updates.
-- Deployment actual is postponed because the Oracle Cloud account/server is not available yet.
-- Do not deploy to production, do not access Oracle Cloud, do not SSH to any server, and do not use real credentials.
-- Next task after Task 15 PR is merged: Task 16 - Social Login. Do not start Task 16 now.
+- Branch: `codex/task-16-social-login`
+- Status: Task 16 completed locally; draft PR #19 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/19
+- Scope: Implement Google and Facebook social login only.
+- Task 15 post-merge status/memory notes were carried from `main` into the Task 16 branch and should be committed on this branch.
+- Do not use or request real Google/Facebook OAuth credentials; use safe placeholders only.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 17.
+- Next task after Task 16 is merged: Task 17 - Guest Checkout.
 
 ---
 
@@ -31,7 +32,7 @@
 
 ## Recent Baseline
 
-- Task 1-14 are merged into `main`.
+- Task 1-15 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
@@ -86,8 +87,51 @@
 
 ## Next Task Gate
 
-- Next task: Task 16 - Social Login.
-- Do not start Task 16 until the Task 15 PR is merged by the owner.
+- Current task: Task 16 - Social Login.
+- Task 15 PR #18 is merged, and post-merge validation on `main` passed on 2026-05-14:
+  - `git checkout main`
+  - `git pull origin main`
+  - `php artisan test` via `E:\Codex\tools\php-8.3\php.exe`: 30 tests / 122 assertions passed.
+  - `npm run build` via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`: passed.
+- Branch `codex/task-16-social-login` has been created from `main`.
+- Task 16 OAuth credential handling must remain placeholder-only:
+  - `GOOGLE_CLIENT_ID`
+  - `GOOGLE_CLIENT_SECRET`
+  - `GOOGLE_REDIRECT_URL`
+  - `FACEBOOK_CLIENT_ID`
+  - `FACEBOOK_CLIENT_SECRET`
+  - `FACEBOOK_REDIRECT_URL`
+- Task 16 local validation passed:
+  - `php artisan about` via `E:\Codex\tools\php-8.3\php.exe`.
+  - `php artisan route:list` with 158 routes.
+  - `php artisan test` with 34 tests / 155 assertions.
+  - `npm run build` via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+  - `php artisan serve` on `http://127.0.0.1:8000`.
+  - HTTP smoke `/login` and `/register` returned 200 and exposed Ziggy social routes.
+  - Invalid provider `/auth/github/redirect` returned 302 to `/login`.
+  - `/admin` redirected to `/admin/login`; `/vendor/dashboard` redirected to `/login`.
+  - Browser plugin could not capture UI because no active Codex browser pane was available; fallback HTTP/build validation was used.
+  - `.env` remains untracked and no real credential was found in Task 16 files.
+- Next task: Task 17 - Guest Checkout, only after the Task 16 PR is merged by the owner.
+- Task 16 draft PR: https://github.com/Exloses/Codex-1/pull/19
+
+---
+
+## Task 16 Completed Work
+
+- Confirmed `laravel/socialite` already exists in `composer.json`; no reinstall was needed.
+- Updated safe Facebook placeholder wording in `.env.example` and `config/services.php` to `YOUR_FACEBOOK_CLIENT_SECRET`.
+- Implemented `app/Http/Controllers/Auth/SocialAuthController.php` with Google/Facebook provider allowlisting, Socialite redirect/callback, safe error redirects, email-based user lookup, new buyer defaults (`US`, `USD`, `en`, active), OAuth email verification, optional buyer role assignment if the role exists, `Auth::login()`, session regeneration, and intended dashboard redirect.
+- Updated `routes/web.php` with named routes:
+  - `social.redirect`: `GET /auth/{provider}/redirect`
+  - `social.callback`: `GET /auth/{provider}/callback`
+- Added Inertia shared `flash.status` and `flash.error` props in `HandleInertiaRequests`.
+- Created `resources/js/Components/SocialAuthLinks.vue`.
+- Updated `resources/js/Pages/Auth/Login.vue` and `resources/js/Pages/Auth/Register.vue` with clear `Continue with Google` and `Continue with Facebook` actions while preserving email/password auth.
+- Added `tests/Feature/Auth/SocialAuthTest.php` using mocked Socialite only; no real Google/Facebook network call.
+- Updated `README.md` with local Google/Facebook OAuth setup docs and redirect URLs:
+  - `http://localhost:8000/auth/google/callback`
+  - `http://localhost:8000/auth/facebook/callback`
 
 ---
 

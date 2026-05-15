@@ -14,6 +14,38 @@
 - Vendor: `vendor2@demo.com` / `Vendor123!`
 - Buyer: `buyer@demo.com` / `Buyer123!`
 
+## Local Social Login Setup
+
+Task 16 adds Google and Facebook social login through Laravel Socialite. The repository only stores safe placeholders in `.env.example`; real OAuth client IDs and secrets must stay in your local `.env` file and must never be committed.
+
+For Google OAuth local testing, create an OAuth client in Google Cloud Console and add this authorized redirect URI:
+
+```text
+http://localhost:8000/auth/google/callback
+```
+
+Then set these values in local `.env`:
+
+```env
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
+GOOGLE_REDIRECT_URL=http://localhost:8000/auth/google/callback
+```
+
+For Facebook OAuth local testing, create an app in Meta for Developers and add this redirect URI:
+
+```text
+http://localhost:8000/auth/facebook/callback
+```
+
+Then set these values in local `.env`:
+
+```env
+FACEBOOK_CLIENT_ID=YOUR_FACEBOOK_APP_ID
+FACEBOOK_CLIENT_SECRET=YOUR_FACEBOOK_CLIENT_SECRET
+FACEBOOK_REDIRECT_URL=http://localhost:8000/auth/facebook/callback
+```
+
 ## Oracle Cloud Deployment Preparation
 
 Task 15 prepared deployment documentation and safe sample configuration for a future Oracle Cloud production setup. The actual deployment has not been performed because the Oracle Cloud account/server is not available yet.

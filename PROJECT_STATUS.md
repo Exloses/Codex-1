@@ -39,8 +39,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 12 | Email Notifications | ✅ Selesai & PR merged | `codex/task-12-email-notifications` | https://github.com/Exloses/Codex-1/pull/15 |
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
-| Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only, PR open | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
-| Task 16 | Social Login | ⏳ Belum dimulai | - | - |
+| Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
+| Task 16 | Social Login | ✅ Selesai; PR open | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Tidak ada. Task 15 Oracle Cloud Deployment Preparation selesai lokal dan siap PR. Deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
+**Task sedang dikerjakan:** Task 16 Social Login selesai lokal di branch `codex/task-16-social-login`; draft PR #19 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -382,6 +382,16 @@ Task 15:
 - Updated README.md with Oracle Cloud Deployment Preparation references and credential safety warning.
 - Updated PROJECT_STATUS.md and PROJECT_MEMORY.md with Task 15 preparation-only context.
 - No production deployment was performed, no Oracle Cloud login was attempted, no SSH/server access was attempted, and no real credentials were used.
+
+Task 16:
+- Implemented Google/Facebook Socialite provider allowlisting, redirect, callback, friendly error handling, user creation, email verification, optional buyer role assignment, login, session regeneration, and dashboard intended redirect.
+- Updated social auth routes to `/auth/{provider}/redirect` and `/auth/{provider}/callback` with route names `social.redirect` and `social.callback`.
+- Added Inertia shared flash status/error props for callback errors.
+- Updated Login/Register with `Continue with Google` and `Continue with Facebook` buttons while preserving email/password auth.
+- Added `resources/js/Components/SocialAuthLinks.vue`.
+- Added `tests/Feature/Auth/SocialAuthTest.php` with mocked Socialite coverage for invalid provider, redirect availability, new user callback, and existing unverified user callback.
+- Updated `.env.example`, `config/services.php`, and README OAuth setup docs with safe placeholders only.
+- No real Google/Facebook credential was used, no `.env` was edited, and no network OAuth credential test was performed.
 ```
 
 ---
@@ -466,15 +476,30 @@ Buyer:    buyer@demo.com       / Buyer123!
 ```
 Tidak ada error saat ini.
 
-Validasi terakhir Task 15:
-- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe karena php tidak ada di PATH.
-- php artisan route:list: berhasil, 158 routes.
-- php artisan test: berhasil, 30 tests / 122 assertions.
-- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd karena npm tidak ada di PATH.
+Validasi terakhir post-merge Task 15 di main:
+- PR #18 terkonfirmasi merged ke main pada 2026-05-14 12:19:11 UTC.
+- git checkout main: berhasil.
+- git pull origin main: berhasil fast-forward ke merge commit a16c592.
+- php artisan test: berhasil via E:\Codex\tools\php-8.3\php.exe, 30 tests / 122 assertions.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd.
 - git ls-files .env: kosong, .env tidak tracked.
-- Secret/placeholder scan untuk .env.production.example, docs/deployment, README.md, PROJECT_STATUS.md, dan PROJECT_MEMORY.md: tidak menemukan secret asli; semua credential adalah placeholder.
+- Validasi Task 15 sebelumnya juga memastikan .env.production.example dan docs deployment hanya memakai placeholder aman.
 - Tidak ada command remote/SSH/deploy yang dijalankan.
 - Tidak ada perubahan aplikasi runtime selain dokumentasi dan contoh konfigurasi deployment.
+
+Validasi Task 16 lokal:
+- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe.
+- php artisan route:list: berhasil, 158 routes, termasuk social.redirect dan social.callback.
+- php artisan test: berhasil, 34 tests / 155 assertions.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd.
+- php artisan serve: berhasil di http://127.0.0.1:8000.
+- HTTP smoke /login: 200, Ziggy social route tersedia.
+- HTTP smoke /register: 200, Ziggy social route tersedia.
+- Invalid provider /auth/github/redirect: 302 ke /login dengan flash error.
+- /admin: 302 ke /admin/login; /vendor/dashboard: 302 ke /login, route tidak rusak.
+- Browser plugin tidak dapat dipakai untuk screenshot karena tidak ada active Codex browser pane di sesi ini; fallback validasi HTTP/build digunakan.
+- `git ls-files .env`: kosong, `.env` tidak tracked.
+- Secret scan Task 16 files: tidak menemukan credential asli.
 ```
 
 ---
@@ -500,13 +525,15 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 16 - Social Login
-Branch yang akan dibuat nanti setelah PR Task 15 merged: codex/task-16-social-login
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 16 dan PROMPT_TEMPLATES.md Task 16
-Status: JANGAN mulai Task 16 sampai owner merge PR Task 15.
+Task berikutnya: Task 17 - Guest Checkout, hanya setelah PR Task 16 merged oleh owner.
+Branch yang akan dibuat nanti: codex/task-17-guest-checkout
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 17 dan PROMPT_TEMPLATES.md Task 17
+Status: Task 16 selesai lokal di branch codex/task-16-social-login; draft PR #19 dibuat. Task 17 belum dimulai.
 Task 15 branch: codex/task-15-deploy-oracle
 Task 15 PR: https://github.com/Exloses/Codex-1/pull/18
 Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
+Next setelah PR Task 16 merged oleh owner: Task 17 - Guest Checkout.
+Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
 ```
 
 ---
@@ -521,6 +548,7 @@ Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracl
 - Task 14 invalidation tidak memakai cache tags agar aman untuk file/database/array cache drivers.
 - Task 15 hanya deployment preparation. Jangan deploy production, jangan login Oracle Cloud, jangan SSH, dan jangan gunakan credential asli sampai owner menyiapkan akun/server.
 - Task 15 deliverables: docs/deployment/oracle-cloud.md, docs/deployment/deploy-checklist.md, docs/deployment/nginx-dropship-platform.conf, docs/deployment/supervisor-laravel-worker.conf, .env.production.example, README.md update.
+- Task 16 memakai placeholder OAuth aman saja. Jangan gunakan atau minta Google/Facebook OAuth credential asli, jangan edit `.env`, dan jangan melakukan network OAuth test yang butuh credential asli.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -539,6 +567,10 @@ Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracl
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 16 draft PR #19 dibuat: https://github.com/Exloses/Codex-1/pull/19 | Codex |
+| 2026-05-15 | Task 16 Social Login selesai lokal; validasi php artisan about, route:list, test, npm build, dan smoke HTTP berhasil | Codex |
+| 2026-05-15 | Task 16 Social Login dimulai di branch `codex/task-16-social-login`; catatan post-merge Task 15 dibawa ke branch Task 16 | Codex |
+| 2026-05-14 | Post-merge sync main setelah PR #18; php artisan test dan npm run build berhasil | Codex |
 | 2026-05-14 | Task 15 PR #18 dibuat; menunggu review/merge owner | Codex |
 | 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation selesai lokal; branch siap PR | Codex |
 | 2026-05-14 | Task 15 Oracle Cloud Deployment Preparation dimulai setelah Task 14 merged ke main | Codex |

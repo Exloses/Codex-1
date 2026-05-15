@@ -74,11 +74,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/password', [PasswordController::class, 'update'])->name('password.profile.update');
 });
 
-Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])
-    ->where('provider', 'google|facebook')
+Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+    ->middleware('guest')
     ->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-    ->where('provider', 'google|facebook');
+    ->middleware('guest')
+    ->name('social.callback');
 
 Route::get('/', [StorefrontController::class, 'home'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

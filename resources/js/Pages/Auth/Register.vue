@@ -3,8 +3,17 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SocialAuthLinks from '@/Components/SocialAuthLinks.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const props = defineProps({
+    flash: {
+        type: Object,
+        default: () => ({}),
+    },
+});
 
 const form = useForm({
     name: '',
@@ -21,26 +30,19 @@ const submit = () => {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
+
+const errorMessage = computed(() => props.flash?.error);
 </script>
 
 <template>
     <GuestLayout>
         <Head title="Register" />
 
-        <div class="mb-6 grid gap-2 sm:grid-cols-2">
-            <Link
-                :href="route('social.redirect', 'google')"
-                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-                Register with Google
-            </Link>
-            <Link
-                :href="route('social.redirect', 'facebook')"
-                class="rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-                Register with Facebook
-            </Link>
+        <div v-if="errorMessage" class="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {{ errorMessage }}
         </div>
+
+        <SocialAuthLinks class="mb-6" />
 
         <form @submit.prevent="submit">
             <div>
