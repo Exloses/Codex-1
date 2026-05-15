@@ -8,8 +8,8 @@
 - Active task: Task 16 - Social Login
 - Last completed task: Task 15 - Oracle Cloud Deployment Preparation
 - Branch: `codex/task-16-social-login`
-- Status: Task 16 completed locally; pending commit, push, and pull request.
-- Pull request: https://github.com/Exloses/Codex-1/pull/18
+- Status: Task 16 completed locally; draft PR #19 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/19
 - Scope: Implement Google and Facebook social login only.
 - Task 15 post-merge status/memory notes were carried from `main` into the Task 16 branch and should be committed on this branch.
 - Do not use or request real Google/Facebook OAuth credentials; use safe placeholders only.
@@ -113,6 +113,7 @@
   - Browser plugin could not capture UI because no active Codex browser pane was available; fallback HTTP/build validation was used.
   - `.env` remains untracked and no real credential was found in Task 16 files.
 - Next task: Task 17 - Guest Checkout, only after the Task 16 PR is merged by the owner.
+- Task 16 draft PR: https://github.com/Exloses/Codex-1/pull/19
 
 ---
 

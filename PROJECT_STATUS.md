@@ -40,7 +40,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 13 | Database Seeders | ✅ Selesai & PR merged | `codex/task-13-database-seeders` | https://github.com/Exloses/Codex-1/pull/16 |
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
-| Task 16 | Social Login | ✅ Selesai lokal; PR pending | `codex/task-16-social-login` | - |
+| Task 16 | Social Login | ✅ Selesai; PR open | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
 | Task 17 | Guest Checkout | ⏳ Belum dimulai | - | - |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 16 Social Login selesai lokal di branch `codex/task-16-social-login`; menunggu commit, push, dan PR. Perubahan catatan post-merge Task 15 dibawa ke branch Task 16 dan akan dikomit bersama Task 16.
+**Task sedang dikerjakan:** Task 16 Social Login selesai lokal di branch `codex/task-16-social-login`; draft PR #19 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -528,11 +528,12 @@ Redis:    Belum dicek
 Task berikutnya: Task 17 - Guest Checkout, hanya setelah PR Task 16 merged oleh owner.
 Branch yang akan dibuat nanti: codex/task-17-guest-checkout
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 17 dan PROMPT_TEMPLATES.md Task 17
-Status: Task 16 selesai lokal di branch codex/task-16-social-login; menunggu PR dibuat. Task 17 belum dimulai.
+Status: Task 16 selesai lokal di branch codex/task-16-social-login; draft PR #19 dibuat. Task 17 belum dimulai.
 Task 15 branch: codex/task-15-deploy-oracle
 Task 15 PR: https://github.com/Exloses/Codex-1/pull/18
 Task 15 status: selesai preparation-only; deployment aktual ditunda karena Oracle Cloud account/server belum tersedia.
 Next setelah PR Task 16 merged oleh owner: Task 17 - Guest Checkout.
+Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
 ```
 
 ---
@@ -566,6 +567,7 @@ Next setelah PR Task 16 merged oleh owner: Task 17 - Guest Checkout.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 16 draft PR #19 dibuat: https://github.com/Exloses/Codex-1/pull/19 | Codex |
 | 2026-05-15 | Task 16 Social Login selesai lokal; validasi php artisan about, route:list, test, npm build, dan smoke HTTP berhasil | Codex |
 | 2026-05-15 | Task 16 Social Login dimulai di branch `codex/task-16-social-login`; catatan post-merge Task 15 dibawa ke branch Task 16 | Codex |
 | 2026-05-14 | Post-merge sync main setelah PR #18; php artisan test dan npm run build berhasil | Codex |
