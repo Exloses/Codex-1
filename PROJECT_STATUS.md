@@ -41,7 +41,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 14 | Performance Optimization | ✅ Selesai & PR merged | `codex/task-14-performance` | https://github.com/Exloses/Codex-1/pull/17 |
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
 | Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
-| Task 17 | Guest Checkout | ✅ Selesai lokal; PR pending | `codex/task-17-guest-checkout` | pending |
+| Task 17 | Guest Checkout | ✅ Selesai; PR open | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
 | Task 18 | Live Chat & Support | ⏳ Belum dimulai | - | - |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
 | Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 17 Guest Checkout selesai lokal di branch `codex/task-17-guest-checkout`; PR sedang dibuat.
+**Task sedang dikerjakan:** Task 17 Guest Checkout selesai lokal di branch `codex/task-17-guest-checkout`; draft PR #20 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -555,11 +555,11 @@ Redis:    Belum dicek
 Task berikutnya: Task 18 - Live Chat & Support, hanya setelah PR Task 17 merged oleh owner.
 Branch yang akan dibuat nanti: codex/task-18-livechat-support
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 18 dan PROMPT_TEMPLATES.md Task 18
-Status: Task 17 selesai lokal di branch codex/task-17-guest-checkout; PR sedang dibuat.
+Status: Task 17 selesai lokal di branch codex/task-17-guest-checkout; draft PR #20 dibuat.
 Task 16 PR: https://github.com/Exloses/Codex-1/pull/19
 Task 16 status: merged ke main.
 Task 17 branch: codex/task-17-guest-checkout
-Task 17 PR: pending
+Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 ```
 
 ---
@@ -595,6 +595,7 @@ Task 17 PR: pending
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 17 draft PR #20 dibuat: https://github.com/Exloses/Codex-1/pull/20 | Codex |
 | 2026-05-15 | Task 17 Guest Checkout selesai lokal; validasi migrate, about, route:list, test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-15 | PR #19 Task 16 terkonfirmasi merged ke main; Task 17 dimulai di branch `codex/task-17-guest-checkout` | Codex |
 | 2026-05-15 | Task 16 draft PR #19 dibuat: https://github.com/Exloses/Codex-1/pull/19 | Codex |

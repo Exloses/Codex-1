@@ -8,8 +8,8 @@
 - Active task: Task 17 - Guest Checkout
 - Last completed task: Task 16 - Social Login
 - Branch: `codex/task-17-guest-checkout`
-- Status: Task 17 completed locally; PR is being created.
-- Pull request: pending
+- Status: Task 17 completed locally; draft PR #20 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/20
 - Scope: Allow checkout without registration while preserving authenticated checkout.
 - Task 16 PR #19 is merged into `main` via merge commit `37792ac`.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 18.
