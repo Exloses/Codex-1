@@ -8,8 +8,8 @@
 - Active task: Task 18 - Live Chat & Support Ticket
 - Last completed task: Task 17 - Guest Checkout
 - Branch: `codex/task-18-livechat-support`
-- Status: Task 18 completed locally; draft PR pending creation.
-- Pull request: Pending.
+- Status: Task 18 completed locally; draft PR #21 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/21
 - Scope: Optional Tawk.to live chat plus authenticated buyer support ticket workflow and admin support handling.
 - Task 17 PR #20 is merged into `main`; post-merge validation on main passed before this branch.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 19.

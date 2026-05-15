@@ -42,7 +42,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
 | Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
 | Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
-| Task 18 | Live Chat & Support | ✅ Selesai lokal; draft PR pending | `codex/task-18-livechat-support` | Pending |
+| Task 18 | Live Chat & Support | ✅ Selesai lokal; draft PR open | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
 | Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
 | Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
 | Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 18 Live Chat & Support selesai lokal di branch `codex/task-18-livechat-support`; draft PR pending creation.
+**Task sedang dikerjakan:** Task 18 Live Chat & Support selesai lokal di branch `codex/task-18-livechat-support`; draft PR #21 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -584,12 +584,12 @@ Redis:    Belum dicek
 Task berikutnya: Task 19 - Wishlist, hanya setelah PR Task 18 merged oleh owner.
 Branch yang akan dibuat nanti: codex/task-19-wishlist
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 19 dan PROMPT_TEMPLATES.md Task 19
-Status: Task 18 selesai lokal di branch codex/task-18-livechat-support; draft PR pending creation.
+Status: Task 18 selesai lokal di branch codex/task-18-livechat-support; draft PR #21 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
 Task 18 branch: codex/task-18-livechat-support
-Task 18 PR: Pending
+Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
 ```
 
 ---
@@ -628,6 +628,7 @@ Task 18 PR: Pending
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-15 | Task 18 draft PR #21 dibuat: https://github.com/Exloses/Codex-1/pull/21 | Codex |
 | 2026-05-15 | Task 18 Live Chat & Support selesai lokal; validasi migrate, about, route:list, support tests, full test, dan npm build berhasil | Codex |
 | 2026-05-15 | PR #20 Task 17 terkonfirmasi merged ke main; Task 18 dimulai di branch `codex/task-18-livechat-support` | Codex |
 | 2026-05-15 | Task 17 draft PR #20 dibuat: https://github.com/Exloses/Codex-1/pull/20 | Codex |
