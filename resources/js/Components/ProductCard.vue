@@ -1,6 +1,6 @@
 <script setup>
 import { HeartIcon, ShoppingBagIcon } from '@heroicons/vue/24/outline';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 
 defineProps({
     product: {
@@ -14,6 +14,13 @@ const money = (value) =>
         style: 'currency',
         currency: 'USD',
     }).format(Number(value || 0));
+
+const addToCart = (product) => {
+    router.post(route('cart.store'), {
+        product_id: product.id,
+        quantity: 1,
+    }, { preserveScroll: true });
+};
 </script>
 
 <template>
@@ -43,7 +50,7 @@ const money = (value) =>
                     <p class="text-base font-bold">{{ money(product.selling_price) }}</p>
                     <p v-if="product.compare_price" class="text-xs text-zinc-400 line-through">{{ money(product.compare_price) }}</p>
                 </div>
-                <button class="rounded-md bg-zinc-950 p-2 text-white hover:bg-zinc-800" title="Add to cart">
+                <button class="rounded-md bg-zinc-950 p-2 text-white hover:bg-zinc-800" title="Add to cart" @click="addToCart(product)">
                     <ShoppingBagIcon class="h-5 w-5" />
                 </button>
             </div>

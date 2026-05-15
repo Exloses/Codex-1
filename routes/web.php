@@ -104,18 +104,19 @@ Route::post('/webhook/stripe', [PaymentController::class, 'stripeWebhook'])
     ->withoutMiddleware([ValidateCsrfToken::class, VerifyCsrfToken::class])
     ->name('webhook.stripe');
 
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('auth')->name('checkout.store');
+Route::post('/checkout/guest', [CheckoutController::class, 'guestStore'])->name('checkout.guest');
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
+Route::post('/checkout/redeem-points', [CheckoutController::class, 'redeemPoints'])->name('checkout.redeem-points');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-    Route::put('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
-
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
-    Route::post('/checkout/redeem-points', [CheckoutController::class, 'redeemPoints'])->name('checkout.redeem-points');
-
     Route::post('/payment/stripe/intent', [PaymentController::class, 'createStripeIntent'])->middleware('throttle:payment')->name('payment.stripe.intent');
     Route::post('/payment/paypal/create', [PaymentController::class, 'createPayPalOrder'])->middleware('throttle:payment')->name('payment.paypal.create');
     Route::post('/payment/paypal/capture', [PaymentController::class, 'capturePayPalOrder'])->middleware('throttle:payment')->name('payment.paypal.capture');
@@ -158,8 +159,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/generate-link', [AffiliateController::class, 'generateLink'])->name('generate-link');
     });
 });
-
-Route::post('/checkout/guest', [CheckoutController::class, 'guestStore'])->name('checkout.guest');
 
 Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->group(function () {
     Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
