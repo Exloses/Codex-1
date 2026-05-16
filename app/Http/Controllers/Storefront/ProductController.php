@@ -24,6 +24,7 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => $this->activeCategories(),
             'filters' => $request->only(['q', 'category', 'sort']),
+            'wishlistProductIds' => $this->wishlistProductIds($products->getCollection()->pluck('id')),
         ]);
     }
 
@@ -70,7 +71,15 @@ class ProductController extends Controller
             }
         );
 
-        return Inertia::render('Storefront/ProductShow', $payload);
+        $visibleProductIds = collect([$payload['product']->id])
+            ->merge($payload['relatedProducts']->pluck('id'))
+            ->unique()
+            ->values();
+
+        return Inertia::render('Storefront/ProductShow', [
+            ...$payload,
+            'wishlistProductIds' => $this->wishlistProductIds($visibleProductIds),
+        ]);
     }
 
     public function search(Request $request): Response
@@ -103,5 +112,18 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get());
+    }
+
+    private function wishlistProductIds($productIds)
+    {
+        if (! auth()->check()) {
+            return [];
+        }
+
+        return auth()->user()
+            ->wishlists()
+            ->whereIn('product_id', collect($productIds)->filter()->values())
+            ->pluck('product_id')
+            ->values();
     }
 }

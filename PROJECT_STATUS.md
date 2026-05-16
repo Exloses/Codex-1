@@ -42,8 +42,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 15 | Oracle Cloud Deployment | ✅ Selesai preparation-only & PR merged | `codex/task-15-deploy-oracle` | https://github.com/Exloses/Codex-1/pull/18 |
 | Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
 | Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
-| Task 18 | Live Chat & Support | ✅ Selesai lokal; draft PR open | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
-| Task 19 | Wishlist | ⏳ Belum dimulai | - | - |
+| Task 18 | Live Chat & Support | ✅ Selesai & PR merged | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
+| Task 19 | Wishlist | ✅ Selesai lokal; draft PR open | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
 | Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
 | Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
 | Task 22 | Return & Refund | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 18 Live Chat & Support selesai lokal di branch `codex/task-18-livechat-support`; draft PR #21 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 19 Wishlist selesai lokal di branch `codex/task-19-wishlist`; draft PR #22 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -414,6 +414,33 @@ Task 18:
 - Upgraded Filament `SupportTicketResource` with searchable fields, status/priority filters, badges, latest-first sorting, editable status/priority, and admin staff reply action.
 - Added `tests/Feature/SupportTicketTest.php` covering create, list/view authorization, reply authorization, buyer replies, ticket number generation, and Tawk disabled behavior.
 - Updated README with Tawk.to/support setup notes.
+
+Task 19:
+- Created files:
+  app/Http/Requests/Storefront/WishlistRequest.php
+  resources/js/Components/Storefront/WishlistButton.vue
+  tests/Feature/WishlistTest.php
+- Modified files:
+  app/Http/Controllers/Storefront/CategoryController.php
+  app/Http/Controllers/Storefront/ProductController.php
+  app/Http/Controllers/Storefront/StorefrontController.php
+  app/Http/Controllers/Storefront/WishlistController.php
+  app/Http/Middleware/HandleInertiaRequests.php
+  resources/js/Components/ProductCard.vue
+  resources/js/Layouts/StorefrontLayout.vue
+  resources/js/Pages/Account/Wishlist.vue
+  resources/js/Pages/Storefront/ProductShow.vue
+  routes/web.php
+  PROJECT_STATUS.md
+  PROJECT_MEMORY.md
+- Completed authenticated wishlist add, remove, toggle, index, and move-to-cart behavior.
+- Wishlist writes are auth-protected, user-scoped, duplicate-safe with `firstOrCreate`, and restricted to active products.
+- Wishlist index only returns the authenticated user's active product items with safe storefront fields.
+- Storefront home, category, product index, and product detail pages now pass page-specific `wishlistProductIds` for visible product cards without adding heavy global wishlist payloads.
+- Inertia shared props now include active `wishlist_count` only.
+- Product cards and product detail use a shared heart button that redirects guests through auth middleware and updates authenticated buyers through Inertia.
+- Account wishlist page includes an empty state, remove action, continue shopping link, and "Move to cart" action.
+- Storefront wishlist/product payloads do not expose `vendor_price` or product variant `vendor_price`.
 ```
 
 ---
@@ -448,6 +475,8 @@ Task 17 migration:
 - Guest snapshot fields added: guest_phone, guest_address_line1, guest_address_line2, guest_city, guest_state, guest_postal_code, guest_country.
 Task 18 migration:
 - `2026_05_15_180000_fix_ticket_replies_support_ticket_foreign_key` ensures `ticket_replies.ticket_id` references `support_tickets`.
+Task 19 migration:
+- No new migration required. Existing `wishlists` table with unique `user_id` + `product_id` constraint is used.
 Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
@@ -556,6 +585,21 @@ Validasi Task 18 lokal:
 - npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd untuk client dan SSR.
 - HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/cart`, `/checkout`, dan `/track-order` semua 200.
 - HTTP smoke auth redirects: `/support` dan `/account/support` 302 ke `/login`; `/admin/support-tickets` 302 ke `/admin/login`.
+
+Validasi Task 19 lokal:
+- PR #21 Task 18 sudah merged ke main; branch `codex/task-19-wishlist` dibuat dari main terbaru.
+- php artisan migrate: berhasil, Nothing to migrate.
+- php -l pada file PHP Task 19: berhasil.
+- php artisan test --filter=WishlistTest: berhasil, 10 tests / 37 assertions.
+- php artisan about: berhasil via E:\Codex\tools\php-8.3\php.exe.
+- php artisan route:list: berhasil, 165 routes.
+- php artisan route:list --path=wishlist: berhasil, 5 wishlist routes.
+- php artisan route:list --path=account/wishlist: berhasil, 1 account wishlist route.
+- php artisan test: berhasil, 54 tests / 258 assertions.
+- npm run build: berhasil via E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd untuk client dan SSR.
+- HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/products`, `/cart`, `/checkout`, dan `/track-order` semua 200.
+- HTTP smoke auth redirects: `/support` dan `/account/wishlist` 302 ke `/login`.
+- Product detail smoke browser/HTTP tidak dijalankan karena local SQLite tidak memiliki produk aktif setelah full test refresh; product detail route tercakup oleh WishlistTest vendor_price assertion dan full test suite.
 ```
 
 ---
@@ -581,15 +625,18 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 19 - Wishlist, hanya setelah PR Task 18 merged oleh owner.
-Branch yang akan dibuat nanti: codex/task-19-wishlist
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 19 dan PROMPT_TEMPLATES.md Task 19
-Status: Task 18 selesai lokal di branch codex/task-18-livechat-support; draft PR #21 dibuat.
+Task berikutnya: Task 20 - Product Variants, hanya setelah PR Task 19 merged oleh owner.
+Branch yang akan dibuat nanti: codex/task-20-product-variants
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 20 dan PROMPT_TEMPLATES.md Task 20
+Status: Task 19 selesai lokal di branch codex/task-19-wishlist; draft PR #22 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
 Task 18 branch: codex/task-18-livechat-support
 Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
+Task 18 status: merged ke main.
+Task 19 branch: codex/task-19-wishlist
+Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
 ```
 
 ---
@@ -610,6 +657,11 @@ Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
 - Task 18 Tawk.to memakai placeholder `VITE_TAWK_PROPERTY_ID` dan `VITE_TAWK_WIDGET_ID`; script live chat tidak dimuat jika nilai kosong/placeholder atau saat automated tests.
 - Task 18 support tickets hanya untuk user login; buyer hanya boleh melihat/reply tiket sendiri, admin dapat kelola status/prioritas dan reply dari Filament.
 - Task 18 memperbaiki FK `ticket_replies.ticket_id` agar mengarah ke `support_tickets`.
+- Task 19 wishlist memakai tabel `wishlists` existing dengan unique `user_id` + `product_id`; tidak ada migration baru.
+- Wishlist hanya untuk user login. Guest click ke wishlist route diarahkan ke login oleh auth middleware.
+- Wishlist index menampilkan produk aktif milik user login saja dan memakai payload storefront aman tanpa `vendor_price`.
+- ProductCard/ProductShow memakai `WishlistButton`; page product lists mengirim `wishlistProductIds` khusus produk yang terlihat, sedangkan global Inertia hanya membagikan `wishlist_count`.
+- Move to cart dari wishlist membuat/memperbarui cart item user login lalu menghapus wishlist item.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -628,6 +680,8 @@ Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-16 | Task 19 draft PR #22 dibuat: https://github.com/Exloses/Codex-1/pull/22 | Codex |
+| 2026-05-16 | Task 19 Wishlist selesai lokal; validasi migrate, about, route:list, WishlistTest, full test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-15 | Task 18 draft PR #21 dibuat: https://github.com/Exloses/Codex-1/pull/21 | Codex |
 | 2026-05-15 | Task 18 Live Chat & Support selesai lokal; validasi migrate, about, route:list, support tests, full test, dan npm build berhasil | Codex |
 | 2026-05-15 | PR #20 Task 17 terkonfirmasi merged ke main; Task 18 dimulai di branch `codex/task-18-livechat-support` | Codex |

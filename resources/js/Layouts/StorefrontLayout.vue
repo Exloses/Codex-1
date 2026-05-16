@@ -22,6 +22,7 @@ const tawk = computed(() => page.props.services?.tawk || { enabled: false, prope
 const availableCurrencies = computed(() => page.props.availableCurrencies || ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR']);
 const selectedCurrency = computed(() => page.props.currency || page.props.auth?.user?.currency || 'USD');
 const selectedLanguage = computed(() => page.props.language || page.props.auth?.user?.language || 'en');
+const wishlistCount = computed(() => Number(page.props.wishlist_count || 0));
 
 const navItems = [
     { label: 'Home', href: route('home') },
@@ -157,8 +158,11 @@ const subscribe = () => {
                     <Link :href="route('account.notifications')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Notifications">
                         <BellIcon class="h-5 w-5" />
                     </Link>
-                    <Link :href="route('account.wishlist')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Wishlist">
+                    <Link :href="route('account.wishlist')" class="relative rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Wishlist">
                         <HeartIcon class="h-5 w-5" />
+                        <span v-if="wishlistCount > 0" class="absolute -right-1 -top-1 min-w-5 rounded-full bg-rose-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+                            {{ wishlistCount > 99 ? '99+' : wishlistCount }}
+                        </span>
                     </Link>
                     <Link :href="route('cart.index')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Cart">
                         <ShoppingBagIcon class="h-5 w-5" />

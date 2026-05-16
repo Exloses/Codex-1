@@ -43,6 +43,22 @@ class CategoryController extends Controller
             }
         );
 
-        return Inertia::render('Storefront/ProductIndex', $payload);
+        return Inertia::render('Storefront/ProductIndex', [
+            ...$payload,
+            'wishlistProductIds' => $this->wishlistProductIds($payload['products']->getCollection()->pluck('id')),
+        ]);
+    }
+
+    private function wishlistProductIds($productIds)
+    {
+        if (! auth()->check()) {
+            return [];
+        }
+
+        return auth()->user()
+            ->wishlists()
+            ->whereIn('product_id', collect($productIds)->filter()->values())
+            ->pluck('product_id')
+            ->values();
     }
 }

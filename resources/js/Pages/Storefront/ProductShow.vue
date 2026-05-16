@@ -1,5 +1,6 @@
 <script setup>
 import ProductCard from '@/Components/ProductCard.vue';
+import WishlistButton from '@/Components/Storefront/WishlistButton.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -101,9 +102,7 @@ const priceAlert = () => {
                         <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="stock <= 0 || cartForm.processing" @click="addToCart">
                             Add to cart
                         </button>
-                        <button class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold" @click="router.post(route('wishlist.toggle', product.id), {}, { preserveScroll: true })">
-                            Wishlist
-                        </button>
+                        <WishlistButton :product="product" show-label />
                     </div>
                     <div class="mt-3 flex flex-wrap gap-2">
                         <button v-if="stock <= 0" class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="notifyStock">Notify me</button>
