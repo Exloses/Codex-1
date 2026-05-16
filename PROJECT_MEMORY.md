@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 18 - Live Chat & Support Ticket
-- Last completed task: Task 17 - Guest Checkout
-- Branch: `codex/task-18-livechat-support`
-- Status: Task 18 completed locally; draft PR #21 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/21
-- Scope: Optional Tawk.to live chat plus authenticated buyer support ticket workflow and admin support handling.
-- Task 17 PR #20 is merged into `main`; post-merge validation on main passed before this branch.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 19.
-- Next task after Task 18 is merged: Task 19 - Wishlist.
+- Active task: Task 19 - Wishlist
+- Last completed task: Task 18 - Live Chat & Support Ticket
+- Branch: `codex/task-19-wishlist`
+- Status: Task 19 completed locally; draft PR will be created after branch push.
+- Pull request: TBD
+- Scope: Authenticated buyer wishlist add/remove/toggle/index, account wishlist UI, product card/detail heart button, move-to-cart, and focused tests.
+- Task 18 PR #21 is merged into `main`; post-merge validation on main passed before this branch.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 20.
+- Next task after Task 19 is merged: Task 20 - Product Variants.
 
 ---
 
@@ -39,6 +39,46 @@
 - Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
 - Task 16 added Google/Facebook Socialite login with placeholder-only OAuth configuration.
 - Task 17 added guest checkout, session guest cart support, guest order success protection, and guest tracking by order number plus email.
+
+---
+
+## Task 19 Completed Work
+
+- Created branch `codex/task-19-wishlist` from updated `main`.
+- Reused the existing `wishlists` table and `Wishlist` model; no migration was needed.
+- Added `app/Http/Requests/Storefront/WishlistRequest.php` to validate `product_id` against active products.
+- Completed `WishlistController` with:
+  - `index()` for the authenticated account wishlist page.
+  - `store()` for add-by-product-id requests.
+  - `toggle()` for product card/detail actions.
+  - `destroy()` for user-scoped removal.
+  - `moveToCart()` to create/update a cart item and remove the wishlist item.
+- Wishlist writes are protected by auth routes, scoped to the current user, duplicate-safe with `firstOrCreate`, and reject inactive products.
+- Wishlist index filters to active products and eager-loads safe category/vendor/variant fields without `vendor_price`.
+- Added page-specific `wishlistProductIds` on home, category, product index, product detail, and account wishlist pages so visible cards can render saved state without loading heavy wishlist data globally.
+- Added shared active `wishlist_count` in Inertia props for the storefront layout badge.
+- Created `resources/js/Components/Storefront/WishlistButton.vue` and wired it into `ProductCard.vue` and `ProductShow.vue`.
+- Updated `Account/Wishlist.vue` with a product grid, empty state, remove action, continue shopping link, and "Move to cart" action.
+- Guest wishlist clicks are handled by auth middleware and redirect to login.
+- Preserved guest checkout, social login, and live chat/support behavior.
+- Did not expose `vendor_price` or product variant `vendor_price` in wishlist/storefront payloads.
+
+## Task 19 Validation
+
+- `php artisan migrate`: passed, Nothing to migrate.
+- `php -l` on Task 19 PHP files: passed.
+- `php artisan test --filter=WishlistTest`: passed, 10 tests / 37 assertions.
+- `php artisan about`: passed via `E:\Codex\tools\php-8.3\php.exe`.
+- `php artisan route:list`: passed, 165 routes.
+- `php artisan route:list --path=wishlist`: passed, 5 wishlist routes.
+- `php artisan route:list --path=account/wishlist`: passed, 1 account wishlist route.
+- `php artisan test`: passed, 54 tests / 258 assertions.
+- `npm run build`: passed for client and SSR bundles via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200.
+- HTTP smoke auth redirects: `/support` and `/account/wishlist` redirected to `/login`.
+- Browser MCP was not exposed by tool discovery in this session; HTTP/build/test validation was used as fallback.
+- Product detail HTTP smoke was skipped because the local SQLite database had no active products after the full test refresh; product detail route and `vendor_price` safety are covered by tests.
+- Next task: Task 20 - Product Variants, only after Task 19 PR is merged by the owner.
 
 ---
 

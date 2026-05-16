@@ -35,11 +35,27 @@ class StorefrontController extends Controller
                 ->get(),
         ]);
 
-        return Inertia::render('Storefront/Home', $payload);
+        return Inertia::render('Storefront/Home', [
+            ...$payload,
+            'wishlistProductIds' => $this->wishlistProductIds($payload['featuredProducts']->pluck('id')),
+        ]);
     }
 
     private function productColumns(): array
     {
         return ['id', 'vendor_id', 'category_id', 'name', 'name_id', 'slug', 'description', 'description_id', 'selling_price', 'compare_price', 'stock', 'weight', 'sku', 'size_guide_id', 'is_active', 'is_featured', 'total_sales', 'average_rating', 'videos', 'created_at', 'updated_at'];
+    }
+
+    private function wishlistProductIds($productIds)
+    {
+        if (! auth()->check()) {
+            return [];
+        }
+
+        return auth()->user()
+            ->wishlists()
+            ->whereIn('product_id', collect($productIds)->filter()->values())
+            ->pluck('product_id')
+            ->values();
     }
 }

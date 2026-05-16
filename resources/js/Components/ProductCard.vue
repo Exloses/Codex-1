@@ -1,5 +1,6 @@
 <script setup>
-import { HeartIcon, ShoppingBagIcon } from '@heroicons/vue/24/outline';
+import WishlistButton from '@/Components/Storefront/WishlistButton.vue';
+import { ShoppingBagIcon } from '@heroicons/vue/24/outline';
 import { Link, router } from '@inertiajs/vue3';
 
 defineProps({
@@ -21,13 +22,19 @@ const addToCart = (product) => {
         quantity: 1,
     }, { preserveScroll: true });
 };
+
+const productImage = (product) =>
+    product.image
+    || product.variants?.[0]?.image
+    || product.videos?.find?.((item) => item.type === 'image')?.url
+    || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80';
 </script>
 
 <template>
     <article class="group overflow-hidden rounded-lg border border-zinc-200 bg-white">
         <Link :href="route('products.show', product.slug)" class="block aspect-[4/3] bg-zinc-100">
             <img
-                :src="product.image || `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80`"
+                :src="productImage(product)"
                 :alt="product.name"
                 class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />
@@ -40,9 +47,7 @@ const addToCart = (product) => {
                     </Link>
                     <p class="mt-1 text-xs text-zinc-500">{{ product.category?.name || 'Global catalog' }}</p>
                 </div>
-                <button class="rounded-md p-2 text-zinc-500 hover:bg-rose-50 hover:text-rose-600" title="Wishlist">
-                    <HeartIcon class="h-5 w-5" />
-                </button>
+                <WishlistButton :product="product" />
             </div>
 
             <div class="mt-4 flex items-end justify-between gap-3">

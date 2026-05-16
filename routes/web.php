@@ -139,7 +139,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/support/create', [SupportTicketController::class, 'create'])->name('support.create');
     });
 
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::post('/wishlist/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::post('/wishlist/{wishlist}/move-to-cart', [WishlistController::class, 'moveToCart'])->name('wishlist.move-to-cart');
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
     Route::get('/returns/{return}', [ReturnController::class, 'show'])->name('returns.show');

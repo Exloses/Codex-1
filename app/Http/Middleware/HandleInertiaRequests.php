@@ -44,6 +44,9 @@ class HandleInertiaRequests extends Middleware
                 'status' => fn () => $request->session()->get('status'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'wishlist_count' => fn () => $request->user()
+                ? $request->user()->wishlists()->whereHas('product', fn ($query) => $query->where('is_active', true))->count()
+                : 0,
             'currency' => $request->session()->get('currency', 'USD'),
             'language' => $request->session()->get('language', 'en'),
             'availableCurrencies' => ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR'],
