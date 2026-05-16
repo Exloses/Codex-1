@@ -16,6 +16,9 @@ const coupon = reactive({ code: '', loyaltyPoints: 0 });
 
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
 const unitPrice = (item) => Number(item.product_variant?.price || item.productVariant?.price || item.product?.selling_price || 0);
+const variant = (item) => item.productVariant || item.product_variant || null;
+const variantText = (item) => Object.entries(variant(item)?.combination || {}).map(([key, value]) => `${key}: ${value}`).join(', ');
+const stockLimit = (item) => Number(variant(item)?.stock ?? item.product?.stock ?? 99);
 const subtotal = computed(() => props.items.reduce((sum, item) => sum + unitPrice(item) * Number(item.quantity || 0), 0));
 const shipping = computed(() => (subtotal.value > 0 ? 12 : 0));
 const total = computed(() => subtotal.value + shipping.value);
@@ -45,13 +48,15 @@ const updateQuantity = (item, quantity) => {
                             <div class="min-w-0 flex-1">
                                 <Link :href="route('products.show', item.product?.slug)" class="font-semibold">{{ item.product?.name }}</Link>
                                 <p class="mt-1 text-sm text-zinc-500">{{ money(unitPrice(item)) }}</p>
+                                <p v-if="variantText(item)" class="mt-1 text-sm text-zinc-600">{{ variantText(item) }}</p>
+                                <p class="mt-1 text-xs text-zinc-500">{{ stockLimit(item) }} available</p>
                                 <textarea v-model="notes[item.id]" class="mt-3 w-full rounded-md border-zinc-300 text-sm" rows="2" placeholder="Custom note for this item"></textarea>
                             </div>
                             <div class="w-28">
                                 <input
                                     type="number"
                                     min="1"
-                                    max="99"
+                                    :max="Math.max(stockLimit(item), 1)"
                                     :value="item.quantity"
                                     class="w-full rounded-md border-zinc-300 text-sm"
                                     @change="updateQuantity(item, Number($event.target.value))"

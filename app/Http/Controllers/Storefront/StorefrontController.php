@@ -27,7 +27,12 @@ class StorefrontController extends Controller
                 ->get()),
             'featuredProducts' => Product::query()
                 ->select($this->productColumns())
-                ->with('category:id,name,name_id,slug,icon,image')
+                ->with([
+                    'category:id,name,name_id,slug,icon,image',
+                    'vendor:id,store_name,slug,is_approved',
+                    'variants:id,product_id,combination,sku,price,stock,image',
+                ])
+                ->withCount('variants')
                 ->where('is_active', true)
                 ->where('is_featured', true)
                 ->latest()

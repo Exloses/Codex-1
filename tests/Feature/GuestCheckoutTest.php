@@ -52,6 +52,7 @@ class GuestCheckoutTest extends TestCase
         $this->assertSame('124.00', $order->total_usd);
         $this->assertCount(1, $order->items);
         $this->assertSame(2, $order->items->first()->quantity);
+        $this->assertSame($variant->id, $order->items->first()->product_variant_id);
 
         $this->assertNull(session('guest_cart'));
         Queue::assertPushed(SendEmailJob::class);

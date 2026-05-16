@@ -97,16 +97,21 @@ class WishlistController extends Controller
         abort_unless($wishlist->user_id === $request->user()->id, 404);
 
         $wishlist->load([
-            'product' => fn ($query) => $query->select(['id', 'is_active']),
+            'product' => fn ($query) => $query
+                ->select(['id', 'is_active', 'stock'])
+                ->with(['variants:id,product_id,stock']),
         ]);
 
         abort_if(! $wishlist->product || ! $wishlist->product->is_active, 404);
+        $variant = $wishlist->product->variants->where('stock', '>', 0)->first();
+        abort_if($wishlist->product->variants->isNotEmpty() && ! $variant, 422, 'This product is currently out of stock.');
+        abort_if($wishlist->product->variants->isEmpty() && $wishlist->product->stock < 1, 422, 'This product is currently out of stock.');
 
         CartItem::query()->updateOrCreate(
             [
                 'user_id' => $request->user()->id,
                 'product_id' => $wishlist->product_id,
-                'product_variant_id' => null,
+                'product_variant_id' => $variant?->id,
             ],
             ['quantity' => 1],
         );

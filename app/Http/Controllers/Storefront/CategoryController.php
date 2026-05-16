@@ -28,7 +28,12 @@ class CategoryController extends Controller
                     'category' => $category,
                     'products' => Product::query()
                         ->select(['id', 'vendor_id', 'category_id', 'name', 'name_id', 'slug', 'description', 'description_id', 'selling_price', 'compare_price', 'stock', 'weight', 'sku', 'size_guide_id', 'is_active', 'is_featured', 'total_sales', 'average_rating', 'videos', 'created_at', 'updated_at'])
-                        ->with('category:id,name,name_id,slug,icon,image')
+                        ->with([
+                            'category:id,name,name_id,slug,icon,image',
+                            'vendor:id,store_name,slug,is_approved',
+                            'variants:id,product_id,combination,sku,price,stock,image',
+                        ])
+                        ->withCount('variants')
                         ->where('category_id', $category->id)
                         ->where('is_active', true)
                         ->paginate(24)

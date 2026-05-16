@@ -35,6 +35,8 @@ const form = useForm({
 
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
 const unitPrice = (item) => Number(item.productVariant?.price || item.product_variant?.price || item.product?.selling_price || 0);
+const variant = (item) => item.productVariant || item.product_variant || null;
+const variantText = (item) => Object.entries(variant(item)?.combination || {}).map(([key, value]) => `${key}: ${value}`).join(', ');
 const subtotal = computed(() => props.cartItems.reduce((sum, item) => sum + unitPrice(item) * Number(item.quantity || 0), 0));
 const total = computed(() => subtotal.value + Number(form.shipping_cost_usd || 0));
 const isGuest = computed(() => !page.props.auth?.user);
@@ -177,7 +179,10 @@ const submit = () => {
                     <h2 class="text-lg font-bold">Summary</h2>
                     <div class="mt-4 space-y-3">
                         <div v-for="item in cartItems" :key="item.id" class="flex justify-between gap-4 text-sm">
-                            <span>{{ item.product?.name }} x {{ item.quantity }}</span>
+                            <span>
+                                <span class="block">{{ item.product?.name }} x {{ item.quantity }}</span>
+                                <span v-if="variantText(item)" class="block text-xs text-zinc-500">{{ variantText(item) }}</span>
+                            </span>
                             <span>{{ money(unitPrice(item) * item.quantity) }}</span>
                         </div>
                     </div>
