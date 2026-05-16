@@ -1,8 +1,29 @@
 <script setup>
+import ProductVariantFields from '@/Components/Vendor/ProductVariantFields.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({ product: { type: Object, required: true }, categories: { type: Array, default: () => [] } });
+const attributes = (props.product.attributes || []).map((attribute) => ({
+    id: attribute.id,
+    name: attribute.name,
+    sort_order: attribute.sort_order || 0,
+    values: (attribute.values || []).map((value) => ({
+        id: value.id,
+        value: value.value,
+        color_hex: value.color_hex || '',
+        sort_order: value.sort_order || 0,
+    })),
+}));
+const variants = (props.product.variants || []).map((variant) => ({
+    id: variant.id,
+    combination: variant.combination || {},
+    sku: variant.sku || '',
+    price: variant.price,
+    vendor_price: variant.vendor_price,
+    stock: variant.stock,
+    image: variant.image || '',
+}));
 const form = useForm({
     category_id: props.product.category_id,
     name: props.product.name,
@@ -12,6 +33,8 @@ const form = useForm({
     stock: props.product.stock,
     weight: props.product.weight,
     is_active: props.product.is_active,
+    attributes,
+    variants,
 });
 </script>
 
@@ -28,6 +51,7 @@ const form = useForm({
                 <input v-model.number="form.selling_price" type="number" class="rounded-md border-zinc-300 text-sm" />
                 <input v-model.number="form.stock" type="number" class="rounded-md border-zinc-300 text-sm" />
                 <input v-model.number="form.weight" type="number" class="rounded-md border-zinc-300 text-sm" />
+                <ProductVariantFields :form="form" />
                 <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">Update product</button>
             </form>
         </section>

@@ -20,11 +20,12 @@ class GuestCartService
         }
 
         $productColumns = $forOrder
-            ? ['id', 'vendor_id', 'name', 'slug', 'selling_price', 'stock', 'weight']
-            : ['id', 'name', 'slug', 'selling_price', 'stock', 'weight'];
+            ? ['id', 'vendor_id', 'name', 'slug', 'selling_price', 'stock', 'weight', 'is_active']
+            : ['id', 'name', 'slug', 'selling_price', 'stock', 'weight', 'is_active'];
 
         $products = Product::query()
             ->select($productColumns)
+            ->where('is_active', true)
             ->whereIn('id', $lines->pluck('product_id')->unique()->all())
             ->get()
             ->keyBy('id');

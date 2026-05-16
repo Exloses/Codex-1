@@ -17,6 +17,12 @@ const money = (value) =>
     }).format(Number(value || 0));
 
 const addToCart = (product) => {
+    if (Number(product.variants_count || 0) > 0 || product.variants?.length) {
+        router.visit(route('products.show', product.slug));
+
+        return;
+    }
+
     router.post(route('cart.store'), {
         product_id: product.id,
         quantity: 1,
@@ -54,6 +60,7 @@ const productImage = (product) =>
                 <div>
                     <p class="text-base font-bold">{{ money(product.selling_price) }}</p>
                     <p v-if="product.compare_price" class="text-xs text-zinc-400 line-through">{{ money(product.compare_price) }}</p>
+                    <p v-if="Number(product.variants_count || product.variants?.length || 0) > 0" class="mt-1 text-xs text-zinc-500">Options available</p>
                 </div>
                 <button class="rounded-md bg-zinc-950 p-2 text-white hover:bg-zinc-800" title="Add to cart" @click="addToCart(product)">
                     <ShoppingBagIcon class="h-5 w-5" />

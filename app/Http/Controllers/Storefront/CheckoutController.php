@@ -26,7 +26,7 @@ class CheckoutController extends Controller
             'cartItems' => auth()->check()
                 ? CartItem::query()
                     ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
-                    ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock'])
+                    ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock,image'])
                     ->where('user_id', auth()->id())
                     ->get()
                 : $guestCart->items(),
@@ -61,6 +61,7 @@ class CheckoutController extends Controller
             'order' => $order->load([
                 'items:id,order_id,product_id,product_variant_id,vendor_id,quantity,price_usd,subtotal_usd',
                 'items.product:id,name,slug,selling_price,compare_price,stock,average_rating',
+                'items.productVariant:id,product_id,combination,sku,price,stock,image',
             ]),
         ]);
     }
@@ -97,12 +98,13 @@ class CheckoutController extends Controller
         $user = $request->user();
         $cartItems = CartItem::query()
             ->with([
-                'product:id,vendor_id,name,slug,selling_price,stock',
+                'product:id,vendor_id,name,slug,selling_price,stock,is_active',
                 'productVariant:id,product_id,price,stock',
             ])
             ->where('user_id', $user->id)
             ->get();
         abort_if($cartItems->isEmpty(), 422, 'Cart is empty.');
+        $this->abortIfCartItemsUnavailable($cartItems);
 
         return DB::transaction(function () use ($request, $user, $cartItems) {
             $subtotal = $cartItems->sum(fn ($item) => (float) ($item->productVariant?->price ?? $item->product->selling_price) * $item->quantity);
@@ -154,6 +156,7 @@ class CheckoutController extends Controller
     {
         $cartItems = $guestCart->items(forOrder: true);
         abort_if($cartItems->isEmpty(), 422, 'Cart is empty.');
+        $this->abortIfGuestCartItemsUnavailable($cartItems);
 
         return DB::transaction(function () use ($request, $cartItems) {
             $subtotal = $cartItems->sum(fn (array $item) => (float) ($item['productVariant']?->price ?? $item['product']->selling_price) * $item['quantity']);
@@ -204,5 +207,39 @@ class CheckoutController extends Controller
 
             return $order;
         });
+    }
+
+    private function abortIfCartItemsUnavailable($cartItems): void
+    {
+        foreach ($cartItems as $item) {
+            abort_if(! $item->product || ! $item->product->is_active, 422, 'A product in your cart is no longer available.');
+
+            if ($item->product_variant_id) {
+                abort_if(! $item->productVariant || $item->productVariant->product_id !== $item->product_id, 422, 'A selected product variant is no longer available.');
+                abort_if($item->quantity > $item->productVariant->stock, 422, 'The requested quantity exceeds the selected variant stock.');
+
+                continue;
+            }
+
+            abort_if($item->product->variants()->exists(), 422, 'Please select a product variant for every variant product before checkout.');
+            abort_if($item->quantity > $item->product->stock, 422, 'The requested quantity exceeds product stock.');
+        }
+    }
+
+    private function abortIfGuestCartItemsUnavailable($cartItems): void
+    {
+        foreach ($cartItems as $item) {
+            abort_if(! $item['product'], 422, 'A product in your cart is no longer available.');
+
+            if ($item['product_variant_id']) {
+                abort_if(! $item['productVariant'] || $item['productVariant']->product_id !== $item['product_id'], 422, 'A selected product variant is no longer available.');
+                abort_if($item['quantity'] > $item['productVariant']->stock, 422, 'The requested quantity exceeds the selected variant stock.');
+
+                continue;
+            }
+
+            abort_if($item['product']->variants()->exists(), 422, 'Please select a product variant for every variant product before checkout.');
+            abort_if($item['quantity'] > $item['product']->stock, 422, 'The requested quantity exceeds product stock.');
+        }
     }
 }

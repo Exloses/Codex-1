@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\ProductResource\RelationManagers\VariantsRelationManager;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use Filament\Forms;
@@ -101,6 +102,13 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('variants_count')
+                    ->counts('variants')
+                    ->label('Variants')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('variant_stock')
+                    ->label('Variant stock')
+                    ->getStateUsing(fn (Product $record): int => (int) $record->variants()->sum('stock')),
                 Tables\Columns\TextColumn::make('weight')
                     ->numeric()
                     ->sortable(),
@@ -145,7 +153,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            VariantsRelationManager::class,
         ];
     }
 

@@ -1,5 +1,8 @@
 <script setup>
 import ProductCard from '@/Components/ProductCard.vue';
+import ImageZoom from '@/Components/Storefront/ImageZoom.vue';
+import SizeGuideModal from '@/Components/Storefront/SizeGuideModal.vue';
+import VariantSelector from '@/Components/Storefront/VariantSelector.vue';
 import WishlistButton from '@/Components/Storefront/WishlistButton.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
@@ -16,25 +19,59 @@ const props = defineProps({
     },
 });
 
-const selectedVariant = ref(props.product.variants?.[0] || null);
-const selectedImage = ref(props.product.image || props.product.variants?.[0]?.image || 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1200&q=80');
+const selectedVariant = ref(null);
+const selectedImage = ref(null);
 const showSizeGuide = ref(false);
 const activeTab = ref('qa');
+const variantError = ref('');
 
+const hasVariants = computed(() => (props.product.variants || []).length > 0);
+const fallbackImage = 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1200&q=80';
+const productImages = computed(() => {
+    const images = [
+        props.product.image,
+        ...(props.product.videos || []).filter((item) => item.type === 'image').map((item) => item.url),
+        ...(props.product.variants || []).map((variant) => variant.image),
+    ].filter(Boolean);
+
+    return [...new Set(images)];
+});
+const displayImage = computed(() => selectedVariant.value?.image || selectedImage.value || productImages.value[0] || fallbackImage);
+const sizeGuide = computed(() => props.product.size_guide || props.product.sizeGuide || null);
 const price = computed(() => Number(selectedVariant.value?.price || props.product.selling_price || 0));
 const stock = computed(() => Number(selectedVariant.value?.stock ?? props.product.stock ?? 0));
+const sku = computed(() => selectedVariant.value?.sku || props.product.sku || '');
 
 const cartForm = useForm({
     product_id: props.product.id,
-    product_variant_id: selectedVariant.value?.id || null,
+    product_variant_id: null,
     quantity: 1,
 });
 
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
 
 const addToCart = () => {
+    variantError.value = '';
+
+    if (hasVariants.value && !selectedVariant.value) {
+        variantError.value = 'Please select a product variant before adding this item to cart.';
+
+        return;
+    }
+
     cartForm.product_variant_id = selectedVariant.value?.id || null;
     cartForm.post(route('cart.store'), { preserveScroll: true });
+};
+
+const onVariantChange = ({ variant, complete }) => {
+    selectedVariant.value = variant;
+    cartForm.product_variant_id = variant?.id || null;
+    cartForm.quantity = 1;
+    variantError.value = complete && !variant ? 'This option combination is not available.' : '';
+
+    if (variant?.image) {
+        selectedImage.value = variant.image;
+    }
 };
 
 const notifyStock = () => {
@@ -52,17 +89,17 @@ const priceAlert = () => {
 
         <section class="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
             <div>
-                <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white">
-                    <img :src="selectedImage" :alt="product.name" class="aspect-square w-full object-cover transition hover:scale-105" />
-                </div>
+                <ImageZoom :src="displayImage" :alt="product.name" />
                 <div class="mt-4 grid grid-cols-4 gap-3">
                     <button
-                        v-for="variant in product.variants || []"
-                        :key="variant.id"
+                        v-for="image in productImages"
+                        :key="image"
+                        type="button"
                         class="overflow-hidden rounded-md border border-zinc-200 bg-white"
-                        @click="selectedVariant = variant; selectedImage = variant.image || selectedImage"
+                        :class="displayImage === image ? 'ring-2 ring-zinc-950' : ''"
+                        @click="selectedImage = image"
                     >
-                        <img :src="variant.image || selectedImage" :alt="variant.sku || product.name" class="aspect-square w-full object-cover" />
+                        <img :src="image" :alt="product.name" class="aspect-square w-full object-cover" />
                     </button>
                 </div>
             </div>
@@ -78,18 +115,15 @@ const priceAlert = () => {
                 </div>
 
                 <div class="mt-6">
-                    <p class="text-sm font-semibold">Variants</p>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <button
-                            v-for="variant in product.variants || []"
-                            :key="variant.id"
-                            class="rounded-md border px-3 py-2 text-sm"
-                            :class="selectedVariant?.id === variant.id ? 'border-zinc-950 bg-zinc-950 text-white' : 'border-zinc-300 bg-white'"
-                            @click="selectedVariant = variant"
-                        >
-                            {{ Object.values(variant.combination || {}).join(' / ') || variant.sku || 'Variant' }}
-                        </button>
-                    </div>
+                    <VariantSelector
+                        v-model="selectedVariant"
+                        :attributes="product.attributes || []"
+                        :variants="product.variants || []"
+                        @change="onVariantChange"
+                    />
+                    <p v-if="variantError || cartForm.errors.product_variant_id" class="mt-3 text-sm text-rose-700">
+                        {{ variantError || cartForm.errors.product_variant_id }}
+                    </p>
                 </div>
 
                 <div class="mt-6 rounded-lg border border-zinc-200 bg-white p-4">
@@ -97,17 +131,19 @@ const priceAlert = () => {
                         <p class="text-sm font-semibold">Stock</p>
                         <p class="text-sm" :class="stock > 0 ? 'text-emerald-700' : 'text-rose-700'">{{ stock > 0 ? `${stock} available` : 'Out of stock' }}</p>
                     </div>
+                    <p v-if="sku" class="mt-2 text-sm text-zinc-500">SKU: {{ sku }}</p>
                     <div class="mt-4 flex items-center gap-3">
-                        <input v-model.number="cartForm.quantity" type="number" min="1" max="99" class="w-24 rounded-md border-zinc-300 text-sm" />
+                        <input v-model.number="cartForm.quantity" type="number" min="1" :max="Math.max(stock, 1)" class="w-24 rounded-md border-zinc-300 text-sm" />
                         <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" :disabled="stock <= 0 || cartForm.processing" @click="addToCart">
                             Add to cart
                         </button>
                         <WishlistButton :product="product" show-label />
                     </div>
+                    <p v-if="cartForm.errors.quantity" class="mt-2 text-sm text-rose-700">{{ cartForm.errors.quantity }}</p>
                     <div class="mt-3 flex flex-wrap gap-2">
                         <button v-if="stock <= 0" class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="notifyStock">Notify me</button>
                         <button class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="priceAlert">Price drop alert</button>
-                        <button class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="showSizeGuide = true">Size guide</button>
+                        <button v-if="sizeGuide" class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="showSizeGuide = true">Size guide</button>
                     </div>
                 </div>
 
@@ -157,14 +193,6 @@ const priceAlert = () => {
             </div>
         </section>
 
-        <div v-if="showSizeGuide" class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 p-4" @click.self="showSizeGuide = false">
-            <div class="w-full max-w-2xl rounded-lg bg-white p-6">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-bold">Size guide</h2>
-                    <button class="rounded-md border border-zinc-300 px-3 py-1 text-sm" @click="showSizeGuide = false">Close</button>
-                </div>
-                <pre class="mt-4 overflow-auto rounded-md bg-zinc-50 p-4 text-sm">{{ product.size_guide || product.sizeGuide || 'No size guide available.' }}</pre>
-            </div>
-        </div>
+        <SizeGuideModal :show="showSizeGuide" :size-guide="sizeGuide" @close="showSizeGuide = false" />
     </StorefrontLayout>
 </template>

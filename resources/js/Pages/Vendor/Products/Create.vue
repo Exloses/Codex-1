@@ -1,9 +1,21 @@
 <script setup>
+import ProductVariantFields from '@/Components/Vendor/ProductVariantFields.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 defineProps({ categories: { type: Array, default: () => [] } });
-const form = useForm({ category_id: '', name: '', description: '', vendor_price: 0, selling_price: 0, stock: 0, weight: 0, is_active: true });
+const form = useForm({
+    category_id: '',
+    name: '',
+    description: '',
+    vendor_price: 0,
+    selling_price: 0,
+    stock: 0,
+    weight: 0,
+    is_active: true,
+    attributes: [],
+    variants: [],
+});
 </script>
 
 <template>
@@ -19,6 +31,7 @@ const form = useForm({ category_id: '', name: '', description: '', vendor_price:
                 <input v-model.number="form.selling_price" type="number" class="rounded-md border-zinc-300 text-sm" placeholder="Selling price" />
                 <input v-model.number="form.stock" type="number" class="rounded-md border-zinc-300 text-sm" placeholder="Stock" />
                 <input v-model.number="form.weight" type="number" class="rounded-md border-zinc-300 text-sm" placeholder="Weight" />
+                <ProductVariantFields :form="form" />
                 <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">Save product</button>
             </form>
         </section>

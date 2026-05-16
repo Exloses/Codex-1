@@ -43,8 +43,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 16 | Social Login | ✅ Selesai & PR merged | `codex/task-16-social-login` | https://github.com/Exloses/Codex-1/pull/19 |
 | Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
 | Task 18 | Live Chat & Support | ✅ Selesai & PR merged | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
-| Task 19 | Wishlist | ✅ Selesai lokal; draft PR open | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
-| Task 20 | Product Variants | ⏳ Belum dimulai | - | - |
+| Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
+| Task 20 | Product Variants | ✅ Selesai lokal; draft PR open | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
 | Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
 | Task 22 | Return & Refund | ⏳ Belum dimulai | - | - |
 | Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 19 Wishlist selesai lokal di branch `codex/task-19-wishlist`; draft PR #22 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 20 Product Variants selesai lokal di branch `codex/task-20-product-variants`; draft PR #23 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -441,6 +441,45 @@ Task 19:
 - Product cards and product detail use a shared heart button that redirects guests through auth middleware and updates authenticated buyers through Inertia.
 - Account wishlist page includes an empty state, remove action, continue shopping link, and "Move to cart" action.
 - Storefront wishlist/product payloads do not expose `vendor_price` or product variant `vendor_price`.
+
+Task 20:
+- Created files:
+  app/Filament/Resources/ProductResource/RelationManagers/VariantsRelationManager.php
+  resources/js/Components/Storefront/ImageZoom.vue
+  resources/js/Components/Storefront/SizeGuideModal.vue
+  resources/js/Components/Storefront/VariantSelector.vue
+  resources/js/Components/Vendor/ProductVariantFields.vue
+  tests/Feature/ProductVariantTest.php
+- Modified files:
+  app/Filament/Resources/ProductResource.php
+  app/Http/Controllers/Storefront/CartController.php
+  app/Http/Controllers/Storefront/CategoryController.php
+  app/Http/Controllers/Storefront/CheckoutController.php
+  app/Http/Controllers/Storefront/ProductController.php
+  app/Http/Controllers/Storefront/StorefrontController.php
+  app/Http/Controllers/Storefront/WishlistController.php
+  app/Http/Controllers/Vendor/VendorProductController.php
+  app/Http/Requests/Storefront/CartRequest.php
+  app/Http/Requests/Vendor/VendorProductRequest.php
+  app/Models/ProductAttribute.php
+  app/Models/ProductAttributeValue.php
+  app/Services/GuestCartService.php
+  resources/js/Components/ProductCard.vue
+  resources/js/Pages/Storefront/Cart.vue
+  resources/js/Pages/Storefront/Checkout.vue
+  resources/js/Pages/Storefront/ProductShow.vue
+  resources/js/Pages/Vendor/Products/Create.vue
+  resources/js/Pages/Vendor/Products/Edit.vue
+  tests/Feature/GuestCheckoutTest.php
+- Completed storefront option selection for Color, Size, Material, and other attributes through `VariantSelector.vue`.
+- Product detail updates variant price, stock, SKU, and image, and requires a valid variant before add-to-cart.
+- Cart and checkout now display variant combinations and use variant price/stock server-side for authenticated and guest carts.
+- Cart validation requires active products, enforces variant-product selection, validates variant ownership, and prevents quantity above stock.
+- Checkout revalidates product/variant availability before creating order items and preserves `product_variant_id`.
+- Wishlist move-to-cart now preserves behavior by selecting the first in-stock variant when a wishlisted product has variants.
+- Vendor create/edit pages support practical attribute/value/variant management with unique combination validation.
+- Filament ProductResource shows variant count, variant stock summary, and a variants relation manager.
+- Storefront payloads include safe variant fields only and do not expose `vendor_price`.
 ```
 
 ---
@@ -477,6 +516,8 @@ Task 18 migration:
 - `2026_05_15_180000_fix_ticket_replies_support_ticket_foreign_key` ensures `ticket_replies.ticket_id` references `support_tickets`.
 Task 19 migration:
 - No new migration required. Existing `wishlists` table with unique `user_id` + `product_id` constraint is used.
+Task 20 migration:
+- No new migration required. Existing `product_attributes`, `product_attribute_values`, `product_variants`, `cart_items.product_variant_id`, and `order_items.product_variant_id` columns are used.
 Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
@@ -600,6 +641,22 @@ Validasi Task 19 lokal:
 - HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/products`, `/cart`, `/checkout`, dan `/track-order` semua 200.
 - HTTP smoke auth redirects: `/support` dan `/account/wishlist` 302 ke `/login`.
 - Product detail smoke browser/HTTP tidak dijalankan karena local SQLite tidak memiliki produk aktif setelah full test refresh; product detail route tercakup oleh WishlistTest vendor_price assertion dan full test suite.
+
+Validasi Task 20 lokal:
+- PR #22 Task 19 terkonfirmasi merged oleh owner; branch `codex/task-20-product-variants` dibuat dari main terbaru.
+- php -l pada file PHP Task 20: berhasil.
+- php artisan test --filter=ProductVariantTest: berhasil, 8 tests / 30 assertions.
+- php artisan test --filter=GuestCheckoutTest: berhasil, 4 tests / 25 assertions.
+- php artisan test --filter=WishlistTest: berhasil, 10 tests / 37 assertions.
+- php artisan test: berhasil, 62 tests / 289 assertions.
+- php artisan migrate: berhasil, Nothing to migrate.
+- php artisan about: berhasil via `E:\Codex\tools\php-8.3\php.exe`.
+- php artisan route:list: berhasil, 165 routes.
+- npm run build: berhasil via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd` untuk client dan SSR.
+- Browser plugin dibaca dan dicoba, tetapi tidak ada active Codex browser pane; fallback HTTP smoke digunakan.
+- HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/products`, `/products/rattan-table-organizer`, `/cart`, `/checkout`, `/track-order`, dan `/faq` semua 200.
+- Product detail HTTP content smoke mengonfirmasi variant attributes `Color` dan `Size` tersedia, product render ada, dan `vendor_price` tidak muncul.
+- Dua test suite sempat dijalankan paralel dan merusak SQLite test database lokal; file korup dipindah ke backup ignored `database.sqlite.corrupt-task20-*.bak`, database sqlite baru dibuat, lalu test dijalankan ulang berurutan dan full suite lulus.
 ```
 
 ---
@@ -625,10 +682,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 20 - Product Variants, hanya setelah PR Task 19 merged oleh owner.
-Branch yang akan dibuat nanti: codex/task-20-product-variants
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 20 dan PROMPT_TEMPLATES.md Task 20
-Status: Task 19 selesai lokal di branch codex/task-19-wishlist; draft PR #22 dibuat.
+Task berikutnya: Task 21 - Order Tracking, hanya setelah PR Task 20 merged oleh owner.
+Branch yang akan dibuat nanti: codex/task-21-order-tracking
+Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 21 dan PROMPT_TEMPLATES.md Task 21
+Status: Task 20 selesai lokal di branch codex/task-20-product-variants; draft PR #23 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -637,6 +694,9 @@ Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
 Task 18 status: merged ke main.
 Task 19 branch: codex/task-19-wishlist
 Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
+Task 19 status: merged ke main.
+Task 20 branch: codex/task-20-product-variants
+Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
 ```
 
 ---
@@ -662,6 +722,14 @@ Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
 - Wishlist index menampilkan produk aktif milik user login saja dan memakai payload storefront aman tanpa `vendor_price`.
 - ProductCard/ProductShow memakai `WishlistButton`; page product lists mengirim `wishlistProductIds` khusus produk yang terlihat, sedangkan global Inertia hanya membagikan `wishlist_count`.
 - Move to cart dari wishlist membuat/memperbarui cart item user login lalu menghapus wishlist item.
+- Task 20 product variants memakai schema existing tanpa migration baru.
+- Storefront product detail mengirim attributes/values dan variants dengan field aman saja: id, combination, sku, price, stock, image. `vendor_price` tidak dipilih untuk payload storefront/cart/checkout.
+- Product detail variant selection resolve exact combination; price, stock, SKU, and image update from selected variant.
+- Variant products require `product_variant_id` on add-to-cart. Backend validates product active state, variant ownership, and stock for guest and authenticated carts.
+- Checkout revalidates cart line stock/variant availability and writes selected `product_variant_id` to order_items.
+- Wishlist move-to-cart picks the first in-stock variant when the product has variants, preserving Task 19 behavior without storing variants in wishlist.
+- Vendor product create/edit pages provide simple manual attribute/value/variant management; combinations are validated unique server-side.
+- Filament ProductResource exposes variant count, variant stock summary, and a variants relation manager for admin management.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -680,6 +748,9 @@ Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-16 | Task 20 draft PR #23 dibuat: https://github.com/Exloses/Codex-1/pull/23 | Codex |
+| 2026-05-16 | Task 20 Product Variants selesai lokal; validasi migrate, about, route:list, ProductVariantTest, GuestCheckoutTest, WishlistTest, full test, npm build, dan HTTP smoke berhasil | Codex |
+| 2026-05-16 | PR #22 Task 19 dikonfirmasi merged ke main; Task 20 dimulai di branch `codex/task-20-product-variants` | Codex |
 | 2026-05-16 | Task 19 draft PR #22 dibuat: https://github.com/Exloses/Codex-1/pull/22 | Codex |
 | 2026-05-16 | Task 19 Wishlist selesai lokal; validasi migrate, about, route:list, WishlistTest, full test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-15 | Task 18 draft PR #21 dibuat: https://github.com/Exloses/Codex-1/pull/21 | Codex |

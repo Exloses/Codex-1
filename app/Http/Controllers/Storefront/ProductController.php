@@ -38,6 +38,7 @@ class ProductController extends Controller
                     ->select($this->columns())
                     ->with([
                         'category:id,name,name_id,slug,icon,image,parent_id,is_active,sort_order',
+                        'vendor:id,store_name,slug,is_approved',
                         'sizeGuide:id,category_id,name,columns,rows,notes',
                         'attributes:id,product_id,name,sort_order',
                         'attributes.values:id,attribute_id,value,color_hex,sort_order',
@@ -51,6 +52,7 @@ class ProductController extends Controller
                         'questions.answers:id,question_id,user_id,answer,is_vendor,is_verified,helpful_count,created_at',
                         'questions.answers.user:id,name',
                     ])
+                    ->withCount('variants')
                     ->where('slug', $slug)
                     ->where('is_active', true)
                     ->firstOrFail();
@@ -61,7 +63,12 @@ class ProductController extends Controller
                     'product' => $product,
                     'relatedProducts' => Product::query()
                         ->select($this->columns())
-                        ->with('category:id,name,name_id,slug,icon,image')
+                        ->with([
+                            'category:id,name,name_id,slug,icon,image',
+                            'vendor:id,store_name,slug,is_approved',
+                            'variants:id,product_id,combination,sku,price,stock,image',
+                        ])
+                        ->withCount('variants')
                         ->where('category_id', $product->category_id)
                         ->whereKeyNot($product->id)
                         ->where('is_active', true)
@@ -91,7 +98,12 @@ class ProductController extends Controller
     {
         return Product::query()
             ->select($this->columns())
-            ->with('category:id,name,name_id,slug,icon,image')
+            ->with([
+                'category:id,name,name_id,slug,icon,image',
+                'vendor:id,store_name,slug,is_approved',
+                'variants:id,product_id,combination,sku,price,stock,image',
+            ])
+            ->withCount('variants')
             ->where('is_active', true)
             ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.$request->string('q').'%'))
             ->when($request->filled('category'), fn ($query) => $query->whereHas('category', fn ($category) => $category->where('slug', $request->string('category'))))

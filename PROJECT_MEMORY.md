@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 19 - Wishlist
-- Last completed task: Task 18 - Live Chat & Support Ticket
-- Branch: `codex/task-19-wishlist`
-- Status: Task 19 completed locally; draft PR #22 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/22
-- Scope: Authenticated buyer wishlist add/remove/toggle/index, account wishlist UI, product card/detail heart button, move-to-cart, and focused tests.
-- Task 18 PR #21 is merged into `main`; post-merge validation on main passed before this branch.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 20.
-- Next task after Task 19 is merged: Task 20 - Product Variants.
+- Active task: Task 20 - Product Variants
+- Last completed task: Task 19 - Wishlist
+- Branch: `codex/task-20-product-variants`
+- Status: Task 20 completed locally; draft PR #23 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/23
+- Scope: Storefront variant selection, safe variant payloads, cart/checkout variant handling, vendor product variant management, Filament variant visibility/management, and focused tests.
+- Task 19 PR #22 is merged into `main`; post-merge sync/validation was completed before this branch.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 21.
+- Next task after Task 20 is merged: Task 21 - Order Tracking.
 
 ---
 
@@ -39,6 +39,49 @@
 - Task 14 added local-safe storefront caching, model-driven invalidation, query optimization, database/file cache fallback, and Vite build chunk preparation.
 - Task 16 added Google/Facebook Socialite login with placeholder-only OAuth configuration.
 - Task 17 added guest checkout, session guest cart support, guest order success protection, and guest tracking by order number plus email.
+- Task 19 added authenticated wishlist, product card/detail wishlist buttons, account wishlist page, and move-to-cart behavior.
+
+---
+
+## Task 20 Completed Work
+
+- Created branch `codex/task-20-product-variants` from updated `main`.
+- Reused existing variant tables and IDs; no new migration was required.
+- Storefront product payloads now include public vendor info, attributes, attribute values, and safe variant fields only: `id`, `combination`, `sku`, `price`, `stock`, and `image`.
+- Storefront product/category/home listing payloads include safe variants and `variants_count` so product cards can route variant products to detail selection instead of adding an invalid base line.
+- Created `resources/js/Components/Storefront/VariantSelector.vue` for attribute-driven option selection, color swatches via `color_hex`, out-of-stock styling, and exact variant resolution.
+- Created `ImageZoom.vue` and `SizeGuideModal.vue`, then wired product detail to update price, stock, SKU, image, quantity max, and add-to-cart validation from the selected variant.
+- `CartRequest` validates active product IDs, requires `product_variant_id` when a product has variants, verifies variant ownership, and prevents quantity above product or variant stock.
+- `CartController` rechecks stock for guest and authenticated cart updates.
+- `CheckoutController` revalidates cart product/variant availability and stock before creating order/order item records, uses variant price when available, and preserves `product_variant_id` on order items.
+- `GuestCartService` returns only active products and safe variant fields without `vendor_price`.
+- Cart and checkout pages display variant combinations such as `Color: Red, Size: XL`.
+- Wishlist move-to-cart now preserves Task 19 behavior by selecting the first in-stock variant for products with variants.
+- Vendor create/edit product pages use `ProductVariantFields.vue` for simple manual attributes, attribute values, and variants with SKU, price, vendor price, stock, and image.
+- `VendorProductRequest` validates nested variant management input and enforces unique variant combinations per product.
+- `VendorProductController` syncs attributes/values and variants inside transactions, preserving variant IDs when editing and deleting removed variants.
+- Product attribute and value model changes now invalidate storefront product cache.
+- Filament ProductResource now shows variant count, variant stock summary, and a variants relation manager for admin create/edit/delete of variants.
+- Added `tests/Feature/ProductVariantTest.php` covering safe product payloads, required variant selection, wrong-product variant rejection, authenticated cart, guest cart, cart display, checkout order item preservation, and stock limits.
+- Updated `GuestCheckoutTest` to assert guest checkout preserves selected `product_variant_id`.
+- Storefront, cart, checkout, wishlist, vendor, and admin changes do not expose `vendor_price` to buyers.
+
+## Task 20 Validation
+
+- `php -l` on Task 20 PHP files: passed.
+- `php artisan test --filter=ProductVariantTest`: passed, 8 tests / 30 assertions.
+- `php artisan test --filter=GuestCheckoutTest`: passed, 4 tests / 25 assertions.
+- `php artisan test --filter=WishlistTest`: passed, 10 tests / 37 assertions.
+- `php artisan test`: passed, 62 tests / 289 assertions.
+- `php artisan migrate`: passed, Nothing to migrate.
+- `php artisan about`: passed via `E:\Codex\tools\php-8.3\php.exe`.
+- `php artisan route:list`: passed, 165 routes.
+- `npm run build`: passed for client and SSR bundles via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+- Browser plugin was loaded and attempted, but no active Codex browser pane was available; HTTP smoke validation was used as fallback.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/products/rattan-table-organizer`, `/cart`, `/checkout`, `/track-order`, and `/faq` returned 200.
+- Product detail HTTP content smoke confirmed `Color` and `Size` appear and `vendor_price` does not appear.
+- Two test processes were briefly run in parallel and corrupted the local SQLite test database. The corrupted file was moved to ignored backup `database.sqlite.corrupt-task20-*.bak`, a fresh sqlite file was created, tests were rerun sequentially, and the full suite passed.
+- Next task: Task 21 - Order Tracking, only after Task 20 PR is merged by the owner.
 
 ---
 

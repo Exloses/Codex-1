@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\VendorProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductAttribute;
+use App\Models\ProductVariant;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,7 +42,12 @@ class VendorProductController extends Controller
         $data = $this->productData($request);
         $data['vendor_id'] = $vendor->id;
 
-        $product = Product::query()->create($data);
+        $product = DB::transaction(function () use ($request, $data) {
+            $product = Product::query()->create($data);
+            $this->syncVariantData($product, $request);
+
+            return $product;
+        });
 
         return redirect()->route('vendor.products.edit', $product);
     }
@@ -66,7 +75,10 @@ class VendorProductController extends Controller
     public function update(VendorProductRequest $request, Product $product)
     {
         $this->authorize('update', $product);
-        $product->update($this->productData($request, $product));
+        DB::transaction(function () use ($request, $product) {
+            $product->update($this->productData($request, $product));
+            $this->syncVariantData($product, $request);
+        });
 
         return redirect()->route('vendor.products.edit', $product);
     }
@@ -90,7 +102,7 @@ class VendorProductController extends Controller
 
     private function productData(VendorProductRequest $request, ?Product $product = null): array
     {
-        $data = $request->validated();
+        $data = Arr::except($request->validated(), ['attributes', 'variants']);
         $name = $data['name'];
         $base = $data['slug'] ?? Str::slug($name);
         $slug = $base;
@@ -110,5 +122,88 @@ class VendorProductController extends Controller
         $data['is_active'] = (bool) ($data['is_active'] ?? true);
 
         return $data;
+    }
+
+    private function syncVariantData(Product $product, VendorProductRequest $request): void
+    {
+        if ($request->has('attributes')) {
+            $product->attributes()->delete();
+
+            foreach ($request->input('attributes', []) as $attributeIndex => $attributeData) {
+                if (! filled($attributeData['name'] ?? null)) {
+                    continue;
+                }
+
+                $attribute = ProductAttribute::query()->create([
+                    'product_id' => $product->id,
+                    'name' => $attributeData['name'],
+                    'sort_order' => $attributeData['sort_order'] ?? $attributeIndex,
+                ]);
+
+                foreach ($attributeData['values'] ?? [] as $valueIndex => $valueData) {
+                    if (! filled($valueData['value'] ?? null)) {
+                        continue;
+                    }
+
+                    $attribute->values()->create([
+                        'value' => $valueData['value'],
+                        'color_hex' => $valueData['color_hex'] ?? null,
+                        'sort_order' => $valueData['sort_order'] ?? $valueIndex,
+                    ]);
+                }
+            }
+        }
+
+        if (! $request->has('variants')) {
+            return;
+        }
+
+        $keptIds = [];
+        $attributeNames = collect($request->input('attributes', []))
+            ->pluck('name')
+            ->filter()
+            ->map(fn ($name) => (string) $name)
+            ->values();
+
+        foreach ($request->input('variants', []) as $variantData) {
+            $combination = collect($variantData['combination'] ?? [])
+                ->when($attributeNames->isNotEmpty(), fn ($values) => $values->only($attributeNames->all()))
+                ->filter(fn ($value, $key) => filled($key) && filled($value))
+                ->mapWithKeys(fn ($value, $key) => [(string) $key => (string) $value])
+                ->sortKeys()
+                ->all();
+
+            if ($combination === []) {
+                continue;
+            }
+
+            $payload = [
+                'combination' => $combination,
+                'sku' => $variantData['sku'] ?? null,
+                'price' => $variantData['price'] ?? null,
+                'vendor_price' => $variantData['vendor_price'] ?? null,
+                'stock' => $variantData['stock'] ?? 0,
+                'image' => $variantData['image'] ?? null,
+            ];
+
+            $variant = null;
+
+            if (filled($variantData['id'] ?? null)) {
+                $variant = $product->variants()->whereKey($variantData['id'])->first();
+            }
+
+            if ($variant) {
+                $variant->update($payload);
+            } else {
+                $variant = $product->variants()->create($payload);
+            }
+
+            $keptIds[] = $variant->id;
+        }
+
+        ProductVariant::query()
+            ->where('product_id', $product->id)
+            ->when($keptIds !== [], fn ($query) => $query->whereNotIn('id', $keptIds))
+            ->delete();
     }
 }
