@@ -8,8 +8,8 @@
 - Active task: Task 19 - Wishlist
 - Last completed task: Task 18 - Live Chat & Support Ticket
 - Branch: `codex/task-19-wishlist`
-- Status: Task 19 completed locally; draft PR will be created after branch push.
-- Pull request: TBD
+- Status: Task 19 completed locally; draft PR #22 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/22
 - Scope: Authenticated buyer wishlist add/remove/toggle/index, account wishlist UI, product card/detail heart button, move-to-cart, and focused tests.
 - Task 18 PR #21 is merged into `main`; post-merge validation on main passed before this branch.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 20.
