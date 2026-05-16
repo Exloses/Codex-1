@@ -44,7 +44,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
 | Task 18 | Live Chat & Support | ✅ Selesai & PR merged | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
 | Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
-| Task 20 | Product Variants | ✅ Selesai lokal; PR pending | `codex/task-20-product-variants` | Pending |
+| Task 20 | Product Variants | ✅ Selesai lokal; draft PR open | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
 | Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
 | Task 22 | Return & Refund | ⏳ Belum dimulai | - | - |
 | Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 20 Product Variants selesai lokal di branch `codex/task-20-product-variants`; PR belum dibuat pada checkpoint ini.
+**Task sedang dikerjakan:** Task 20 Product Variants selesai lokal di branch `codex/task-20-product-variants`; draft PR #23 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -685,7 +685,7 @@ Redis:    Belum dicek
 Task berikutnya: Task 21 - Order Tracking, hanya setelah PR Task 20 merged oleh owner.
 Branch yang akan dibuat nanti: codex/task-21-order-tracking
 Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 21 dan PROMPT_TEMPLATES.md Task 21
-Status: Task 20 selesai lokal di branch codex/task-20-product-variants; PR pending.
+Status: Task 20 selesai lokal di branch codex/task-20-product-variants; draft PR #23 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -696,7 +696,7 @@ Task 19 branch: codex/task-19-wishlist
 Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
 Task 19 status: merged ke main.
 Task 20 branch: codex/task-20-product-variants
-Task 20 PR: Pending
+Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
 ```
 
 ---
@@ -748,6 +748,7 @@ Task 20 PR: Pending
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-16 | Task 20 draft PR #23 dibuat: https://github.com/Exloses/Codex-1/pull/23 | Codex |
 | 2026-05-16 | Task 20 Product Variants selesai lokal; validasi migrate, about, route:list, ProductVariantTest, GuestCheckoutTest, WishlistTest, full test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-16 | PR #22 Task 19 dikonfirmasi merged ke main; Task 20 dimulai di branch `codex/task-20-product-variants` | Codex |
 | 2026-05-16 | Task 19 draft PR #22 dibuat: https://github.com/Exloses/Codex-1/pull/22 | Codex |

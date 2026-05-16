@@ -8,8 +8,8 @@
 - Active task: Task 20 - Product Variants
 - Last completed task: Task 19 - Wishlist
 - Branch: `codex/task-20-product-variants`
-- Status: Task 20 completed locally; PR pending.
-- Pull request: Pending
+- Status: Task 20 completed locally; draft PR #23 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/23
 - Scope: Storefront variant selection, safe variant payloads, cart/checkout variant handling, vendor product variant management, Filament variant visibility/management, and focused tests.
 - Task 19 PR #22 is merged into `main`; post-merge sync/validation was completed before this branch.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 21.
