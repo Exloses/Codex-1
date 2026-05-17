@@ -78,6 +78,8 @@
   - `npm run build`: passed for client and SSR bundles.
   - `git ls-files .env`: empty.
   - Secret scan of changed files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/returns` and `/admin/return-requests` returned 302 auth redirects.
+  - Browser plugin was loaded, but local navigation timed out twice through the in-app browser; HTTP/build/test validation was used as fallback.
 - No production deploy, Oracle Cloud configuration, real email credentials, real payment credentials, or real Stripe/PayPal refund calls were performed.
 - Next task: Task 23 - Loyalty Points, only after Task 22 PR is merged by the owner.
 

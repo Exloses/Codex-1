@@ -767,6 +767,8 @@ Task 22:
   - `npm run build`: passed for client and SSR.
   - `git ls-files .env`: empty.
   - Secret scan changed files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/returns` and `/admin/return-requests` returned 302 auth redirects.
+  - Browser plugin loaded, but in-app browser local navigation timed out twice; fallback HTTP/build/test validation used.
 ```
 
 ---
@@ -871,6 +873,7 @@ Task 22 status: selesai lokal; menunggu PR review/merge owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-17 | Task 22 HTTP smoke berhasil untuk storefront/return auth redirects; Browser plugin local navigation timeout dan fallback validasi HTTP/build/test digunakan | Codex |
 | 2026-05-17 | Task 22 draft PR #25 dibuat: https://github.com/Exloses/Codex-1/pull/25 | Codex |
 | 2026-05-17 | Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; validasi migrate, PHP lint, ReturnRefundTest, full test, route:list, route:list --path=return, npm build, .env check, dan secret scan berhasil | Codex |
 | 2026-05-17 | Task 21 draft PR #24 dibuat: https://github.com/Exloses/Codex-1/pull/24 | Codex |
