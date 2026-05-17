@@ -59,6 +59,12 @@ VITE_TAWK_WIDGET_ID=YOUR_TAWK_WIDGET_ID
 
 Logged-in buyers can open support tickets from `/support`, attach a recent order when relevant, and reply from the ticket detail page. Admins manage tickets in Filament under Customer Support, including status, priority, filters, and staff replies.
 
+## Order Tracking
+
+Task 21 adds order tracking history for storefront, account, vendor, and Filament admin workflows. Guests track with order number plus email at `/track-order`; logged-in buyers see the timeline on their order detail page; vendors can add shipment updates for their own dropship orders; admins can manage tracking events from the Order and Dropship Order Filament resources.
+
+The local app uses safe near-real-time polling because broadcasting is currently configured with the `log` driver. The `OrderTrackingUpdated` event and `OrderTrackingService` are ready for future carrier webhook or broadcast integration without adding production credentials.
+
 ## Oracle Cloud Deployment Preparation
 
 Task 15 prepared deployment documentation and safe sample configuration for a future Oracle Cloud production setup. The actual deployment has not been performed because the Oracle Cloud account/server is not available yet.

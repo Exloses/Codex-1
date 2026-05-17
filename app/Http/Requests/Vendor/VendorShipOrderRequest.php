@@ -12,6 +12,7 @@ class VendorShipOrderRequest extends AuthorizedRequest
             'tracking_number' => ['required', 'string', 'max:255'],
             'carrier' => ['required', 'string', 'max:120'],
             'shipping_label' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

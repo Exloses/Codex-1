@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\AddressRequest;
 use App\Models\Address;
 use App\Models\Order;
+use App\Services\OrderTrackingService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AccountController extends Controller
 {
+    public function __construct(private readonly OrderTrackingService $trackingService)
+    {
+    }
+
     public function index(): Response
     {
         return Inertia::render('Account/Index', ['user' => auth()->user()->load('vendor', 'loyaltyPoint')]);
@@ -49,8 +54,18 @@ class AccountController extends Controller
                 'items.product:id,name,slug,selling_price,compare_price,stock,average_rating',
                 'items.productVariant:id,product_id,combination,price,stock,image',
                 'dropshipOrders:id,order_id,vendor_id,dropship_number,status,tracking_number,carrier,shipped_at,delivered_at',
+                'trackingEvents',
+                'latestTrackingEvent',
             ]),
+            'tracking' => $this->trackingService->payload($order),
         ]);
+    }
+
+    public function orderTracking(Order $order)
+    {
+        $this->authorize('view', $order);
+
+        return $this->ok(['order' => $this->trackingService->payload($order)]);
     }
 
     public function addresses(): Response

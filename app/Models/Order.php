@@ -48,6 +48,16 @@ class Order extends Model
         return $this->hasMany(DropshipOrder::class);
     }
 
+    public function trackingEvents(): HasMany
+    {
+        return $this->hasMany(OrderTrackingEvent::class)->chronological();
+    }
+
+    public function latestTrackingEvent(): HasOne
+    {
+        return $this->hasOne(OrderTrackingEvent::class)->latestOfMany('occurred_at');
+    }
+
     public function affiliateCommission(): HasOne
     {
         return $this->hasOne(AffiliateCommission::class);
