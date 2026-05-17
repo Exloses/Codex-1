@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 21 - Order Tracking
-- Last completed task: Task 20 - Product Variants
-- Branch: `codex/task-21-order-tracking`
-- Status: Task 21 completed locally; draft PR #24 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/24
-- Scope: Order tracking event history, status enum/source enum, service/action layer, guest/account/vendor/admin tracking views, safe polling fallback, and focused tests.
-- Task 20 PR #23 is merged into `main`; post-merge sync/validation was completed before this branch.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 22.
-- Next task after Task 21 is merged: Task 22 - Return & Refund.
+- Active task: Task 22 - Return & Refund
+- Last completed task: Task 21 - Order Tracking
+- Branch: `codex/task-22-return-refund`
+- Status: Task 22 completed locally; draft PR pending creation.
+- Pull request: Pending.
+- Scope: Authenticated buyer return requests, return eligibility, local image uploads, admin review/refund workflow, safe simulated Stripe/PayPal refunds, notifications, account UI, Filament management, and focused tests.
+- Task 21 PR #24 is merged into `main`; post-merge sync/validation was completed before this branch. Latest main commit before Task 22 branch: `9284837`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real Stripe/PayPal refund calls, and do not start Task 23.
+- Next task after Task 22 is merged: Task 23 - Loyalty Points.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## Recent Baseline
 
-- Task 1-16 are merged into `main`.
+- Task 1-21 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
@@ -41,6 +41,45 @@
 - Task 17 added guest checkout, session guest cart support, guest order success protection, and guest tracking by order number plus email.
 - Task 19 added authenticated wishlist, product card/detail wishlist buttons, account wishlist page, and move-to-cart behavior.
 - Task 20 added storefront variant selection, variant-safe product/cart/checkout payloads, vendor product variant management, and Filament variant management.
+- Task 21 added order tracking history, customer/guest polling, vendor tracking updates, admin relation managers, and the returned tracking status.
+
+---
+
+## Task 22 Completed Work
+
+- Created branch `codex/task-22-return-refund` from updated `main` after PR #24 was merged.
+- Added `App\Enums\ReturnRequestStatus` with centralized statuses: pending, under_review, approved, rejected, refund_pending, refunded, cancelled.
+- Added `ReturnRefundService` to centralize buyer eligibility, local image storage, status transitions, approval/rejection, refund processing, and notification dispatch.
+- Eligibility rules: authenticated buyer only, order belongs to user, payment_status is paid, order status is shipped/in_transit/out_for_delivery/delivered/returned, and no duplicate active return request exists.
+- Added migration `2026_05_17_130000_add_refund_tracking_to_return_requests_table.php` for nullable refund_reference, refund_processed_at, and refund_error.
+- `ReturnRequestForm` validates owner eligibility, image files only, max 4 images, 4MB per image, and refund method values.
+- Customer routes now support account returns list, create from account order detail, store, show, and cancel.
+- Account order detail now exposes a safe return CTA/current return payload without vendor financial fields.
+- `Account/Returns.vue` now supports list, create, and detail/status modes with local image upload and lifecycle timeline.
+- Filament `ReturnRequestResource` now has searchable return/order/customer columns, status badges, status/refund/date filters, and admin actions for under review, approve, reject, and process refund.
+- Stripe and PayPal refund methods are local simulated responses only and do not contact external payment APIs.
+- Return notifications reuse `ReturnRequestUpdateNotification` and the existing Blade email template.
+- Customer/account/return payloads do not expose product `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor financial fields.
+
+## Task 22 Validation
+
+- Baseline from latest `main` before branch:
+  - `git checkout main`, `git fetch origin`, `git pull origin main`: passed; latest commit `9284837`.
+  - `php artisan migrate`: passed, Nothing to migrate.
+  - `php artisan test`: passed, 68 tests / 312 assertions.
+  - `npm run build`: passed for client and SSR bundles after rerun with longer Windows timeout.
+- Task 22 local validation:
+  - PHP lint on changed PHP files: passed.
+  - `php artisan migrate --force`: passed, Nothing to migrate after migration application.
+  - `php artisan test --filter=ReturnRefundTest`: passed, 7 tests / 52 assertions.
+  - `php artisan test`: passed, 75 tests / 364 assertions.
+  - `php artisan route:list`: passed, 170 routes.
+  - `php artisan route:list --path=return`: passed, 7 return routes.
+  - `npm run build`: passed for client and SSR bundles.
+  - `git ls-files .env`: empty.
+  - Secret scan of changed files: no real credentials found.
+- No production deploy, Oracle Cloud configuration, real email credentials, real payment credentials, or real Stripe/PayPal refund calls were performed.
+- Next task: Task 23 - Loyalty Points, only after Task 22 PR is merged by the owner.
 
 ---
 

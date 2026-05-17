@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class PayPalService
 {
@@ -80,6 +81,17 @@ class PayPalService
         }
 
         return ['handled' => (bool) $order, 'type' => $eventType, 'order_id' => $order?->id];
+    }
+
+    public function refund(Order $order, float $amountUsd): array
+    {
+        return [
+            'status' => 'succeeded',
+            'reference' => 'LOCAL-PAYPAL-'.Str::upper(Str::random(10)),
+            'message' => 'Local simulated PayPal refund. No external PayPal API call was made.',
+            'amount_usd' => number_format($amountUsd, 2, '.', ''),
+            'payment_id' => $order->paypal_order_id,
+        ];
     }
 
     private function client(): PendingRequest

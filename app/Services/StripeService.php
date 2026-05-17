@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Stripe\Webhook;
@@ -80,6 +81,17 @@ class StripeService
         }
 
         return ['handled' => true, 'status' => 'failed', 'order_id' => $order?->id];
+    }
+
+    public function refund(Order $order, float $amountUsd): array
+    {
+        return [
+            'status' => 'succeeded',
+            'reference' => 'LOCAL-STRIPE-'.Str::upper(Str::random(10)),
+            'message' => 'Local simulated Stripe refund. No external Stripe API call was made.',
+            'amount_usd' => number_format($amountUsd, 2, '.', ''),
+            'payment_id' => $order->stripe_payment_id,
+        ];
     }
 
     private function findOrder(array $paymentIntent): ?Order

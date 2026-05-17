@@ -128,12 +128,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
         Route::get('/orders/{order}', [AccountController::class, 'orderDetail'])->name('orders.show');
         Route::get('/orders/{order}/tracking', [AccountController::class, 'orderTracking'])->middleware('throttle:api')->name('orders.tracking');
+        Route::get('/orders/{order}/returns/create', [ReturnController::class, 'create'])->name('orders.returns.create');
         Route::get('/orders/{order}/invoice', [InvoiceController::class, 'download'])->name('orders.invoice');
         Route::get('/addresses', [AccountController::class, 'addresses'])->name('addresses');
         Route::post('/addresses', [AccountController::class, 'storeAddress'])->name('addresses.store');
         Route::put('/addresses/{address}', [AccountController::class, 'updateAddress'])->name('addresses.update');
         Route::delete('/addresses/{address}', [AccountController::class, 'destroyAddress'])->name('addresses.destroy');
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+        Route::get('/returns', [ReturnController::class, 'index'])->name('returns.index');
         Route::get('/loyalty-points', [LoyaltyController::class, 'index'])->name('loyalty');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
@@ -148,6 +150,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::post('/returns', [ReturnController::class, 'store'])->name('returns.store');
     Route::get('/returns/{return}', [ReturnController::class, 'show'])->name('returns.show');
+    Route::post('/returns/{return}/cancel', [ReturnController::class, 'cancel'])->name('returns.cancel');
     Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
     Route::get('/support/create', [SupportTicketController::class, 'create'])->name('support.create');
     Route::post('/support', [SupportTicketController::class, 'store'])->name('support.store');

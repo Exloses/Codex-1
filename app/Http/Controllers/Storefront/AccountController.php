@@ -7,12 +7,16 @@ use App\Http\Requests\Storefront\AddressRequest;
 use App\Models\Address;
 use App\Models\Order;
 use App\Services\OrderTrackingService;
+use App\Services\ReturnRefundService;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AccountController extends Controller
 {
-    public function __construct(private readonly OrderTrackingService $trackingService)
+    public function __construct(
+        private readonly OrderTrackingService $trackingService,
+        private readonly ReturnRefundService $returnRefundService,
+    )
     {
     }
 
@@ -47,6 +51,7 @@ class AccountController extends Controller
     public function orderDetail(Order $order): Response
     {
         $this->authorize('view', $order);
+        $currentReturn = $order->returnRequests()->latest()->first();
 
         return Inertia::render('Account/OrderDetail', [
             'order' => $order->load([
@@ -58,6 +63,13 @@ class AccountController extends Controller
                 'latestTrackingEvent',
             ]),
             'tracking' => $this->trackingService->payload($order),
+            'returnEligibility' => [
+                'can_request' => $this->returnRefundService->canCreateForOrder(auth()->user(), $order),
+                'eligible_statuses' => ReturnRefundService::ELIGIBLE_ORDER_STATUSES,
+            ],
+            'currentReturn' => $currentReturn
+                ? $this->returnRefundService->payload($currentReturn)
+                : null,
         ]);
     }
 
