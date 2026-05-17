@@ -45,7 +45,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 18 | Live Chat & Support | ✅ Selesai & PR merged | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
 | Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
 | Task 20 | Product Variants | ✅ Selesai & PR merged | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
-| Task 21 | Order Tracking | 🔄 Sedang dikerjakan | `codex/task-21-order-tracking` | pending |
+| Task 21 | Order Tracking | ✅ Selesai lokal; draft PR open | `codex/task-21-order-tracking` | https://github.com/Exloses/Codex-1/pull/24 |
 | Task 22 | Return & Refund | ⏳ Belum dimulai | - | - |
 | Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
 | Task 24 | Notification Center | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 21 Order Tracking di branch `codex/task-21-order-tracking`; implementasi lokal selesai, final validation dan draft PR sedang disiapkan.
+**Task sedang dikerjakan:** Task 21 Order Tracking selesai lokal di branch `codex/task-21-order-tracking`; draft PR #24 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -718,7 +718,7 @@ Validasi Task 21 lokal:
 - Browser plugin membuka `/track-order` setelah initial navigation timeout; DOM mengonfirmasi form Track order dan field email render.
 - `git ls-files .env`: kosong.
 - Secret scan changed files: tidak menemukan credential asli; README hanya berisi placeholder OAuth aman.
-- PR URL akan ditambahkan setelah draft PR dibuat.
+- Draft PR #24: https://github.com/Exloses/Codex-1/pull/24
 ```
 
 ---
@@ -747,7 +747,7 @@ Redis:    Belum dicek
 Task berikutnya: Task 22 - Return & Refund, hanya setelah PR Task 21 merged oleh owner.
 Branch Task 21: codex/task-21-order-tracking
 Instruksi lengkap Task 21: Lihat BLUEPRINT_COMPLETE.md Task 21 dan PROMPT_TEMPLATES.md Task 21
-Status: Task 21 implementasi lokal selesai; final validation dan draft PR sedang disiapkan.
+Status: Task 21 selesai lokal di branch codex/task-21-order-tracking; draft PR #24 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -761,7 +761,7 @@ Task 20 branch: codex/task-20-product-variants
 Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
 Task 20 status: merged ke main.
 Task 21 branch: codex/task-21-order-tracking
-Task 21 PR: pending
+Task 21 PR: https://github.com/Exloses/Codex-1/pull/24
 ```
 
 ---
@@ -819,6 +819,7 @@ Task 21 PR: pending
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-17 | Task 21 draft PR #24 dibuat: https://github.com/Exloses/Codex-1/pull/24 | Codex |
 | 2026-05-17 | PR #23 Task 20 terkonfirmasi merged ke main; Task 21 dimulai di branch `codex/task-21-order-tracking` setelah post-merge sync dan baseline validation berhasil | Codex |
 | 2026-05-17 | Task 21 Order Tracking implementasi lokal selesai; focused tracking test dan build berhasil, final validation/PR sedang disiapkan | Codex |
 | 2026-05-16 | Task 20 draft PR #23 dibuat: https://github.com/Exloses/Codex-1/pull/23 | Codex |

@@ -8,8 +8,8 @@
 - Active task: Task 21 - Order Tracking
 - Last completed task: Task 20 - Product Variants
 - Branch: `codex/task-21-order-tracking`
-- Status: Task 21 implemented locally; draft PR pending creation.
-- Pull request: pending
+- Status: Task 21 completed locally; draft PR #24 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/24
 - Scope: Order tracking event history, status enum/source enum, service/action layer, guest/account/vendor/admin tracking views, safe polling fallback, and focused tests.
 - Task 20 PR #23 is merged into `main`; post-merge sync/validation was completed before this branch.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 22.
@@ -91,7 +91,7 @@
   - Browser plugin opened `/track-order` in the in-app browser after an initial navigation timeout; DOM confirmed the Track order form and email field rendered.
   - `git ls-files .env`: empty.
   - Secret scan found no real secrets in changed files; README contains safe OAuth placeholder examples only.
-- PR URL will be recorded after draft PR creation.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/24
 - Next task: Task 22 - Return & Refund, only after Task 21 PR is merged by the owner.
 
 ---
