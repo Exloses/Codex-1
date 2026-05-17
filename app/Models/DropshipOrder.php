@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DropshipOrder extends Model
 {
@@ -28,5 +29,10 @@ class DropshipOrder extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class);
+    }
+
+    public function trackingEvents(): HasMany
+    {
+        return $this->hasMany(OrderTrackingEvent::class)->chronological();
     }
 }

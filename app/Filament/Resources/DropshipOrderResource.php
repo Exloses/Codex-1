@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DropshipOrderResource\Pages;
+use App\Filament\Resources\DropshipOrderResource\RelationManagers\TrackingEventsRelationManager;
 use App\Models\DropshipOrder;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -105,7 +106,7 @@ class DropshipOrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TrackingEventsRelationManager::class,
         ];
     }
 

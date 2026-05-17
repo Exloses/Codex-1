@@ -44,8 +44,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 17 | Guest Checkout | ✅ Selesai & PR merged | `codex/task-17-guest-checkout` | https://github.com/Exloses/Codex-1/pull/20 |
 | Task 18 | Live Chat & Support | ✅ Selesai & PR merged | `codex/task-18-livechat-support` | https://github.com/Exloses/Codex-1/pull/21 |
 | Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
-| Task 20 | Product Variants | ✅ Selesai lokal; draft PR open | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
-| Task 21 | Order Tracking | ⏳ Belum dimulai | - | - |
+| Task 20 | Product Variants | ✅ Selesai & PR merged | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
+| Task 21 | Order Tracking | 🔄 Sedang dikerjakan | `codex/task-21-order-tracking` | pending |
 | Task 22 | Return & Refund | ⏳ Belum dimulai | - | - |
 | Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
 | Task 24 | Notification Center | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 20 Product Variants selesai lokal di branch `codex/task-20-product-variants`; draft PR #23 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 21 Order Tracking di branch `codex/task-21-order-tracking`; implementasi lokal selesai, final validation dan draft PR sedang disiapkan.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -480,6 +480,44 @@ Task 20:
 - Vendor create/edit pages support practical attribute/value/variant management with unique combination validation.
 - Filament ProductResource shows variant count, variant stock summary, and a variants relation manager.
 - Storefront payloads include safe variant fields only and do not expose `vendor_price`.
+
+Task 21:
+- Created files:
+  app/Enums/OrderTrackingStatus.php
+  app/Enums/OrderTrackingSource.php
+  app/Events/OrderTrackingUpdated.php
+  app/Filament/Resources/DropshipOrderResource/RelationManagers/TrackingEventsRelationManager.php
+  app/Filament/Resources/OrderResource/RelationManagers/TrackingEventsRelationManager.php
+  app/Http/Requests/Vendor/VendorTrackingEventRequest.php
+  app/Models/OrderTrackingEvent.php
+  app/Services/OrderTrackingService.php
+  database/migrations/2026_05_17_120000_create_order_tracking_events_table.php
+  resources/js/Components/Storefront/TrackingTimeline.vue
+  tests/Feature/OrderTrackingTest.php
+- Modified files:
+  app/Filament/Resources/DropshipOrderResource.php
+  app/Filament/Resources/OrderResource.php
+  app/Http/Controllers/Storefront/AccountController.php
+  app/Http/Controllers/Storefront/TrackingController.php
+  app/Http/Controllers/Vendor/VendorOrderController.php
+  app/Http/Requests/Vendor/VendorShipOrderRequest.php
+  app/Models/DropshipOrder.php
+  app/Models/Order.php
+  resources/js/Pages/Account/OrderDetail.vue
+  resources/js/Pages/Storefront/TrackOrder.vue
+  resources/js/Pages/Vendor/Orders/Index.vue
+  routes/web.php
+  PROJECT_MEMORY.md
+  PROJECT_STATUS.md
+- Added chronological tracking history for orders and nullable dropship-order tracking events.
+- Added centralized status/source enums to avoid scattered free-form tracking strings.
+- Added `OrderTrackingService` for safe event creation, order/dropship state sync, carrier metadata, and future carrier webhook/broadcast integration.
+- Guest tracking remains protected by order number plus email; wrong emails do not reveal order data.
+- Account order detail shows a tracking timeline and polls an owner-scoped endpoint.
+- Vendor order page allows scoped vendor tracking updates for own dropship orders only.
+- Filament Order and DropshipOrder resources now have tracking history relation managers.
+- Full real-time broadcasting was not added because the app currently uses the `log` broadcast driver; near-real-time polling was implemented instead.
+- Storefront/customer tracking payloads do not expose `vendor_price` or internal vendor totals.
 ```
 
 ---
@@ -518,6 +556,8 @@ Task 19 migration:
 - No new migration required. Existing `wishlists` table with unique `user_id` + `product_id` constraint is used.
 Task 20 migration:
 - No new migration required. Existing `product_attributes`, `product_attribute_values`, `product_variants`, `cart_items.product_variant_id`, and `order_items.product_variant_id` columns are used.
+Task 21 migration:
+- Added `2026_05_17_120000_create_order_tracking_events_table` for chronological order/dropship tracking events with metadata.
 Task 14 validation reseeded demo data with php artisan db:seed after tests left the local SQLite database empty.
 ```
 
@@ -657,6 +697,28 @@ Validasi Task 20 lokal:
 - HTTP smoke dengan php artisan serve di http://127.0.0.1:8080: `/`, `/products`, `/products/rattan-table-organizer`, `/cart`, `/checkout`, `/track-order`, dan `/faq` semua 200.
 - Product detail HTTP content smoke mengonfirmasi variant attributes `Color` dan `Size` tersedia, product render ada, dan `vendor_price` tidak muncul.
 - Dua test suite sempat dijalankan paralel dan merusak SQLite test database lokal; file korup dipindah ke backup ignored `database.sqlite.corrupt-task20-*.bak`, database sqlite baru dibuat, lalu test dijalankan ulang berurutan dan full suite lulus.
+
+Validasi Task 21 lokal:
+- Post-merge sync PR #23: berhasil; `main` fast-forward ke merge commit `6a83bad`.
+- Baseline `php artisan migrate --force`: berhasil, `Nothing to migrate` setelah satu proses PHP timeout sisa dihentikan.
+- Baseline `php artisan about`: berhasil via `E:\Codex\tools\php-8.3\php.exe`.
+- Baseline `php artisan route:list`: berhasil, 165 routes.
+- Baseline `php artisan test`: berhasil, 62 tests / 289 assertions.
+- Baseline `npm run build`: berhasil via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+- PHP lint file Task 21: berhasil.
+- `php artisan test --filter=OrderTrackingTest`: berhasil, 6 tests / 23 assertions.
+- `php artisan route:list --path=track`: berhasil, 5 tracking/account/vendor routes.
+- `php artisan route:list --path=vendor/orders`: berhasil, 4 vendor order routes.
+- Final `php artisan migrate --force`: berhasil, Nothing to migrate.
+- Final `php artisan about`: berhasil.
+- Final `php artisan route:list`: berhasil, 168 routes.
+- Final `php artisan test`: berhasil, 68 tests / 312 assertions.
+- Final `npm run build`: berhasil untuk client dan SSR.
+- HTTP smoke dengan `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, `/track-order`, dan `/faq` returned 200; `/vendor/orders` dan `/admin/orders` returned 302 auth redirects.
+- Browser plugin membuka `/track-order` setelah initial navigation timeout; DOM mengonfirmasi form Track order dan field email render.
+- `git ls-files .env`: kosong.
+- Secret scan changed files: tidak menemukan credential asli; README hanya berisi placeholder OAuth aman.
+- PR URL akan ditambahkan setelah draft PR dibuat.
 ```
 
 ---
@@ -682,10 +744,10 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 21 - Order Tracking, hanya setelah PR Task 20 merged oleh owner.
-Branch yang akan dibuat nanti: codex/task-21-order-tracking
-Instruksi lengkap: Lihat BLUEPRINT_COMPLETE.md Task 21 dan PROMPT_TEMPLATES.md Task 21
-Status: Task 20 selesai lokal di branch codex/task-20-product-variants; draft PR #23 dibuat.
+Task berikutnya: Task 22 - Return & Refund, hanya setelah PR Task 21 merged oleh owner.
+Branch Task 21: codex/task-21-order-tracking
+Instruksi lengkap Task 21: Lihat BLUEPRINT_COMPLETE.md Task 21 dan PROMPT_TEMPLATES.md Task 21
+Status: Task 21 implementasi lokal selesai; final validation dan draft PR sedang disiapkan.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -697,6 +759,9 @@ Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
 Task 19 status: merged ke main.
 Task 20 branch: codex/task-20-product-variants
 Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
+Task 20 status: merged ke main.
+Task 21 branch: codex/task-21-order-tracking
+Task 21 PR: pending
 ```
 
 ---
@@ -730,6 +795,12 @@ Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
 - Wishlist move-to-cart picks the first in-stock variant when the product has variants, preserving Task 19 behavior without storing variants in wishlist.
 - Vendor product create/edit pages provide simple manual attribute/value/variant management; combinations are validated unique server-side.
 - Filament ProductResource exposes variant count, variant stock summary, and a variants relation manager for admin management.
+- Task 21 order tracking memakai tabel `order_tracking_events` dan enum terpusat untuk status/source.
+- Status tracking Task 21: pending, paid, processing, shipped, in_transit, out_for_delivery, delivered, failed, returned, cancelled.
+- Source tracking Task 21: system, admin, vendor, carrier.
+- Real-time penuh belum dipasang karena broadcasting project masih driver `log`; fallback near-real-time memakai polling endpoint aman.
+- Polling guest wajib order number plus email; polling account wajib user pemilik order; vendor update wajib vendor pemilik dropship order.
+- Tracking payload customer/storefront tidak mengirim `vendor_price`, `vendor_total_idr`, atau internal vendor fields.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -748,6 +819,8 @@ Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-17 | PR #23 Task 20 terkonfirmasi merged ke main; Task 21 dimulai di branch `codex/task-21-order-tracking` setelah post-merge sync dan baseline validation berhasil | Codex |
+| 2026-05-17 | Task 21 Order Tracking implementasi lokal selesai; focused tracking test dan build berhasil, final validation/PR sedang disiapkan | Codex |
 | 2026-05-16 | Task 20 draft PR #23 dibuat: https://github.com/Exloses/Codex-1/pull/23 | Codex |
 | 2026-05-16 | Task 20 Product Variants selesai lokal; validasi migrate, about, route:list, ProductVariantTest, GuestCheckoutTest, WishlistTest, full test, npm build, dan HTTP smoke berhasil | Codex |
 | 2026-05-16 | PR #22 Task 19 dikonfirmasi merged ke main; Task 20 dimulai di branch `codex/task-20-product-variants` | Codex |

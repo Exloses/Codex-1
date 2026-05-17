@@ -1,28 +1,55 @@
 <script setup>
 import StatusBadge from '@/Components/StatusBadge.vue';
+import TrackingTimeline from '@/Components/Storefront/TrackingTimeline.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 
 const order = ref(null);
 const error = ref('');
+let pollTimer = null;
 const form = useForm({
     order_number: '',
     email: '',
 });
 
+const stopPolling = () => {
+    if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    }
+};
+
+const refreshTracking = async () => {
+    if (!order.value) {
+        return;
+    }
+
+    const response = await axios.post(route('track.status'), form.data());
+    order.value = response.data.order;
+};
+
+const startPolling = () => {
+    stopPolling();
+    pollTimer = setInterval(refreshTracking, 15000);
+};
+
 const submit = async () => {
     error.value = '';
     order.value = null;
+    stopPolling();
 
     try {
         const response = await axios.post(route('track.order'), form.data());
         order.value = response.data.order;
+        startPolling();
     } catch (e) {
         error.value = 'No order matched that order number and email.';
     }
 };
+
+onUnmounted(stopPolling);
 </script>
 
 <template>
@@ -51,19 +78,7 @@ const submit = async () => {
                     <StatusBadge :value="order.status" />
                 </div>
 
-                <div class="mt-6 space-y-4">
-                    <div v-for="dropship in order.dropship_orders || order.dropshipOrders || []" :key="dropship.id" class="rounded-md bg-zinc-50 p-4">
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold">{{ dropship.dropship_number }}</p>
-                            <StatusBadge :value="dropship.status" />
-                        </div>
-                        <div class="mt-3 grid gap-2 text-sm text-zinc-600 sm:grid-cols-3">
-                            <p>Carrier: {{ dropship.carrier || 'Pending' }}</p>
-                            <p>Tracking: {{ dropship.tracking_number || 'Pending' }}</p>
-                            <p>Label: {{ dropship.shipping_label || 'Pending' }}</p>
-                        </div>
-                    </div>
-                </div>
+                <TrackingTimeline class="mt-6" :tracking="order" />
             </div>
         </section>
     </StorefrontLayout>

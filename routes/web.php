@@ -88,6 +88,7 @@ Route::get('/category/{slug}', [CategoryController::class, 'show'])->name('categ
 Route::get('/search', [ProductController::class, 'search'])->name('products.search');
 Route::get('/track-order', [TrackingController::class, 'index'])->name('track.index');
 Route::post('/track-order', [TrackingController::class, 'track'])->name('track.order');
+Route::post('/track-order/status', [TrackingController::class, 'status'])->middleware('throttle:api')->name('track.status');
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/affiliate', [AffiliateController::class, 'landing'])->name('affiliate.landing');
 Route::get('/ref/{code}', [AffiliateController::class, 'track'])->name('affiliate.track');
@@ -126,6 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
         Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
         Route::get('/orders/{order}', [AccountController::class, 'orderDetail'])->name('orders.show');
+        Route::get('/orders/{order}/tracking', [AccountController::class, 'orderTracking'])->middleware('throttle:api')->name('orders.tracking');
         Route::get('/orders/{order}/invoice', [InvoiceController::class, 'download'])->name('orders.invoice');
         Route::get('/addresses', [AccountController::class, 'addresses'])->name('addresses');
         Route::post('/addresses', [AccountController::class, 'storeAddress'])->name('addresses.store');
@@ -173,6 +175,7 @@ Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->g
     Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
     Route::put('/orders/{dropship}/confirm', [VendorOrderController::class, 'confirm'])->name('orders.confirm');
     Route::put('/orders/{dropship}/ship', [VendorOrderController::class, 'markShipped'])->name('orders.ship');
+    Route::post('/orders/{dropship}/tracking', [VendorOrderController::class, 'addTrackingEvent'])->name('orders.tracking.store');
     Route::get('/finance', [VendorFinanceController::class, 'index'])->name('finance');
     Route::post('/finance/withdraw', [VendorFinanceController::class, 'requestWithdrawal'])->name('finance.withdraw');
     Route::get('/settings', [VendorSettingsController::class, 'index'])->name('settings');

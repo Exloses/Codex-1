@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 20 - Product Variants
-- Last completed task: Task 19 - Wishlist
-- Branch: `codex/task-20-product-variants`
-- Status: Task 20 completed locally; draft PR #23 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/23
-- Scope: Storefront variant selection, safe variant payloads, cart/checkout variant handling, vendor product variant management, Filament variant visibility/management, and focused tests.
-- Task 19 PR #22 is merged into `main`; post-merge sync/validation was completed before this branch.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 21.
-- Next task after Task 20 is merged: Task 21 - Order Tracking.
+- Active task: Task 21 - Order Tracking
+- Last completed task: Task 20 - Product Variants
+- Branch: `codex/task-21-order-tracking`
+- Status: Task 21 implemented locally; draft PR pending creation.
+- Pull request: pending
+- Scope: Order tracking event history, status enum/source enum, service/action layer, guest/account/vendor/admin tracking views, safe polling fallback, and focused tests.
+- Task 20 PR #23 is merged into `main`; post-merge sync/validation was completed before this branch.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, and do not start Task 22.
+- Next task after Task 21 is merged: Task 22 - Return & Refund.
 
 ---
 
@@ -40,6 +40,59 @@
 - Task 16 added Google/Facebook Socialite login with placeholder-only OAuth configuration.
 - Task 17 added guest checkout, session guest cart support, guest order success protection, and guest tracking by order number plus email.
 - Task 19 added authenticated wishlist, product card/detail wishlist buttons, account wishlist page, and move-to-cart behavior.
+- Task 20 added storefront variant selection, variant-safe product/cart/checkout payloads, vendor product variant management, and Filament variant management.
+
+---
+
+## Task 21 Completed Work
+
+- Created branch `codex/task-21-order-tracking` from updated `main` after PR #23 was merged.
+- Added `order_tracking_events` migration with `order_id`, nullable `dropship_order_id`, status, title, description, location, occurred timestamp, source, and metadata JSON.
+- Added centralized tracking enums:
+  - `App\Enums\OrderTrackingStatus`: pending, paid, processing, shipped, in_transit, out_for_delivery, delivered, failed, returned, cancelled.
+  - `App\Enums\OrderTrackingSource`: system, admin, vendor, carrier.
+- Added `OrderTrackingEvent` model plus `Order::trackingEvents`, `Order::latestTrackingEvent`, and `DropshipOrder::trackingEvents`.
+- Added `OrderTrackingService` to validate statuses/sources, create chronological tracking events, sync order/dropship state, update carrier/tracking fields, dispatch a local event, and send existing shipped notification for logged-in buyers when applicable.
+- Added `OrderTrackingUpdated` event as a lightweight integration point for future carrier webhooks or Laravel broadcasting.
+- Broadcasting is not configured beyond the existing `log` driver, so Task 21 uses safe near-real-time polling instead of installing large broadcasting infrastructure.
+- Guest tracking remains protected by `order_number` plus email and now returns sanitized tracking payloads only.
+- Added `/track-order/status` polling endpoint with the same guest authorization requirements as lookup.
+- Added authenticated account polling endpoint at `/account/orders/{order}/tracking`; `OrderPolicy` still limits users to their own orders unless admin.
+- Updated account order detail to show the tracking timeline and poll safely.
+- Updated vendor orders so vendors can confirm processing, mark shipped, and add allowed tracking updates only for their own dropship orders.
+- Added Filament relation managers for Order and DropshipOrder tracking history/manual tracking updates.
+- Storefront/customer payloads do not expose `vendor_price`, product `vendor_price`, product variant `vendor_price`, or internal vendor totals.
+
+## Task 21 Validation
+
+- Baseline after PR #23 merge on `main`:
+  - `git checkout main`, `git fetch origin`, `git pull origin main`: passed; merge commit `6a83bad` present.
+  - `php artisan migrate --force`: passed after stopping one leftover timed-out PHP process; `Nothing to migrate`.
+  - `php artisan about`: passed via `E:\Codex\tools\php-8.3\php.exe`.
+  - `php artisan route:list`: passed, 165 routes before Task 21.
+  - `php artisan test`: passed, 62 tests / 289 assertions.
+  - `npm run build`: passed for client and SSR bundles via `E:\Codex\tools\node-v24.15.0-win-x64\npm.cmd`.
+- Task 21 local validation so far:
+  - PHP lint on Task 21 PHP files: passed.
+  - `npm run build`: passed.
+  - `php artisan test --filter=OrderTrackingTest`: passed, 6 tests / 23 assertions.
+  - `php artisan migrate --force`: passed; `order_tracking_events` migration is recorded as ran.
+  - `php artisan route:list --path=track`: passed, tracking routes visible.
+  - `php artisan route:list --path=vendor/orders`: passed, vendor tracking route visible.
+- Final Task 21 validation:
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - `php artisan about`: passed.
+  - `php artisan route:list`: passed, 168 routes.
+  - `php artisan route:list --path=track`: passed, 5 tracking/account/vendor routes.
+  - `php artisan route:list --path=vendor/orders`: passed, 4 vendor order routes.
+  - `php artisan test`: passed, 68 tests / 312 assertions.
+  - `npm run build`: passed for client and SSR bundles.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, `/track-order`, and `/faq` returned 200; `/vendor/orders` and `/admin/orders` returned 302 auth redirects.
+  - Browser plugin opened `/track-order` in the in-app browser after an initial navigation timeout; DOM confirmed the Track order form and email field rendered.
+  - `git ls-files .env`: empty.
+  - Secret scan found no real secrets in changed files; README contains safe OAuth placeholder examples only.
+- PR URL will be recorded after draft PR creation.
+- Next task: Task 22 - Return & Refund, only after Task 21 PR is merged by the owner.
 
 ---
 
