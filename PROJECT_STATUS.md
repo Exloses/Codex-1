@@ -46,7 +46,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
 | Task 20 | Product Variants | ✅ Selesai & PR merged | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
 | Task 21 | Order Tracking | ✅ Selesai & PR merged | `codex/task-21-order-tracking` | https://github.com/Exloses/Codex-1/pull/24 |
-| Task 22 | Return & Refund | ✅ Selesai lokal; draft PR pending | `codex/task-22-return-refund` | Pending |
+| Task 22 | Return & Refund | ✅ Selesai lokal; draft PR open | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
 | Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
 | Task 24 | Notification Center | ⏳ Belum dimulai | - | - |
 | Task 25 | Newsletter | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; draft PR pending creation.
+**Task sedang dikerjakan:** Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; draft PR #25 sudah dibuat dan menunggu review/merge owner.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -722,7 +722,7 @@ Validasi Task 21 lokal:
 
 Task 22:
 - Branch: `codex/task-22-return-refund`.
-- PR: Pending creation.
+- PR: https://github.com/Exloses/Codex-1/pull/25
 - Files created:
   - app/Enums/ReturnRequestStatus.php
   - app/Services/ReturnRefundService.php
@@ -795,7 +795,7 @@ Redis:    Belum dicek
 Task berikutnya: Task 23 - Loyalty Points, hanya setelah PR Task 22 merged oleh owner.
 Branch Task 22: codex/task-22-return-refund
 Instruksi lengkap Task 23: Lihat BLUEPRINT_COMPLETE.md Task 23 dan PROMPT_TEMPLATES.md Task 23 setelah Task 22 PR merged.
-Status: Task 22 selesai lokal; draft PR pending creation.
+Status: Task 22 selesai lokal; draft PR #25 dibuat.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -812,7 +812,7 @@ Task 21 branch: codex/task-21-order-tracking
 Task 21 PR: https://github.com/Exloses/Codex-1/pull/24
 Task 21 status: merged ke main.
 Task 22 branch: codex/task-22-return-refund
-Task 22 PR: Pending
+Task 22 PR: https://github.com/Exloses/Codex-1/pull/25
 Task 22 status: selesai lokal; menunggu PR review/merge owner.
 ```
 
@@ -871,6 +871,7 @@ Task 22 status: selesai lokal; menunggu PR review/merge owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-17 | Task 22 draft PR #25 dibuat: https://github.com/Exloses/Codex-1/pull/25 | Codex |
 | 2026-05-17 | Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; validasi migrate, PHP lint, ReturnRefundTest, full test, route:list, route:list --path=return, npm build, .env check, dan secret scan berhasil | Codex |
 | 2026-05-17 | Task 21 draft PR #24 dibuat: https://github.com/Exloses/Codex-1/pull/24 | Codex |
 | 2026-05-17 | PR #23 Task 20 terkonfirmasi merged ke main; Task 21 dimulai di branch `codex/task-21-order-tracking` setelah post-merge sync dan baseline validation berhasil | Codex |

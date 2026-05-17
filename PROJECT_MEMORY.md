@@ -8,8 +8,8 @@
 - Active task: Task 22 - Return & Refund
 - Last completed task: Task 21 - Order Tracking
 - Branch: `codex/task-22-return-refund`
-- Status: Task 22 completed locally; draft PR pending creation.
-- Pull request: Pending.
+- Status: Task 22 completed locally; draft PR #25 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/25
 - Scope: Authenticated buyer return requests, return eligibility, local image uploads, admin review/refund workflow, safe simulated Stripe/PayPal refunds, notifications, account UI, Filament management, and focused tests.
 - Task 21 PR #24 is merged into `main`; post-merge sync/validation was completed before this branch. Latest main commit before Task 22 branch: `9284837`.
 - Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real Stripe/PayPal refund calls, and do not start Task 23.
