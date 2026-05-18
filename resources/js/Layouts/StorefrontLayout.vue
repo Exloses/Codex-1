@@ -8,6 +8,7 @@ import {
     SparklesIcon,
     UserCircleIcon,
 } from '@heroicons/vue/24/outline';
+import NotificationCenter from '@/Components/Storefront/NotificationCenter.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -155,7 +156,8 @@ const subscribe = () => {
                 </select>
 
                 <div class="hidden items-center gap-1 sm:flex">
-                    <Link :href="route('account.notifications')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Notifications">
+                    <NotificationCenter v-if="user" />
+                    <Link v-else :href="route('login')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Notifications">
                         <BellIcon class="h-5 w-5" />
                     </Link>
                     <Link :href="route('account.wishlist')" class="relative rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Wishlist">
@@ -200,6 +202,7 @@ const subscribe = () => {
                     <div class="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-4">
                         <Link :href="route('cart.index')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Cart</Link>
                         <Link :href="route('account.wishlist')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Wishlist</Link>
+                        <Link :href="user ? route('account.notifications') : route('login')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Notifications</Link>
                         <Link :href="route('support.index')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Support</Link>
                         <Link :href="user ? route('account.index') : route('login')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Account</Link>
                     </div>

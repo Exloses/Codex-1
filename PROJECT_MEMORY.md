@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 23 - Loyalty Points
-- Last completed task: Task 22 - Return & Refund
-- Branch: `codex/task-23-loyalty-points`
-- Status: Task 23 completed locally; draft PR #26 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/26
-- Scope: Loyalty earn/redeem/bonus hardening, idempotent transaction references, checkout redemption, account loyalty history UI, expiry command, and focused tests.
-- Task 22 PR #25 is merged into `main`; post-merge sync and baseline validation passed before this branch. Latest main commit before Task 23 branch: `2f035ca`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real Stripe/PayPal/API calls, and do not start Task 24.
-- Next task after Task 23 is merged: Task 24 - Notification Center.
+- Active task: Task 24 - Notification Center
+- Last completed task: Task 23 - Loyalty Points
+- Branch: `codex/task-24-notifications`
+- Status: Task 24 completed locally; draft PR #27 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/27
+- Scope: Authenticated in-app notification center, safe notification feed, single/all read actions, navbar dropdown with unread badge, 30-second polling, account notifications page polish, and focused tests.
+- Task 23 PR #26 is merged into `main`; post-merge sync and baseline validation were already clean. Latest main commit before Task 24 branch: `ea2ac9e`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, and do not start Task 25.
+- Next task after Task 24 is merged: Task 25 - Newsletter.
 
 ---
 
@@ -43,6 +43,51 @@
 - Task 20 added storefront variant selection, variant-safe product/cart/checkout payloads, vendor product variant management, and Filament variant management.
 - Task 21 added order tracking history, customer/guest polling, vendor tracking updates, admin relation managers, and the returned tracking status.
 - Task 22 added authenticated return requests, admin return/refund workflow, safe simulated Stripe/PayPal refunds, return notifications, and return payload privacy checks.
+- Task 23 added idempotent loyalty earn/redeem/bonus logic, checkout redemption, account loyalty history, and expiry command.
+
+## Task 24 Completed Work
+
+- Created branch `codex/task-24-notifications` from updated `main` after PR #26 was merged.
+- Did not create a new notifications table migration because Task 12 already created `database/migrations/2026_05_12_111521_create_notifications_table.php`.
+- Upgraded `NotificationController` with:
+  - full account notifications page payload normalization
+  - JSON feed endpoint for navbar polling
+  - single notification mark-as-read
+  - mark-all-read
+  - owner-only access for notification UUIDs
+- Notification feed returns safe, small payloads only:
+  - id
+  - key/type
+  - title
+  - message
+  - internal action_url
+  - read_at
+  - created_at
+  - created_at_human
+- External or malformed action URLs are ignored and the frontend falls back to the account notifications page.
+- Added lazy shared `unread_notifications_count` Inertia prop without loading full notifications globally.
+- Added `resources/js/Components/Storefront/NotificationCenter.vue` with authenticated-only polling, unread badge, dropdown list, empty state, mark-all-read, click-to-read, safe navigation, silent polling failure handling, and interval cleanup on unmount.
+- Replaced the simple navbar notification link in `StorefrontLayout.vue` with the notification center for authenticated users and added a mobile Notifications link.
+- Improved `Account/Notifications.vue` with read/unread visual states, per-notification mark-read/open actions, mark-all-read, pagination, and empty state.
+- Added `tests/Feature/NotificationCenterTest.php`.
+- Notification/customer payloads do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor fields.
+
+## Task 24 Validation
+
+- `git checkout main`, `git fetch origin`, `git pull origin main`: passed; latest commit `ea2ac9e`.
+- `git status --short --branch` before branching: clean on `main...origin/main`.
+- `git log --oneline -1`: `ea2ac9e Merge pull request #26 from Exloses/codex/task-23-loyalty-points`.
+- PHP lint on changed PHP files: passed.
+- `php artisan migrate --force`: passed, Nothing to migrate.
+- `php artisan route:list --path=notifications`: passed, 6 routes.
+- `php artisan test --filter=NotificationCenterTest`: passed, 8 tests / 34 assertions.
+- `php artisan test`: passed, 92 tests / 446 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- `git ls-files .env`: empty.
+- Secret scan of changed files found no real credentials.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200 and `/account/notifications` returned 302 to `/login` for guest.
+- Browser plugin skill was loaded, but the in-app browser connection timed out; HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real secrets, real payment credentials, external production API calls, or Task 25 work were performed.
 
 ## Task 23 Completed Work
 
