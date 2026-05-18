@@ -36,6 +36,7 @@ const form = useForm({
                 </form>
                 <nav class="grid gap-2 self-start rounded-lg border border-zinc-200 bg-white p-4 text-sm font-semibold">
                     <Link :href="route('account.orders')">Orders</Link>
+                    <Link :href="route('account.returns.index')">Returns</Link>
                     <Link :href="route('account.addresses')">Addresses</Link>
                     <Link :href="route('account.wishlist')">Wishlist</Link>
                     <Link :href="route('account.loyalty')">Loyalty points</Link>

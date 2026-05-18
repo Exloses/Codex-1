@@ -9,6 +9,8 @@ import { onMounted, onUnmounted, ref } from 'vue';
 const props = defineProps({
     order: { type: Object, required: true },
     tracking: { type: Object, required: true },
+    returnEligibility: { type: Object, default: () => ({ can_request: false }) },
+    currentReturn: { type: Object, default: null },
 });
 
 const trackingState = ref(props.tracking);
@@ -49,7 +51,15 @@ onUnmounted(() => {
             <div class="mt-6 rounded-lg border border-zinc-200 bg-white p-5">
                 <TrackingTimeline :tracking="trackingState" />
             </div>
-            <Link :href="route('account.orders.invoice', order.id)" class="mt-4 inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold">Invoice</Link>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <Link :href="route('account.orders.invoice', order.id)" class="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold">Invoice</Link>
+                <Link v-if="returnEligibility.can_request" :href="route('account.orders.returns.create', order.id)" class="inline-flex rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white">
+                    Request Return
+                </Link>
+                <Link v-else-if="currentReturn" :href="route('returns.show', currentReturn.id)" class="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold">
+                    View Return
+                </Link>
+            </div>
         </section>
     </StorefrontLayout>
 </template>

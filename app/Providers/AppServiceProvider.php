@@ -8,6 +8,7 @@ use App\Services\DropshipService;
 use App\Services\EasyPostService;
 use App\Services\LoyaltyService;
 use App\Services\PayPalService;
+use App\Services\ReturnRefundService;
 use App\Services\StripeService;
 use EasyPost\EasyPostClient;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -61,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(DropshipService::class);
         $this->app->singleton(AffiliateService::class);
         $this->app->singleton(LoyaltyService::class);
+        $this->app->singleton(ReturnRefundService::class);
     }
 
     /**
