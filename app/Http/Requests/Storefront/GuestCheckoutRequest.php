@@ -16,6 +16,7 @@ class GuestCheckoutRequest extends CheckoutRequest
             'guest_state' => ['nullable', 'string', 'max:120'],
             'guest_postal_code' => ['required', 'string', 'max:40'],
             'guest_country' => ['required', 'string', 'size:2'],
+            'loyalty_points' => ['prohibited'],
         ]);
     }
 }

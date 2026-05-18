@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +33,7 @@ class SocialAuthController extends Controller
         return Socialite::driver($provider)->redirect();
     }
 
-    public function callback(Request $request, string $provider): RedirectResponse
+    public function callback(Request $request, string $provider, LoyaltyService $loyaltyService): RedirectResponse
     {
         $provider = strtolower($provider);
 
@@ -78,6 +79,10 @@ class SocialAuthController extends Controller
 
         if ($isNewUser && $buyerRole = Role::query()->where('name', 'buyer')->where('guard_name', 'web')->first()) {
             $user->assignRole($buyerRole);
+        }
+
+        if ($isNewUser) {
+            $loyaltyService->addBonusPoints($user, 'register');
         }
 
         Auth::login($user);

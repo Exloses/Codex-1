@@ -9,6 +9,19 @@ class LoyaltyTransaction extends Model
 {
     protected $guarded = [];
 
+    public function scopePositive($query)
+    {
+        return $query->where('points', '>', 0);
+    }
+
+    public function scopeUnexpired($query)
+    {
+        return $query->where(function ($query) {
+            $query->whereNull('expires_at')
+                ->orWhere('expires_at', '>', now());
+        });
+    }
+
     protected function casts(): array
     {
         return [

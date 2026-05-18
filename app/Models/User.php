@@ -99,6 +99,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(LoyaltyPoint::class);
     }
 
+    public function loyaltyTransactions(): HasMany
+    {
+        return $this->hasMany(LoyaltyTransaction::class);
+    }
+
     public function supportTickets(): HasMany
     {
         return $this->hasMany(SupportTicket::class);

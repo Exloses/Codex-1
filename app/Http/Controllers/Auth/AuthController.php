@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Models\User;
+use App\Services\LoyaltyService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class AuthController extends Controller
         return Inertia::render('Auth/Register');
     }
 
-    public function register(RegisterRequest $request): RedirectResponse
+    public function register(RegisterRequest $request, LoyaltyService $loyaltyService): RedirectResponse
     {
         $data = $request->validated();
 
@@ -53,6 +54,7 @@ class AuthController extends Controller
 
         Role::findOrCreate('buyer');
         $user->assignRole('buyer');
+        $loyaltyService->addBonusPoints($user, 'register');
         event(new Registered($user));
         Auth::login($user);
 
