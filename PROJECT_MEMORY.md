@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 22 - Return & Refund
-- Last completed task: Task 21 - Order Tracking
-- Branch: `codex/task-22-return-refund`
-- Status: Task 22 completed locally; draft PR #25 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/25
-- Scope: Authenticated buyer return requests, return eligibility, local image uploads, admin review/refund workflow, safe simulated Stripe/PayPal refunds, notifications, account UI, Filament management, and focused tests.
-- Task 21 PR #24 is merged into `main`; post-merge sync/validation was completed before this branch. Latest main commit before Task 22 branch: `9284837`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real Stripe/PayPal refund calls, and do not start Task 23.
-- Next task after Task 22 is merged: Task 23 - Loyalty Points.
+- Active task: Task 23 - Loyalty Points
+- Last completed task: Task 22 - Return & Refund
+- Branch: `codex/task-23-loyalty-points`
+- Status: Task 23 completed locally; draft PR #26 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/26
+- Scope: Loyalty earn/redeem/bonus hardening, idempotent transaction references, checkout redemption, account loyalty history UI, expiry command, and focused tests.
+- Task 22 PR #25 is merged into `main`; post-merge sync and baseline validation passed before this branch. Latest main commit before Task 23 branch: `2f035ca`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real Stripe/PayPal/API calls, and do not start Task 24.
+- Next task after Task 23 is merged: Task 24 - Notification Center.
 
 ---
 
@@ -42,6 +42,53 @@
 - Task 19 added authenticated wishlist, product card/detail wishlist buttons, account wishlist page, and move-to-cart behavior.
 - Task 20 added storefront variant selection, variant-safe product/cart/checkout payloads, vendor product variant management, and Filament variant management.
 - Task 21 added order tracking history, customer/guest polling, vendor tracking updates, admin relation managers, and the returned tracking status.
+- Task 22 added authenticated return requests, admin return/refund workflow, safe simulated Stripe/PayPal refunds, return notifications, and return payload privacy checks.
+
+## Task 23 Completed Work
+
+- Created branch `codex/task-23-loyalty-points` from updated `main` after PR #25 was merged.
+- Added migration `2026_05_18_120000_add_reference_to_loyalty_transactions_table.php` with nullable unique `reference` on `loyalty_transactions`.
+- Hardened `LoyaltyService` with constants and server-side rules:
+  - earn 10 points per paid order dollar
+  - 100 point registration bonus
+  - 50 point review bonus
+  - redeem 100 points = $1 discount
+  - minimum redemption 500 points
+  - points expire 1 year after earn/bonus
+- Idempotency references:
+  - `order:{order_id}:earned`
+  - `order:{order_id}:redeem`
+  - `user:{user_id}:register_bonus`
+  - `review:{review_id}:bonus`
+- `LoyaltyService` dispatches `LoyaltyPointsEarnedNotification` for earn and bonus transactions.
+- Email/password registration and new social registration now award the idempotent welcome bonus; existing social login users do not get a duplicate bonus.
+- Review creation now awards the idempotent review bonus only after validation and successful review persistence.
+- Authenticated checkout accepts `loyalty_points`, calculates redemption server-side, ignores untrusted `discount_usd`, caps redemption by balance and order total, and creates a redeem transaction tied to the order.
+- Guest checkout prohibits `loyalty_points` and remains unaffected.
+- Checkout page now shows authenticated users balance, min redemption, conversion rate, entered points, and estimated discount; guests see an account prompt instead.
+- Account loyalty page now shows balance, earn/redeem/bonus/expiry rules, transaction history, order links, expiry dates, and empty state.
+- Added `loyalty:expire-points` command and scheduled it daily in `routes/console.php`.
+- Expiry behavior: the command creates `expired` ledger entries for expired earn/bonus rows and caps deduction at current wallet balance so balances cannot go negative. It does not implement full FIFO consumption allocation; this is intentionally small for Task 23.
+- Customer/account/checkout payloads do not expose product `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor financial fields.
+
+## Task 23 Validation
+
+- Baseline from latest `main` before branch:
+  - `git checkout main`, `git fetch origin`, `git pull origin main`: passed; latest commit `2f035ca`.
+  - `php artisan migrate`: passed, Nothing to migrate.
+  - `php artisan test`: passed, 75 tests / 364 assertions.
+  - `npm run build`: passed for client and SSR bundles.
+- Task 23 local validation:
+  - `php artisan migrate --force`: passed.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan test --filter=LoyaltyPointsTest`: passed, 9 tests / 48 assertions.
+  - `php artisan test`: passed, 84 tests / 412 assertions.
+  - `php artisan route:list`: passed, 170 routes.
+  - `npm run build`: passed for client and SSR bundles.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/loyalty-points` returned 302 auth redirect.
+  - Browser plugin was loaded, but no active Codex browser pane was available; HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real email credentials, real payment credentials, external Stripe/PayPal/API calls, or Task 24 work were performed.
+- Next task: Task 24 - Notification Center, only after Task 23 PR is merged by the owner.
 
 ---
 

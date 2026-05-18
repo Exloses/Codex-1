@@ -12,6 +12,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    loyalty: {
+        type: Object,
+        default: null,
+    },
 });
 
 const page = usePage();
@@ -30,6 +34,7 @@ const form = useForm({
     shipping_cost_usd: 12,
     buyer_currency: 'USD',
     payment_method: 'stripe',
+    loyalty_points: 0,
     notes: '',
 });
 
@@ -38,9 +43,26 @@ const unitPrice = (item) => Number(item.productVariant?.price || item.product_va
 const variant = (item) => item.productVariant || item.product_variant || null;
 const variantText = (item) => Object.entries(variant(item)?.combination || {}).map(([key, value]) => `${key}: ${value}`).join(', ');
 const subtotal = computed(() => props.cartItems.reduce((sum, item) => sum + unitPrice(item) * Number(item.quantity || 0), 0));
-const total = computed(() => subtotal.value + Number(form.shipping_cost_usd || 0));
+const shipping = computed(() => Number(form.shipping_cost_usd || 0));
+const preDiscountTotal = computed(() => subtotal.value + shipping.value);
 const isGuest = computed(() => !page.props.auth?.user);
 const hasItems = computed(() => props.cartItems.length > 0);
+const loyaltyBalance = computed(() => Number(props.loyalty?.balance || 0));
+const minimumPoints = computed(() => Number(props.loyalty?.minimum_points || 500));
+const pointsPerDiscountUsd = computed(() => Number(props.loyalty?.points_per_discount_usd || 100));
+const requestedLoyaltyPoints = computed(() => Math.max(0, Number(form.loyalty_points || 0)));
+const maxPointsByTotal = computed(() => Math.floor(preDiscountTotal.value * pointsPerDiscountUsd.value));
+const estimatedLoyaltyPoints = computed(() => {
+    if (isGuest.value || requestedLoyaltyPoints.value < minimumPoints.value) {
+        return 0;
+    }
+
+    const capped = Math.min(requestedLoyaltyPoints.value, loyaltyBalance.value, maxPointsByTotal.value);
+
+    return Math.floor(capped / pointsPerDiscountUsd.value) * pointsPerDiscountUsd.value;
+});
+const estimatedLoyaltyDiscount = computed(() => estimatedLoyaltyPoints.value / pointsPerDiscountUsd.value);
+const total = computed(() => Math.max(0, preDiscountTotal.value - estimatedLoyaltyDiscount.value));
 
 const submit = () => {
     form.post(route(isGuest.value ? 'checkout.guest' : 'checkout.store'));
@@ -154,6 +176,43 @@ const submit = () => {
                             </span>
                             <input v-model="form.shipping_cost_usd" type="radio" :value="28" />
                         </label>
+                        <div v-if="!isGuest" class="rounded-md border border-emerald-200 bg-emerald-50 p-4">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-emerald-950">Redeem loyalty points</p>
+                                    <p class="mt-1 text-sm text-emerald-800">
+                                        {{ loyaltyBalance.toLocaleString() }} points available. Minimum {{ minimumPoints.toLocaleString() }} points.
+                                        {{ pointsPerDiscountUsd.toLocaleString() }} points = {{ money(1) }}.
+                                    </p>
+                                </div>
+                                <Link :href="route('account.loyalty')" class="text-sm font-semibold text-emerald-800">View history</Link>
+                            </div>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+                                <input
+                                    v-model.number="form.loyalty_points"
+                                    type="number"
+                                    min="0"
+                                    :max="loyaltyBalance"
+                                    step="100"
+                                    class="w-full rounded-md border-emerald-200 text-sm"
+                                    placeholder="Points to redeem"
+                                />
+                                <button
+                                    type="button"
+                                    class="rounded-md border border-emerald-300 px-4 py-2 text-sm font-semibold text-emerald-900"
+                                    @click="form.loyalty_points = Math.min(loyaltyBalance, maxPointsByTotal)"
+                                >
+                                    Max
+                                </button>
+                            </div>
+                            <p v-if="form.errors.loyalty_points" class="mt-2 text-sm text-rose-600">{{ form.errors.loyalty_points }}</p>
+                            <p class="mt-2 text-sm text-emerald-900">
+                                Entered {{ requestedLoyaltyPoints.toLocaleString() }} points. Estimated discount: {{ money(estimatedLoyaltyDiscount) }}.
+                            </p>
+                        </div>
+                        <div v-else class="rounded-md bg-zinc-50 p-4 text-sm text-zinc-600">
+                            Log in or create an account to earn and redeem loyalty points.
+                        </div>
                         <button class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white" @click="step = 3">Continue</button>
                     </div>
 
@@ -188,7 +247,11 @@ const submit = () => {
                     </div>
                     <div class="mt-5 space-y-2 border-t border-zinc-200 pt-4 text-sm">
                         <div class="flex justify-between"><span>Subtotal</span><span>{{ money(subtotal) }}</span></div>
-                        <div class="flex justify-between"><span>Shipping</span><span>{{ money(form.shipping_cost_usd) }}</span></div>
+                        <div class="flex justify-between"><span>Shipping</span><span>{{ money(shipping) }}</span></div>
+                        <div v-if="estimatedLoyaltyDiscount > 0" class="flex justify-between text-emerald-700">
+                            <span>Loyalty discount</span>
+                            <span>-{{ money(estimatedLoyaltyDiscount) }}</span>
+                        </div>
                         <div class="flex justify-between text-base font-bold"><span>Total</span><span>{{ money(total) }}</span></div>
                     </div>
                 </aside>

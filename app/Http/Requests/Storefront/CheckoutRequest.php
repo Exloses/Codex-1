@@ -14,6 +14,7 @@ class CheckoutRequest extends AuthorizedRequest
             'payment_method' => ['nullable', 'string', 'in:stripe,paypal'],
             'shipping_cost_usd' => ['nullable', 'numeric', 'min:0'],
             'discount_usd' => ['nullable', 'numeric', 'min:0'],
+            'loyalty_points' => ['nullable', 'integer', 'min:0'],
             'affiliate_code' => ['nullable', 'string', 'max:50'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];

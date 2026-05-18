@@ -11,6 +11,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\GuestCartService;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -20,28 +21,35 @@ use Inertia\Response;
 
 class CheckoutController extends Controller
 {
-    public function index(GuestCartService $guestCart): Response
+    public function index(GuestCartService $guestCart, LoyaltyService $loyaltyService): Response
     {
+        $user = auth()->user();
+
         return Inertia::render('Storefront/Checkout', [
-            'cartItems' => auth()->check()
+            'cartItems' => $user
                 ? CartItem::query()
                     ->select(['id', 'user_id', 'product_id', 'product_variant_id', 'quantity', 'updated_at'])
                     ->with(['product:id,name,slug,selling_price,stock', 'productVariant:id,product_id,combination,price,stock,image'])
-                    ->where('user_id', auth()->id())
+                    ->where('user_id', $user->id)
                     ->get()
                 : $guestCart->items(),
-            'addresses' => auth()->user()?->addresses()
+            'addresses' => $user?->addresses()
                 ->select(['id', 'user_id', 'full_name', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country', 'is_default'])
                 ->latest()
                 ->get() ?? [],
+            'loyalty' => $user ? [
+                'balance' => $loyaltyService->availableBalance($user),
+                'minimum_points' => LoyaltyService::MIN_REDEEM_POINTS,
+                'points_per_discount_usd' => LoyaltyService::POINTS_PER_DISCOUNT_USD,
+            ] : null,
         ]);
     }
 
-    public function store(CheckoutRequest $request)
+    public function store(CheckoutRequest $request, LoyaltyService $loyaltyService)
     {
         abort_unless($request->user(), 403);
 
-        $order = $this->createOrderFromCart($request);
+        $order = $this->createOrderFromCart($request, $loyaltyService);
 
         return redirect()->route('checkout.success', $order);
     }
@@ -71,9 +79,31 @@ class CheckoutController extends Controller
         return $this->ok(['discount_usd' => 0, 'message' => 'Coupon validation will be expanded in Task 8 follow-ups.']);
     }
 
-    public function redeemPoints()
+    public function redeemPoints(Request $request, LoyaltyService $loyaltyService)
     {
-        return $this->ok(['discount_usd' => 0, 'message' => 'Point redemption is available through LoyaltyService.']);
+        abort_unless($request->user(), 403);
+
+        $data = $request->validate([
+            'points' => ['required', 'integer', 'min:0'],
+            'shipping_cost_usd' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $cartItems = CartItem::query()
+            ->with([
+                'product:id,vendor_id,name,slug,selling_price,stock,is_active',
+                'productVariant:id,product_id,price,stock',
+            ])
+            ->where('user_id', $request->user()->id)
+            ->get();
+        $subtotal = $cartItems->sum(fn ($item) => (float) ($item->productVariant?->price ?? $item->product->selling_price) * $item->quantity);
+        $shipping = (float) ($data['shipping_cost_usd'] ?? 0);
+        $preview = $loyaltyService->previewRedemption($request->user(), (int) $data['points'], $subtotal + $shipping);
+
+        return $this->ok(array_merge($preview, [
+            'message' => $preview['redeemable_points'] > 0
+                ? 'Loyalty discount is ready for checkout.'
+                : 'Enter at least '.LoyaltyService::MIN_REDEEM_POINTS.' available points to redeem.',
+        ]));
     }
 
     public function guestStore(GuestCheckoutRequest $request, GuestCartService $guestCart)
@@ -93,7 +123,7 @@ class CheckoutController extends Controller
         return redirect()->to(URL::temporarySignedRoute('checkout.success', now()->addMinutes(30), $order));
     }
 
-    private function createOrderFromCart(CheckoutRequest $request): Order
+    private function createOrderFromCart(CheckoutRequest $request, LoyaltyService $loyaltyService): Order
     {
         $user = $request->user();
         $cartItems = CartItem::query()
@@ -106,11 +136,13 @@ class CheckoutController extends Controller
         abort_if($cartItems->isEmpty(), 422, 'Cart is empty.');
         $this->abortIfCartItemsUnavailable($cartItems);
 
-        return DB::transaction(function () use ($request, $user, $cartItems) {
+        return DB::transaction(function () use ($request, $user, $cartItems, $loyaltyService) {
             $subtotal = $cartItems->sum(fn ($item) => (float) ($item->productVariant?->price ?? $item->product->selling_price) * $item->quantity);
             $shipping = (float) $request->input('shipping_cost_usd', 0);
-            $discount = (float) $request->input('discount_usd', 0);
-            $total = max(0, $subtotal + $shipping - $discount);
+            $preDiscountTotal = $subtotal + $shipping;
+            $redemption = $loyaltyService->previewRedemption($user, (int) $request->input('loyalty_points', 0), $preDiscountTotal);
+            $discount = (float) $redemption['discount_usd'];
+            $total = max(0, $preDiscountTotal - $discount);
 
             $order = Order::query()->create([
                 'user_id' => $user->id,
@@ -140,6 +172,20 @@ class CheckoutController extends Controller
                     'price_usd' => $item->productVariant?->price ?? $item->product->selling_price,
                     'subtotal_usd' => (float) ($item->productVariant?->price ?? $item->product->selling_price) * $item->quantity,
                 ]);
+            }
+
+            if ($redemption['redeemable_points'] > 0) {
+                $actualDiscount = $loyaltyService->redeemPoints($user, $redemption['redeemable_points'], $order);
+
+                if ($actualDiscount !== $discount) {
+                    $discount = $actualDiscount;
+                    $total = max(0, $preDiscountTotal - $discount);
+                    $order->forceFill([
+                        'discount_usd' => $discount,
+                        'total_usd' => $total,
+                        'total_buyer_currency' => $total,
+                    ])->save();
+                }
             }
 
             if ($order->payment_status === 'paid') {

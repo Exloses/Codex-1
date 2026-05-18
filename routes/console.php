@@ -14,3 +14,4 @@ Schedule::command('orders:cancel-unpaid')->everyThirtyMinutes();
 Schedule::command('notifications:check-stock')->everyThirtyMinutes();
 Schedule::command('notifications:check-price-drops')->hourly();
 Schedule::command('affiliate:check-tiers')->daily();
+Schedule::command('loyalty:expire-points')->daily();

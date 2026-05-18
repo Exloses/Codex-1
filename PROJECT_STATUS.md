@@ -46,8 +46,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 19 | Wishlist | ✅ Selesai & PR merged | `codex/task-19-wishlist` | https://github.com/Exloses/Codex-1/pull/22 |
 | Task 20 | Product Variants | ✅ Selesai & PR merged | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
 | Task 21 | Order Tracking | ✅ Selesai & PR merged | `codex/task-21-order-tracking` | https://github.com/Exloses/Codex-1/pull/24 |
-| Task 22 | Return & Refund | ✅ Selesai lokal; draft PR open | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
-| Task 23 | Loyalty Points | ⏳ Belum dimulai | - | - |
+| Task 22 | Return & Refund | ✅ Selesai & PR merged | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
+| Task 23 | Loyalty Points | ✅ Selesai lokal; draft PR open | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
 | Task 24 | Notification Center | ⏳ Belum dimulai | - | - |
 | Task 25 | Newsletter | ⏳ Belum dimulai | - | - |
 | Task 26 | Stock & Price Alerts | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; draft PR #25 sudah dibuat dan menunggu review/merge owner.
+**Task sedang dikerjakan:** Task 23 Loyalty Points selesai lokal di branch `codex/task-23-loyalty-points`; draft PR #26 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -769,6 +769,49 @@ Task 22:
   - Secret scan changed files: no real credentials found.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/returns` and `/admin/return-requests` returned 302 auth redirects.
   - Browser plugin loaded, but in-app browser local navigation timed out twice; fallback HTTP/build/test validation used.
+
+Task 23:
+- Branch: `codex/task-23-loyalty-points`.
+- PR: https://github.com/Exloses/Codex-1/pull/26
+- Files created:
+  - app/Console/Commands/ExpireLoyaltyPoints.php
+  - database/migrations/2026_05_18_120000_add_reference_to_loyalty_transactions_table.php
+  - tests/Feature/LoyaltyPointsTest.php
+- Files modified:
+  - app/Http/Controllers/Auth/AuthController.php
+  - app/Http/Controllers/Auth/SocialAuthController.php
+  - app/Http/Controllers/Storefront/CheckoutController.php
+  - app/Http/Controllers/Storefront/LoyaltyController.php
+  - app/Http/Controllers/Storefront/ReviewController.php
+  - app/Http/Requests/Storefront/CheckoutRequest.php
+  - app/Http/Requests/Storefront/GuestCheckoutRequest.php
+  - app/Models/LoyaltyTransaction.php
+  - app/Models/User.php
+  - app/Services/LoyaltyService.php
+  - resources/js/Pages/Account/LoyaltyPoints.vue
+  - resources/js/Pages/Storefront/Checkout.vue
+  - routes/console.php
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration added:
+  - Adds nullable unique `reference` to `loyalty_transactions` for deterministic idempotency.
+- Implementation notes:
+  - Earns 10 points per paid order dollar through `ProcessOrderAfterPayment`.
+  - Awards 100 registration bonus for email/password and new social users, and 50 review bonus for created reviews.
+  - Redemption is server-calculated at 100 points per $1, minimum 500 points, capped by available balance and order total.
+  - Guests cannot redeem loyalty points.
+  - Expiry uses existing `expires_at` and a safe `loyalty:expire-points` command scheduled daily.
+  - Customer/account/checkout payloads do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor financial fields.
+- Validation:
+  - Baseline latest main: migrate passed, test passed 75 tests / 364 assertions, npm build passed.
+  - `php artisan migrate --force`: passed.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan test --filter=LoyaltyPointsTest`: passed, 9 tests / 48 assertions.
+  - `php artisan test`: passed, 84 tests / 412 assertions.
+  - `php artisan route:list`: passed, 170 routes.
+  - `npm run build`: passed for client and SSR.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/loyalty-points` returned 302 auth redirect.
+  - Browser plugin loaded, but no active Codex browser pane was available; fallback HTTP/build/test validation used.
 ```
 
 ---
@@ -794,10 +837,9 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 23 - Loyalty Points, hanya setelah PR Task 22 merged oleh owner.
+Task berikutnya: Task 24 - Notification Center, hanya setelah PR Task 23 merged oleh owner.
 Branch Task 22: codex/task-22-return-refund
-Instruksi lengkap Task 23: Lihat BLUEPRINT_COMPLETE.md Task 23 dan PROMPT_TEMPLATES.md Task 23 setelah Task 22 PR merged.
-Status: Task 22 selesai lokal; draft PR #25 dibuat.
+Task 22 status: merged ke main.
 Task 17 branch: codex/task-17-guest-checkout
 Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
 Task 17 status: merged ke main.
@@ -815,7 +857,10 @@ Task 21 PR: https://github.com/Exloses/Codex-1/pull/24
 Task 21 status: merged ke main.
 Task 22 branch: codex/task-22-return-refund
 Task 22 PR: https://github.com/Exloses/Codex-1/pull/25
-Task 22 status: selesai lokal; menunggu PR review/merge owner.
+Task 22 status: merged ke main.
+Task 23 branch: codex/task-23-loyalty-points
+Task 23 PR: https://github.com/Exloses/Codex-1/pull/26
+Task 23 status: selesai lokal; menunggu PR review/merge owner.
 ```
 
 ---
@@ -855,6 +900,10 @@ Task 22 status: selesai lokal; menunggu PR review/merge owner.
 - Real-time penuh belum dipasang karena broadcasting project masih driver `log`; fallback near-real-time memakai polling endpoint aman.
 - Polling guest wajib order number plus email; polling account wajib user pemilik order; vendor update wajib vendor pemilik dropship order.
 - Tracking payload customer/storefront tidak mengirim `vendor_price`, `vendor_total_idr`, atau internal vendor fields.
+- Task 23 loyalty transactions memakai `reference` unik nullable untuk idempotency: `order:{id}:earned`, `order:{id}:redeem`, `user:{id}:register_bonus`, dan `review:{id}:bonus`.
+- Task 23 redemption dihitung server-side di checkout; `discount_usd` dari frontend tidak dipercaya.
+- Task 23 guest checkout tidak boleh redeem points; guest tetap tidak earn points.
+- Task 23 expiry memakai `loyalty:expire-points` harian dan mengurangi saldo dengan batas saldo saat ini agar tidak negatif.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -873,6 +922,8 @@ Task 22 status: selesai lokal; menunggu PR review/merge owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-18 | Task 23 Loyalty Points selesai lokal; validasi migrate, PHP lint, LoyaltyPointsTest, full test, route:list, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
+| 2026-05-18 | PR #25 Task 22 terkonfirmasi merged ke main; Task 23 dimulai di branch `codex/task-23-loyalty-points` setelah baseline validation berhasil | Codex |
 | 2026-05-17 | Task 22 HTTP smoke berhasil untuk storefront/return auth redirects; Browser plugin local navigation timeout dan fallback validasi HTTP/build/test digunakan | Codex |
 | 2026-05-17 | Task 22 draft PR #25 dibuat: https://github.com/Exloses/Codex-1/pull/25 | Codex |
 | 2026-05-17 | Task 22 Return & Refund selesai lokal di branch `codex/task-22-return-refund`; validasi migrate, PHP lint, ReturnRefundTest, full test, route:list, route:list --path=return, npm build, .env check, dan secret scan berhasil | Codex |
