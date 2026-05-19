@@ -4,23 +4,27 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\PriceAlertRequest;
-use App\Models\StockNotification;
+use App\Services\ProductAlertService;
 
 class PriceAlertController extends Controller
 {
-    public function store(PriceAlertRequest $request)
+    public function store(PriceAlertRequest $request, ProductAlertService $alerts)
     {
-        $data = $request->validated();
-        $data['user_id'] = $request->user()->id;
-        $data['type'] = 'price';
+        $result = $alerts->createPriceAlert($request->validated(), $request->user());
+        $alert = $result['alert'];
 
-        $alert = StockNotification::query()->updateOrCreate([
-            'user_id' => $data['user_id'],
-            'product_id' => $data['product_id'],
-            'product_variant_id' => $data['product_variant_id'] ?? null,
-            'type' => 'price',
-        ], $data + ['is_notified' => false]);
+        if ($request->wantsJson()) {
+            return $this->ok([
+                'message' => $result['message'],
+                'alert' => [
+                    'type' => ProductAlertService::TYPE_PRICE,
+                    'status' => 'active',
+                    'created' => $alert->wasRecentlyCreated,
+                    'target_price_usd' => (string) $alert->target_price_usd,
+                ],
+            ], $alert->wasRecentlyCreated ? 201 : 200);
+        }
 
-        return $this->ok(['alert' => $alert], 201);
+        return back()->with('status', $result['message']);
     }
 }

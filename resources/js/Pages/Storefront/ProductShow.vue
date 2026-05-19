@@ -5,7 +5,7 @@ import SizeGuideModal from '@/Components/Storefront/SizeGuideModal.vue';
 import VariantSelector from '@/Components/Storefront/VariantSelector.vue';
 import WishlistButton from '@/Components/Storefront/WishlistButton.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -24,8 +24,12 @@ const selectedImage = ref(null);
 const showSizeGuide = ref(false);
 const activeTab = ref('qa');
 const variantError = ref('');
+const stockMessage = ref('');
+const priceMessage = ref('');
+const page = usePage();
 
 const hasVariants = computed(() => (props.product.variants || []).length > 0);
+const isAuthenticated = computed(() => Boolean(page.props.auth?.user));
 const fallbackImage = 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1200&q=80';
 const productImages = computed(() => {
     const images = [
@@ -41,11 +45,23 @@ const sizeGuide = computed(() => props.product.size_guide || props.product.sizeG
 const price = computed(() => Number(selectedVariant.value?.price || props.product.selling_price || 0));
 const stock = computed(() => Number(selectedVariant.value?.stock ?? props.product.stock ?? 0));
 const sku = computed(() => selectedVariant.value?.sku || props.product.sku || '');
+const suggestedTargetPrice = computed(() => Math.max(price.value - 5, 0.01).toFixed(2));
 
 const cartForm = useForm({
     product_id: props.product.id,
     product_variant_id: null,
     quantity: 1,
+});
+const stockForm = useForm({
+    product_id: props.product.id,
+    product_variant_id: null,
+    guest_email: '',
+});
+const priceForm = useForm({
+    product_id: props.product.id,
+    product_variant_id: null,
+    guest_email: '',
+    target_price_usd: suggestedTargetPrice.value,
 });
 
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
@@ -66,7 +82,14 @@ const addToCart = () => {
 const onVariantChange = ({ variant, complete }) => {
     selectedVariant.value = variant;
     cartForm.product_variant_id = variant?.id || null;
+    stockForm.product_variant_id = variant?.id || null;
+    priceForm.product_variant_id = variant?.id || null;
+    priceForm.target_price_usd = suggestedTargetPrice.value;
     cartForm.quantity = 1;
+    stockForm.clearErrors();
+    priceForm.clearErrors();
+    stockMessage.value = '';
+    priceMessage.value = '';
     variantError.value = complete && !variant ? 'This option combination is not available.' : '';
 
     if (variant?.image) {
@@ -74,12 +97,30 @@ const onVariantChange = ({ variant, complete }) => {
     }
 };
 
-const notifyStock = () => {
-    router.post(route('notifications.stock.store'), { product_id: props.product.id, product_variant_id: selectedVariant.value?.id || null }, { preserveScroll: true });
+const submitStockAlert = () => {
+    stockForm.product_id = props.product.id;
+    stockForm.product_variant_id = selectedVariant.value?.id || null;
+    stockMessage.value = '';
+
+    stockForm.post(route('notifications.stock.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            stockMessage.value = page.props.flash?.status || 'We will email you when this item is back in stock.';
+        },
+    });
 };
 
-const priceAlert = () => {
-    router.post(route('notifications.price-alert.store'), { product_id: props.product.id, target_price_usd: Math.max(price.value - 5, 1) }, { preserveScroll: true });
+const submitPriceAlert = () => {
+    priceForm.product_id = props.product.id;
+    priceForm.product_variant_id = selectedVariant.value?.id || null;
+    priceMessage.value = '';
+
+    priceForm.post(route('notifications.price-alert.store'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            priceMessage.value = page.props.flash?.status || 'We will email you if the price reaches your target.';
+        },
+    });
 };
 </script>
 
@@ -140,11 +181,70 @@ const priceAlert = () => {
                         <WishlistButton :product="product" show-label />
                     </div>
                     <p v-if="cartForm.errors.quantity" class="mt-2 text-sm text-rose-700">{{ cartForm.errors.quantity }}</p>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        <button v-if="stock <= 0" class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="notifyStock">Notify me</button>
-                        <button class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="priceAlert">Price drop alert</button>
+                    <div class="mt-3">
                         <button v-if="sizeGuide" class="rounded-md border border-zinc-300 px-3 py-2 text-sm" @click="showSizeGuide = true">Size guide</button>
                     </div>
+                </div>
+
+                <div v-if="stock <= 0" class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                    <p class="text-sm font-semibold text-amber-950">Notify me when available</p>
+                    <form class="mt-3 flex flex-col gap-3 sm:flex-row" @submit.prevent="submitStockAlert">
+                        <input
+                            v-if="!isAuthenticated"
+                            v-model="stockForm.guest_email"
+                            type="email"
+                            class="min-w-0 flex-1 rounded-md border-amber-200 text-sm"
+                            placeholder="Email address"
+                        />
+                        <button
+                            type="submit"
+                            class="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                            :disabled="stockForm.processing"
+                        >
+                            Notify me
+                        </button>
+                    </form>
+                    <p v-if="stockForm.errors.guest_email" class="mt-2 text-sm text-rose-700">{{ stockForm.errors.guest_email }}</p>
+                    <p v-if="stockForm.errors.product_id || stockForm.errors.product_variant_id" class="mt-2 text-sm text-rose-700">
+                        {{ stockForm.errors.product_id || stockForm.errors.product_variant_id }}
+                    </p>
+                    <p v-if="stockMessage" class="mt-2 text-sm text-emerald-700">{{ stockMessage }}</p>
+                </div>
+
+                <div class="mt-4 rounded-lg border border-zinc-200 bg-white p-4">
+                    <p class="text-sm font-semibold">Price drop alert</p>
+                    <form class="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem_auto]" @submit.prevent="submitPriceAlert">
+                        <input
+                            v-if="!isAuthenticated"
+                            v-model="priceForm.guest_email"
+                            type="email"
+                            class="min-w-0 rounded-md border-zinc-300 text-sm"
+                            placeholder="Email address"
+                        />
+                        <div v-else class="hidden sm:block"></div>
+                        <input
+                            v-model="priceForm.target_price_usd"
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            class="rounded-md border-zinc-300 text-sm"
+                            aria-label="Target price in USD"
+                        />
+                        <button
+                            type="submit"
+                            class="rounded-md border border-zinc-950 px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-50"
+                            :disabled="priceForm.processing"
+                        >
+                            Set alert
+                        </button>
+                    </form>
+                    <p class="mt-2 text-xs text-zinc-500">Current price: {{ money(price) }}</p>
+                    <p v-if="priceForm.errors.guest_email" class="mt-2 text-sm text-rose-700">{{ priceForm.errors.guest_email }}</p>
+                    <p v-if="priceForm.errors.target_price_usd" class="mt-2 text-sm text-rose-700">{{ priceForm.errors.target_price_usd }}</p>
+                    <p v-if="priceForm.errors.product_id || priceForm.errors.product_variant_id" class="mt-2 text-sm text-rose-700">
+                        {{ priceForm.errors.product_id || priceForm.errors.product_variant_id }}
+                    </p>
+                    <p v-if="priceMessage" class="mt-2 text-sm text-emerald-700">{{ priceMessage }}</p>
                 </div>
 
                 <div class="mt-6 rounded-lg border border-zinc-200 bg-white p-4">

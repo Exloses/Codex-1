@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\AnonymousNotifiable;
 
 class StockAvailableNotification extends GlobalDropshipNotification
 {
@@ -13,6 +14,10 @@ class StockAvailableNotification extends GlobalDropshipNotification
 
     public function via(object $notifiable): array
     {
+        if ($notifiable instanceof AnonymousNotifiable) {
+            return ['mail'];
+        }
+
         return ['mail', 'database'];
     }
 
