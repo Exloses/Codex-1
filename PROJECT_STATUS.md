@@ -49,8 +49,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 22 | Return & Refund | ✅ Selesai & PR merged | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
 | Task 23 | Loyalty Points | ✅ Selesai & PR merged | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
 | Task 24 | Notification Center | ✅ Selesai & PR merged | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
-| Task 25 | Newsletter | ✅ Selesai lokal; draft PR open | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
-| Task 26 | Stock & Price Alerts | ⏳ Belum dimulai | - | - |
+| Task 25 | Newsletter | ✅ Selesai & PR merged | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
+| Task 26 | Stock & Price Alerts | ✅ Selesai lokal; draft PR open | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
 | Task 27 | Product Q&A | ⏳ Belum dimulai | - | - |
 | Task 28 | PDF Invoice | ⏳ Belum dimulai | - | - |
 | Task 29 | PWA | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 25 Newsletter selesai lokal di branch `codex/task-25-newsletter`; draft PR #28 sudah dibuat.
+**Task sedang dikerjakan:** Task 26 Stock & Price Alerts selesai lokal di branch `codex/task-26-stock-alerts`; draft PR #29 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -893,6 +893,54 @@ Task 25:
   - Secret scan changed files: no real credentials found.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200, newsletter subscribe returned 200 with browser-style XSRF cookie, invalid unsubscribe returned safe 404 page, and `/admin/newsletter-subscribers` redirected to `/admin/login`.
   - Browser plugin loaded, but in-app browser connection timed out; fallback HTTP/build/test validation used.
+
+Task 26:
+- Branch: `codex/task-26-stock-alerts`.
+- PR: https://github.com/Exloses/Codex-1/pull/29
+- Files created:
+  - app/Services/ProductAlertService.php
+  - tests/Feature/StockPriceAlertTest.php
+- Files modified:
+  - app/Console/Commands/CheckPriceDropAlerts.php
+  - app/Console/Commands/CheckStockNotifications.php
+  - app/Http/Controllers/Storefront/PriceAlertController.php
+  - app/Http/Controllers/Storefront/StockNotificationController.php
+  - app/Http/Requests/Storefront/PriceAlertRequest.php
+  - app/Http/Requests/Storefront/StockNotificationRequest.php
+  - app/Models/StockNotification.php
+  - app/Notifications/PriceDropNotification.php
+  - app/Notifications/StockAvailableNotification.php
+  - app/Providers/AppServiceProvider.php
+  - resources/js/Pages/Storefront/ProductShow.vue
+  - routes/web.php
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration notes:
+  - No migration added; Task 26 reuses the existing `stock_notifications` table.
+- Implementation notes:
+  - ProductAlertService centralizes active product lookup, variant ownership validation, server-side stock/price checks, guest email normalization, and dedupe/idempotent alert upserts.
+  - Stock and price alert routes are public for guests and authenticated users, preserve route names `notifications.stock.store` and `notifications.price-alert.store`, and use `throttle:product-alerts`.
+  - Guests must provide email; authenticated users use account email. Guest emails are normalized to lowercase and are not returned in public/customer responses.
+  - Stock alerts are accepted only for currently out-of-stock product/variant selections.
+  - Price alerts require `target_price_usd` lower than the current server-calculated product/variant price.
+  - Duplicate alerts update/reactivate the existing row and reset `is_notified` to false; price alert duplicates update the target price.
+  - Scheduled command signatures remain `notifications:check-stock` and `notifications:check-price-drops`.
+  - Commands now use `StockAvailableNotification` and `PriceDropNotification`; logged-in users receive mail + database notifications, while guests receive mail-only anonymous notifications.
+  - ProductShow now has guest/auth stock notification and editable price drop alert forms with validation and success states.
+  - Public/customer responses do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, `user_id`, `guest_email`, or internal alert fields.
+- Validation:
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan route:list --path=notifications`: passed, 6 routes.
+  - `php artisan notifications:check-stock`: passed, checked 0 / sent 0 / skipped 0.
+  - `php artisan notifications:check-price-drops`: passed, checked 0 / sent 0 / skipped 0.
+  - `php artisan test --filter=StockPriceAlertTest`: passed, 9 tests / 45 assertions.
+  - `php artisan test`: passed, 109 tests / 527 assertions.
+  - `npm run build`: passed for client and SSR.
+  - `git ls-files .env`: empty.
+  - Secret scan changed files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8081`: `/` and `/products` returned 200, `/account/notifications` returned 302 guest redirect, invalid newsletter unsubscribe returned safe 404 page.
+  - Browser plugin loaded, but in-app browser navigation timed out; fallback HTTP/build/test validation used.
 ```
 
 ---
@@ -923,8 +971,11 @@ Task 24 PR: https://github.com/Exloses/Codex-1/pull/27
 Task 24 status: merged ke main.
 Task 25 branch: codex/task-25-newsletter
 Task 25 PR: https://github.com/Exloses/Codex-1/pull/28
-Task 25 status: selesai lokal; menunggu PR review/merge owner.
-Task berikutnya: Task 26 - Stock Notification + Price Alert, hanya setelah PR Task 25 merged oleh owner.
+Task 25 status: merged ke main.
+Task 26 branch: codex/task-26-stock-alerts
+Task 26 PR: https://github.com/Exloses/Codex-1/pull/29
+Task 26 status: selesai lokal; menunggu PR review/merge owner.
+Task berikutnya: Task 27 - Product Q&A, hanya setelah PR Task 26 merged oleh owner.
 ```
 
 ---
@@ -977,6 +1028,14 @@ Task berikutnya: Task 26 - Stock Notification + Price Alert, hanya setelah PR Ta
 - Task 25 subscribe response dan tests memastikan token, `user_id`, `vendor_price`, `vendor_total_idr`, dan internal vendor fields tidak keluar ke customer payload.
 - Task 25 welcome/broadcast newsletter memakai Laravel Notification mail channel lokal-safe; jangan gunakan credential email asli atau provider eksternal saat validasi lokal.
 - Task 25 Filament broadcast sengaja sederhana: admin-only dari resource newsletter, subject + message, active subscribers only.
+- Task 26 alert routes: `notifications.stock.store` and `notifications.price-alert.store`; both are public and throttled with `throttle:product-alerts`.
+- Task 26 command signatures: `notifications:check-stock` and `notifications:check-price-drops`.
+- Task 26 guest alerts require normalized `guest_email`; authenticated alerts use `user_id` and account email.
+- Task 26 dedupe identity is user_id or guest_email + product_id + product_variant_id + type; re-submitting resets `is_notified=false`.
+- Task 26 stock alerts only register for out-of-stock server-side product/variant selections.
+- Task 26 price alerts require target price lower than the current server-side product/variant price.
+- Task 26 guest notification emails use Laravel anonymous mail notifications; logged-in users receive mail + database notifications for the notification center.
+- Task 26 public/customer responses do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, `user_id`, `guest_email`, or raw internal alert fields.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -995,6 +1054,7 @@ Task berikutnya: Task 26 - Stock Notification + Price Alert, hanya setelah PR Ta
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-19 | Task 26 Stock & Price Alerts selesai lokal; validasi migrate, PHP lint, route:list notifications, alert commands, StockPriceAlertTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-19 | Task 25 Newsletter selesai lokal; draft PR #28 dibuat; validasi migrate, PHP lint, route:list newsletter, NewsletterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 24 Notification Center selesai lokal; validasi migrate, PHP lint, route:list notifications, NotificationCenterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 23 Loyalty Points selesai lokal; validasi migrate, PHP lint, LoyaltyPointsTest, full test, route:list, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |

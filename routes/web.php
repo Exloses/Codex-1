@@ -99,6 +99,12 @@ Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'uns
 
 Route::post('/preferences/currency', [PreferenceController::class, 'setCurrency'])->name('preferences.currency');
 Route::post('/preferences/language', [PreferenceController::class, 'setLanguage'])->name('preferences.language');
+Route::post('/notifications/stock', [StockNotificationController::class, 'store'])
+    ->middleware('throttle:product-alerts')
+    ->name('notifications.stock.store');
+Route::post('/notifications/price-alert', [PriceAlertController::class, 'store'])
+    ->middleware('throttle:product-alerts')
+    ->name('notifications.price-alert.store');
 
 Route::post('/api/shipping/rates', [ShippingController::class, 'getRates'])->middleware('throttle:api')->name('api.shipping.rates');
 Route::get('/api/currency/rates', [CurrencyController::class, 'getRates'])->middleware('throttle:api')->name('api.currency.rates');
@@ -160,8 +166,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/support', [SupportTicketController::class, 'store'])->name('support.store');
     Route::get('/support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('/support/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('support.reply');
-    Route::post('/notifications/stock', [StockNotificationController::class, 'store'])->name('notifications.stock.store');
-    Route::post('/notifications/price-alert', [PriceAlertController::class, 'store'])->name('notifications.price-alert.store');
     Route::post('/products/{product}/questions', [ProductQAController::class, 'store'])->name('products.questions.store');
     Route::post('/questions/{question}/answers', [ProductQAController::class, 'answer'])->name('questions.answers.store');
 

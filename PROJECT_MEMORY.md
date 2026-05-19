@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 25 - Newsletter
-- Last completed task: Task 24 - Notification Center
-- Branch: `codex/task-25-newsletter`
-- Status: Task 25 completed locally; draft PR #28 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/28
-- Scope: Newsletter subscribe/unsubscribe hardening, token-safe welcome email, local-safe admin broadcast, Filament newsletter resource polish, footer form feedback, and focused tests.
-- Task 24 PR #27 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 25 branch: `fc2a8a0`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 26.
-- Next task after Task 25 is merged: Task 26 - Stock Notification + Price Alert.
+- Active task: Task 26 - Stock Notification + Price Alert
+- Last completed task: Task 25 - Newsletter
+- Branch: `codex/task-26-stock-alerts`
+- Status: Task 26 completed locally; draft PR #29 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/29
+- Scope: Guest/auth stock notifications, editable price alerts, server-side product/variant validation, dedupe/reactivation, notification-channel scheduled commands, ProductShow alert UX, and focused tests.
+- Task 25 PR #28 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 26 branch: `10bbef7`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 27.
+- Next task after Task 26 is merged: Task 27 - Product Q&A.
 
 ---
 
@@ -45,6 +45,63 @@
 - Task 22 added authenticated return requests, admin return/refund workflow, safe simulated Stripe/PayPal refunds, return notifications, and return payload privacy checks.
 - Task 23 added idempotent loyalty earn/redeem/bonus logic, checkout redemption, account loyalty history, and expiry command.
 - Task 24 added authenticated in-app notification feed polling, owner-scoped read actions, navbar notification center, account notifications polish, and notification payload safety.
+- Task 25 added token-safe newsletter subscribe/unsubscribe, welcome/broadcast notifications, admin broadcast, footer form feedback, and newsletter tests.
+
+## Task 26 Completed Work
+
+- Created branch `codex/task-26-stock-alerts` from updated `main` after PR #28 was merged.
+- Reused the existing `stock_notifications` table, existing alert controllers/requests, existing Task 12 notification classes/templates, and existing Task 6 scheduled commands.
+- Added `ProductAlertService` to centralize:
+  - active product lookup
+  - selected variant ownership validation
+  - server-side stock and current price calculation
+  - guest email normalization
+  - guest/auth dedupe keys
+  - idempotent alert upserts and reactivation
+- Route names preserved:
+  - `notifications.stock.store`
+  - `notifications.price-alert.store`
+- Routes are now public for guests and authenticated users, with `throttle:product-alerts`.
+- Guest/auth behavior:
+  - Guests must provide `guest_email`; it is normalized to lowercase and trimmed.
+  - Authenticated users can register alerts without guest email and use their account email.
+  - Public/customer responses never return raw alert model fields, `user_id`, or `guest_email`.
+- Stock notification behavior:
+  - Only accepts currently out-of-stock product or selected variant rows.
+  - Re-submitting an existing alert resets `is_notified=false`.
+- Price alert behavior:
+  - Requires `target_price_usd` lower than the current server-side product/variant price.
+  - Duplicate alerts update the existing row, update target price, and reset `is_notified=false`.
+- Scheduled command names/signatures:
+  - `notifications:check-stock`
+  - `notifications:check-price-drops`
+- Command behavior:
+  - Commands chunk pending rows safely and report checked/sent/skipped counts.
+  - Commands skip inactive products, invalid variants, missing recipients, and alerts that are not ready.
+  - Logged-in users receive `StockAvailableNotification` / `PriceDropNotification` through mail + database channels.
+  - Guests receive mail-only anonymous notifications via `Notification::route('mail', $email)`.
+  - Rows are marked `is_notified=true` only after notification dispatch succeeds.
+- Updated `StockAvailableNotification` and `PriceDropNotification` so anonymous notifiables use only the mail channel; authenticated users keep mail + database notifications for Task 24 notification center.
+- Updated ProductShow with guest/auth stock notification and price alert forms, editable target price, selected variant-safe submissions, and inline success/error states.
+- Added `tests/Feature/StockPriceAlertTest.php`.
+- Public/customer responses do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, `user_id`, `guest_email`, or raw internal alert fields.
+
+## Task 26 Validation
+
+- `php artisan migrate --force`: passed, Nothing to migrate.
+- PHP lint on changed PHP files: passed.
+- `php artisan route:list --path=notifications`: passed, 6 routes including public alert routes and Task 24 account notification routes.
+- `php artisan notifications:check-stock`: passed, checked 0 / sent 0 / skipped 0.
+- `php artisan notifications:check-price-drops`: passed, checked 0 / sent 0 / skipped 0.
+- `php artisan test --filter=StockPriceAlertTest`: passed, 9 tests / 45 assertions.
+- `php artisan test`: passed, 109 tests / 527 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- `git ls-files .env`: empty.
+- Secret scan of changed files found no real credentials.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8081`: `/` and `/products` returned 200, `/account/notifications` returned 302 for guest, and invalid newsletter unsubscribe returned safe 404.
+- Browser plugin skill was loaded; in-app browser navigation timed out, so HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real secrets, real external APIs, real external email provider calls, or Task 27 work were performed.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/29
 
 ## Task 25 Completed Work
 
