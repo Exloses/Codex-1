@@ -82,6 +82,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->ip());
         });
 
+        RateLimiter::for('newsletter', function (Request $request) {
+            return Limit::perMinute(5)->by(strtolower((string) $request->input('email')).'|'.$request->ip());
+        });
+
         Vite::prefetch(concurrency: 3);
     }
 }

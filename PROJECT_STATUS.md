@@ -48,8 +48,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 21 | Order Tracking | ✅ Selesai & PR merged | `codex/task-21-order-tracking` | https://github.com/Exloses/Codex-1/pull/24 |
 | Task 22 | Return & Refund | ✅ Selesai & PR merged | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
 | Task 23 | Loyalty Points | ✅ Selesai & PR merged | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
-| Task 24 | Notification Center | ✅ Selesai lokal; draft PR open | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
-| Task 25 | Newsletter | ⏳ Belum dimulai | - | - |
+| Task 24 | Notification Center | ✅ Selesai & PR merged | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
+| Task 25 | Newsletter | ✅ Selesai lokal; draft PR open | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
 | Task 26 | Stock & Price Alerts | ⏳ Belum dimulai | - | - |
 | Task 27 | Product Q&A | ⏳ Belum dimulai | - | - |
 | Task 28 | PDF Invoice | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 24 Notification Center selesai lokal di branch `codex/task-24-notifications`; draft PR #27 sudah dibuat.
+**Task sedang dikerjakan:** Task 25 Newsletter selesai lokal di branch `codex/task-25-newsletter`; draft PR #28 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -849,6 +849,50 @@ Task 24:
   - Secret scan changed files: no real credentials found.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200 and `/account/notifications` returned 302 to `/login` for guest.
   - Browser plugin loaded, but in-app browser connection timed out; fallback HTTP/build/test validation used.
+
+Task 25:
+- Branch: `codex/task-25-newsletter`.
+- PR: https://github.com/Exloses/Codex-1/pull/28
+- Files created:
+  - app/Notifications/NewsletterBroadcastNotification.php
+  - app/Notifications/NewsletterWelcomeNotification.php
+  - app/Services/NewsletterService.php
+  - database/migrations/2026_05_19_120000_add_subscription_timestamps_to_newsletter_subscribers_table.php
+  - resources/views/emails/newsletter-broadcast.blade.php
+  - resources/views/emails/newsletter-welcome.blade.php
+  - resources/views/newsletter/unsubscribed.blade.php
+  - tests/Feature/NewsletterTest.php
+- Files modified:
+  - app/Filament/Resources/NewsletterSubscriberResource.php
+  - app/Http/Controllers/Storefront/NewsletterController.php
+  - app/Http/Requests/Storefront/NewsletterRequest.php
+  - app/Models/NewsletterSubscriber.php
+  - app/Providers/AppServiceProvider.php
+  - resources/js/Layouts/StorefrontLayout.vue
+  - routes/web.php
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration added:
+  - Adds nullable `subscribed_at` and `unsubscribed_at` timestamps to `newsletter_subscribers`.
+- Implementation notes:
+  - Newsletter subscribe normalizes emails to lowercase, creates active subscribers with strong unsubscribe tokens, links logged-in users, and avoids duplicate active rows.
+  - Unsubscribed addresses can re-subscribe with a new token and safe welcome email.
+  - Public unsubscribe uses token-only URLs and returns a safe preference page without exposing subscriber IDs or emails.
+  - Welcome and broadcast newsletter notifications are mail-only and local-safe with `MAIL_MAILER=log`; no external email provider is called.
+  - Filament newsletter resource now belongs to Marketing, hides tokens, adds status badges/filters, safe unsubscribe/reactivate row actions, and a simple active-subscriber broadcast action.
+  - Footer newsletter form now has loading, disabled, success, and validation states.
+  - Newsletter/customer responses do not expose token, `user_id`, `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor fields.
+- Validation:
+  - `php artisan migrate --force`: passed, migration recorded as ran.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan route:list --path=newsletter`: passed, 5 routes.
+  - `php artisan test --filter=NewsletterTest`: passed, 8 tests / 36 assertions.
+  - `php artisan test`: passed, 100 tests / 482 assertions.
+  - `npm run build`: passed for client and SSR.
+  - `git ls-files .env`: empty.
+  - Secret scan changed files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200, newsletter subscribe returned 200 with browser-style XSRF cookie, invalid unsubscribe returned safe 404 page, and `/admin/newsletter-subscribers` redirected to `/admin/login`.
+  - Browser plugin loaded, but in-app browser connection timed out; fallback HTTP/build/test validation used.
 ```
 
 ---
@@ -874,13 +918,13 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 25 - Newsletter, hanya setelah PR Task 24 merged oleh owner.
-Task 23 branch: codex/task-23-loyalty-points
-Task 23 PR: https://github.com/Exloses/Codex-1/pull/26
-Task 23 status: merged ke main.
 Task 24 branch: codex/task-24-notifications
 Task 24 PR: https://github.com/Exloses/Codex-1/pull/27
-Task 24 status: selesai lokal; menunggu PR review/merge owner.
+Task 24 status: merged ke main.
+Task 25 branch: codex/task-25-newsletter
+Task 25 PR: https://github.com/Exloses/Codex-1/pull/28
+Task 25 status: selesai lokal; menunggu PR review/merge owner.
+Task berikutnya: Task 26 - Stock Notification + Price Alert, hanya setelah PR Task 25 merged oleh owner.
 ```
 
 ---
@@ -928,6 +972,11 @@ Task 24 status: selesai lokal; menunggu PR review/merge owner.
 - Task 24 notification feed hanya mengirim payload aman: id, key/type, title, message, internal action_url, read_at, created_at, dan created_at_human.
 - Task 24 polling navbar berjalan tiap 30 detik hanya untuk user login dan membersihkan interval saat komponen unmount.
 - Task 24 external/malformed notification action URL diabaikan agar user tetap diarahkan ke halaman notifications internal.
+- Task 25 newsletter memakai tabel existing `newsletter_subscribers`; migration Task 25 hanya menambah `subscribed_at` dan `unsubscribed_at`.
+- Task 25 unsubscribe URL hanya memakai token kuat, bukan subscriber ID atau user ID.
+- Task 25 subscribe response dan tests memastikan token, `user_id`, `vendor_price`, `vendor_total_idr`, dan internal vendor fields tidak keluar ke customer payload.
+- Task 25 welcome/broadcast newsletter memakai Laravel Notification mail channel lokal-safe; jangan gunakan credential email asli atau provider eksternal saat validasi lokal.
+- Task 25 Filament broadcast sengaja sederhana: admin-only dari resource newsletter, subject + message, active subscribers only.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -946,6 +995,7 @@ Task 24 status: selesai lokal; menunggu PR review/merge owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-19 | Task 25 Newsletter selesai lokal; draft PR #28 dibuat; validasi migrate, PHP lint, route:list newsletter, NewsletterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 24 Notification Center selesai lokal; validasi migrate, PHP lint, route:list notifications, NotificationCenterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 23 Loyalty Points selesai lokal; validasi migrate, PHP lint, LoyaltyPointsTest, full test, route:list, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | PR #25 Task 22 terkonfirmasi merged ke main; Task 23 dimulai di branch `codex/task-23-loyalty-points` setelah baseline validation berhasil | Codex |

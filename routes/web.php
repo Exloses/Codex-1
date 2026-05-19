@@ -92,7 +92,9 @@ Route::post('/track-order/status', [TrackingController::class, 'status'])->middl
 Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/affiliate', [AffiliateController::class, 'landing'])->name('affiliate.landing');
 Route::get('/ref/{code}', [AffiliateController::class, 'track'])->name('affiliate.track');
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
+    ->middleware('throttle:newsletter')
+    ->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 
 Route::post('/preferences/currency', [PreferenceController::class, 'setCurrency'])->name('preferences.currency');

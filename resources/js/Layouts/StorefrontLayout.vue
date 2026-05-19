@@ -17,6 +17,8 @@ const showMobileMenu = ref(false);
 const showInstallPrompt = ref(false);
 const deferredPrompt = ref(null);
 const newsletterForm = useForm({ email: '' });
+const newsletterMessage = ref('');
+const newsletterError = ref('');
 
 const user = computed(() => page.props.auth?.user);
 const tawk = computed(() => page.props.services?.tawk || { enabled: false, propertyId: null, widgetId: null });
@@ -106,7 +108,19 @@ const installPwa = async () => {
 const subscribe = () => {
     newsletterForm.post(route('newsletter.subscribe'), {
         preserveScroll: true,
+        onStart: () => {
+            newsletterMessage.value = '';
+            newsletterError.value = '';
+        },
         onSuccess: () => newsletterForm.reset(),
+        onError: () => {
+            newsletterError.value = newsletterForm.errors.email || 'Please enter a valid email address.';
+        },
+        onFinish: () => {
+            if (!newsletterError.value && !newsletterForm.hasErrors) {
+                newsletterMessage.value = page.props.flash?.status || 'You are subscribed to GlobalDrop updates.';
+            }
+        },
     });
 };
 </script>
@@ -222,9 +236,26 @@ const subscribe = () => {
                         Cross-border storefront for curated products from Indonesian vendors, built for clear checkout, tracking, and support.
                     </p>
                     <form class="mt-5 flex max-w-md gap-2" @submit.prevent="subscribe">
-                        <input v-model="newsletterForm.email" type="email" required class="min-w-0 flex-1 rounded-md border-zinc-300 text-sm" placeholder="Email for drops and offers" />
-                        <button class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Subscribe</button>
+                        <input
+                            v-model="newsletterForm.email"
+                            type="email"
+                            required
+                            class="min-w-0 flex-1 rounded-md border-zinc-300 text-sm"
+                            :class="{ 'border-rose-400': newsletterForm.errors.email }"
+                            placeholder="Email for drops and offers"
+                            :disabled="newsletterForm.processing"
+                        />
+                        <button
+                            class="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            :disabled="newsletterForm.processing"
+                        >
+                            {{ newsletterForm.processing ? 'Sending' : 'Subscribe' }}
+                        </button>
                     </form>
+                    <p v-if="newsletterMessage" class="mt-2 text-sm text-emerald-700">{{ newsletterMessage }}</p>
+                    <p v-if="newsletterError || newsletterForm.errors.email" class="mt-2 text-sm text-rose-600">
+                        {{ newsletterError || newsletterForm.errors.email }}
+                    </p>
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-normal text-zinc-500">Payments</h3>
