@@ -4,29 +4,33 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\NewsletterRequest;
-use App\Models\NewsletterSubscriber;
-use Illuminate\Support\Str;
+use App\Services\NewsletterService;
 
 class NewsletterController extends Controller
 {
-    public function subscribe(NewsletterRequest $request)
+    public function subscribe(NewsletterRequest $request, NewsletterService $newsletter)
     {
-        $subscriber = NewsletterSubscriber::query()->updateOrCreate(
-            ['email' => $request->validated('email')],
-            [
-                'user_id' => $request->user()?->id,
-                'status' => 'active',
-                'token' => Str::random(40),
-            ],
-        );
+        $result = $newsletter->subscribe($request->validated('email'), $request->user());
 
-        return $this->ok(['subscriber' => $subscriber]);
+        if ($request->wantsJson()) {
+            return $this->ok([
+                'message' => $result['message'],
+                'subscribed' => true,
+            ]);
+        }
+
+        return back()->with('status', $result['message']);
     }
 
-    public function unsubscribe(string $token)
+    public function unsubscribe(string $token, NewsletterService $newsletter)
     {
-        NewsletterSubscriber::query()->where('token', $token)->update(['status' => 'unsubscribed']);
+        $updated = $newsletter->unsubscribe($token);
+        $message = $updated
+            ? 'You have been unsubscribed from GlobalDrop newsletter emails.'
+            : 'We could not update that newsletter preference link. It may have already been used or expired.';
 
-        return $this->ok(['message' => 'You have been unsubscribed.']);
+        return response()->view('newsletter.unsubscribed', [
+            'message' => $message,
+        ], $updated ? 200 : 404);
     }
 }
