@@ -47,8 +47,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 20 | Product Variants | ✅ Selesai & PR merged | `codex/task-20-product-variants` | https://github.com/Exloses/Codex-1/pull/23 |
 | Task 21 | Order Tracking | ✅ Selesai & PR merged | `codex/task-21-order-tracking` | https://github.com/Exloses/Codex-1/pull/24 |
 | Task 22 | Return & Refund | ✅ Selesai & PR merged | `codex/task-22-return-refund` | https://github.com/Exloses/Codex-1/pull/25 |
-| Task 23 | Loyalty Points | ✅ Selesai lokal; draft PR open | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
-| Task 24 | Notification Center | ⏳ Belum dimulai | - | - |
+| Task 23 | Loyalty Points | ✅ Selesai & PR merged | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
+| Task 24 | Notification Center | ✅ Selesai lokal; draft PR open | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
 | Task 25 | Newsletter | ⏳ Belum dimulai | - | - |
 | Task 26 | Stock & Price Alerts | ⏳ Belum dimulai | - | - |
 | Task 27 | Product Q&A | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 23 Loyalty Points selesai lokal di branch `codex/task-23-loyalty-points`; draft PR #26 sudah dibuat.
+**Task sedang dikerjakan:** Task 24 Notification Center selesai lokal di branch `codex/task-24-notifications`; draft PR #27 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -812,6 +812,43 @@ Task 23:
   - `npm run build`: passed for client and SSR.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/`, `/products`, `/cart`, `/checkout`, and `/track-order` returned 200; `/account/loyalty-points` returned 302 auth redirect.
   - Browser plugin loaded, but no active Codex browser pane was available; fallback HTTP/build/test validation used.
+
+Task 24:
+- Branch: `codex/task-24-notifications`.
+- PR: https://github.com/Exloses/Codex-1/pull/27
+- Files created:
+  - resources/js/Components/Storefront/NotificationCenter.vue
+  - tests/Feature/NotificationCenterTest.php
+- Files modified:
+  - app/Http/Controllers/Storefront/NotificationController.php
+  - app/Http/Middleware/HandleInertiaRequests.php
+  - resources/js/Layouts/StorefrontLayout.vue
+  - resources/js/Pages/Account/Notifications.vue
+  - routes/web.php
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration notes:
+  - No new notifications migration was created because Task 12 already created `database/migrations/2026_05_12_111521_create_notifications_table.php`.
+- Implementation notes:
+  - Added authenticated notification feed polling endpoint with latest 8 notifications and unread count.
+  - Added single notification mark-as-read and mark-all-read endpoints scoped to the authenticated notification owner.
+  - Notification payloads are normalized to safe fields only: id, key/type, title, message, internal action_url, read_at, created_at, and created_at_human.
+  - External or malformed notification action URLs are ignored.
+  - Added lazy shared `unread_notifications_count` Inertia prop.
+  - Added navbar dropdown notification center with unread badge, mark-all-read action, safe click navigation, silent polling failures, and 30-second polling cleanup.
+  - Improved full account notifications page with read/unread states, mark-read/open actions, pagination, and empty state.
+  - Notification/customer payloads do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor fields.
+- Validation:
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan route:list --path=notifications`: passed, 6 routes.
+  - `php artisan test --filter=NotificationCenterTest`: passed, 8 tests / 34 assertions.
+  - `php artisan test`: passed, 92 tests / 446 assertions.
+  - `npm run build`: passed for client and SSR.
+  - `git ls-files .env`: empty.
+  - Secret scan changed files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200 and `/account/notifications` returned 302 to `/login` for guest.
+  - Browser plugin loaded, but in-app browser connection timed out; fallback HTTP/build/test validation used.
 ```
 
 ---
@@ -837,30 +874,13 @@ Redis:    Belum dicek
 <!-- Codex SELALU update bagian ini setelah setiap task -->
 
 ```
-Task berikutnya: Task 24 - Notification Center, hanya setelah PR Task 23 merged oleh owner.
-Branch Task 22: codex/task-22-return-refund
-Task 22 status: merged ke main.
-Task 17 branch: codex/task-17-guest-checkout
-Task 17 PR: https://github.com/Exloses/Codex-1/pull/20
-Task 17 status: merged ke main.
-Task 18 branch: codex/task-18-livechat-support
-Task 18 PR: https://github.com/Exloses/Codex-1/pull/21
-Task 18 status: merged ke main.
-Task 19 branch: codex/task-19-wishlist
-Task 19 PR: https://github.com/Exloses/Codex-1/pull/22
-Task 19 status: merged ke main.
-Task 20 branch: codex/task-20-product-variants
-Task 20 PR: https://github.com/Exloses/Codex-1/pull/23
-Task 20 status: merged ke main.
-Task 21 branch: codex/task-21-order-tracking
-Task 21 PR: https://github.com/Exloses/Codex-1/pull/24
-Task 21 status: merged ke main.
-Task 22 branch: codex/task-22-return-refund
-Task 22 PR: https://github.com/Exloses/Codex-1/pull/25
-Task 22 status: merged ke main.
+Task berikutnya: Task 25 - Newsletter, hanya setelah PR Task 24 merged oleh owner.
 Task 23 branch: codex/task-23-loyalty-points
 Task 23 PR: https://github.com/Exloses/Codex-1/pull/26
-Task 23 status: selesai lokal; menunggu PR review/merge owner.
+Task 23 status: merged ke main.
+Task 24 branch: codex/task-24-notifications
+Task 24 PR: https://github.com/Exloses/Codex-1/pull/27
+Task 24 status: selesai lokal; menunggu PR review/merge owner.
 ```
 
 ---
@@ -904,6 +924,10 @@ Task 23 status: selesai lokal; menunggu PR review/merge owner.
 - Task 23 redemption dihitung server-side di checkout; `discount_usd` dari frontend tidak dipercaya.
 - Task 23 guest checkout tidak boleh redeem points; guest tetap tidak earn points.
 - Task 23 expiry memakai `loyalty:expire-points` harian dan mengurangi saldo dengan batas saldo saat ini agar tidak negatif.
+- Task 24 notification center memakai tabel `notifications` dari Task 12; jangan buat migration duplikat untuk tabel notifications.
+- Task 24 notification feed hanya mengirim payload aman: id, key/type, title, message, internal action_url, read_at, created_at, dan created_at_human.
+- Task 24 polling navbar berjalan tiap 30 detik hanya untuk user login dan membersihkan interval saat komponen unmount.
+- Task 24 external/malformed notification action URL diabaikan agar user tetap diarahkan ke halaman notifications internal.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -922,6 +946,7 @@ Task 23 status: selesai lokal; menunggu PR review/merge owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-18 | Task 24 Notification Center selesai lokal; validasi migrate, PHP lint, route:list notifications, NotificationCenterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 23 Loyalty Points selesai lokal; validasi migrate, PHP lint, LoyaltyPointsTest, full test, route:list, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | PR #25 Task 22 terkonfirmasi merged ke main; Task 23 dimulai di branch `codex/task-23-loyalty-points` setelah baseline validation berhasil | Codex |
 | 2026-05-17 | Task 22 HTTP smoke berhasil untuk storefront/return auth redirects; Browser plugin local navigation timeout dan fallback validasi HTTP/build/test digunakan | Codex |

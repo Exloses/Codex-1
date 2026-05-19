@@ -47,6 +47,9 @@ class HandleInertiaRequests extends Middleware
             'wishlist_count' => fn () => $request->user()
                 ? $request->user()->wishlists()->whereHas('product', fn ($query) => $query->where('is_active', true))->count()
                 : 0,
+            'unread_notifications_count' => fn () => $request->user()
+                ? $request->user()->unreadNotifications()->count()
+                : 0,
             'currency' => $request->session()->get('currency', 'USD'),
             'language' => $request->session()->get('language', 'en'),
             'availableCurrencies' => ['USD', 'EUR', 'GBP', 'AUD', 'SGD', 'MYR', 'IDR'],

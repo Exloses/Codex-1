@@ -138,6 +138,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/returns', [ReturnController::class, 'index'])->name('returns.index');
         Route::get('/loyalty-points', [LoyaltyController::class, 'index'])->name('loyalty');
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::get('/notifications/feed', [NotificationController::class, 'feed'])->middleware('throttle:api')->name('notifications.feed');
+        Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
         Route::get('/support', [SupportTicketController::class, 'index'])->name('support.index');
         Route::get('/support/create', [SupportTicketController::class, 'create'])->name('support.create');
