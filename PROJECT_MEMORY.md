@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 24 - Notification Center
-- Last completed task: Task 23 - Loyalty Points
-- Branch: `codex/task-24-notifications`
-- Status: Task 24 completed locally; draft PR #27 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/27
-- Scope: Authenticated in-app notification center, safe notification feed, single/all read actions, navbar dropdown with unread badge, 30-second polling, account notifications page polish, and focused tests.
-- Task 23 PR #26 is merged into `main`; post-merge sync and baseline validation were already clean. Latest main commit before Task 24 branch: `ea2ac9e`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, and do not start Task 25.
-- Next task after Task 24 is merged: Task 25 - Newsletter.
+- Active task: Task 25 - Newsletter
+- Last completed task: Task 24 - Notification Center
+- Branch: `codex/task-25-newsletter`
+- Status: Task 25 completed locally; draft PR #28 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/28
+- Scope: Newsletter subscribe/unsubscribe hardening, token-safe welcome email, local-safe admin broadcast, Filament newsletter resource polish, footer form feedback, and focused tests.
+- Task 24 PR #27 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 25 branch: `fc2a8a0`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 26.
+- Next task after Task 25 is merged: Task 26 - Stock Notification + Price Alert.
 
 ---
 
@@ -44,6 +44,52 @@
 - Task 21 added order tracking history, customer/guest polling, vendor tracking updates, admin relation managers, and the returned tracking status.
 - Task 22 added authenticated return requests, admin return/refund workflow, safe simulated Stripe/PayPal refunds, return notifications, and return payload privacy checks.
 - Task 23 added idempotent loyalty earn/redeem/bonus logic, checkout redemption, account loyalty history, and expiry command.
+- Task 24 added authenticated in-app notification feed polling, owner-scoped read actions, navbar notification center, account notifications polish, and notification payload safety.
+
+## Task 25 Completed Work
+
+- Created branch `codex/task-25-newsletter` from updated `main` after PR #27 was merged.
+- Reused the existing newsletter table, routes, controller, model, footer form, and Filament resource instead of duplicating them.
+- Added migration `2026_05_19_120000_add_subscription_timestamps_to_newsletter_subscribers_table.php` with nullable `subscribed_at` and `unsubscribed_at`.
+- Added `NewsletterService` to centralize:
+  - lowercase/trimmed email normalization
+  - new active subscriber creation with strong tokens
+  - active duplicate handling without row duplication
+  - unsubscribed email reactivation with a new token
+  - token-only unsubscribe
+  - active-subscriber-only broadcast
+- Added mail-only newsletter notifications:
+  - `NewsletterWelcomeNotification`
+  - `NewsletterBroadcastNotification`
+- Added email templates:
+  - `resources/views/emails/newsletter-welcome.blade.php`
+  - `resources/views/emails/newsletter-broadcast.blade.php`
+- Added `resources/views/newsletter/unsubscribed.blade.php` as a safe public unsubscribe result page.
+- Hardened `NewsletterController` so subscribe returns safe Inertia/JSON responses without exposing subscriber internals and unsubscribe never exposes email, subscriber ID, or user ID.
+- Added `throttle:newsletter` rate limiter and applied it to the subscribe route.
+- Updated `NewsletterSubscriber` with Notifiable support, timestamp casts, safe defaults, email normalization, and mail routing.
+- Improved Filament `NewsletterSubscriberResource` with Marketing navigation, envelope icon, token hiding, status badge/filter, subscribed/unsubscribed dates, safe unsubscribe/reactivate actions, and simple admin broadcast for active subscribers only.
+- Updated the storefront footer newsletter form with loading, disabled, success, and validation feedback states.
+- Added `tests/Feature/NewsletterTest.php` covering guest/auth subscribe, duplicate prevention, re-subscribe, unsubscribe, invalid token safety, welcome notification, broadcast active-only behavior, and response privacy.
+- Newsletter/customer responses do not expose token, `user_id`, `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, or internal vendor fields.
+
+## Task 25 Validation
+
+- `git checkout main`, `git fetch origin`, `git pull origin main`: passed; latest commit `fc2a8a0`.
+- `git status --short --branch` before branching: clean on `main...origin/main`.
+- `git log --oneline -1`: `fc2a8a0 Merge pull request #27 from Exloses/codex/task-24-notifications`.
+- `php artisan migrate --force`: passed; Task 25 migration is recorded as ran.
+- PHP lint on changed PHP files: passed.
+- `php artisan route:list --path=newsletter`: passed, 5 routes.
+- `php artisan test --filter=NewsletterTest`: passed, 8 tests / 36 assertions.
+- `php artisan test`: passed, 100 tests / 482 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- `git ls-files .env`: empty.
+- Secret scan of changed files found no real credentials.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8080`: `/` returned 200, newsletter subscribe returned 200 with browser-style XSRF cookie, invalid unsubscribe returned a safe 404 page, and `/admin/newsletter-subscribers` redirected to `/admin/login`.
+- Browser plugin skill was loaded, but the in-app browser connection timed out; HTTP/build/test validation was used as fallback.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/28
+- No production deploy, Oracle Cloud configuration, real secrets, real external APIs, real external email provider calls, or Task 26 work were performed.
 
 ## Task 24 Completed Work
 
