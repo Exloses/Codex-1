@@ -52,7 +52,7 @@ onUnmounted(() => {
                 <TrackingTimeline :tracking="trackingState" />
             </div>
             <div class="mt-4 flex flex-wrap gap-3">
-                <Link :href="route('account.orders.invoice', order.id)" class="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold">Invoice</Link>
+                <Link :href="route('account.orders.invoice', order.id)" class="inline-flex rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold">Download Invoice</Link>
                 <Link v-if="returnEligibility.can_request" :href="route('account.orders.returns.create', order.id)" class="inline-flex rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white">
                     Request Return
                 </Link>
