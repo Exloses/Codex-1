@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 27 - Product Q&A
-- Last completed task: Task 26 - Stock Notification + Price Alert
-- Branch: `codex/task-27-product-qa`
-- Status: Task 27 completed locally; draft PR #30 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/30
-- Scope: Authenticated customer questions, vendor/admin answers, safe Q&A payloads, vendor mail/database notification, ProductShow Q&A UX, and focused tests.
-- Task 26 PR #29 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 27 branch: `f49599a`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 28.
-- Next task after Task 27 is merged: Task 28 - PDF Invoice.
+- Active task: Task 28 - PDF Invoice
+- Last completed task: Task 27 - Product Q&A
+- Branch: `codex/task-28-pdf-invoice`
+- Status: Task 28 completed locally; draft PR #31 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/31
+- Scope: DomPDF invoice download, safe invoice Blade template, account order detail invoice CTA label, owner/admin authorization, guest route restriction preservation, sensitive-field safety, and focused tests.
+- Task 27 PR #30 is merged into `main`; latest main commit before Task 28 branch: `34685a5`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, and do not start Task 29.
+- Next task after Task 28 is merged: Task 29 - PWA.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## Recent Baseline
 
-- Task 1-26 are merged into `main`.
+- Task 1-27 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
@@ -47,6 +47,43 @@
 - Task 24 added authenticated in-app notification feed polling, owner-scoped read actions, navbar notification center, account notifications polish, and notification payload safety.
 - Task 25 added token-safe newsletter subscribe/unsubscribe, welcome/broadcast notifications, admin broadcast, footer form feedback, and newsletter tests.
 - Task 26 added guest/auth stock notifications, editable price alerts, server-side product/variant validation, dedupe/reactivation, notification-channel scheduled commands, ProductShow alert UX, and focused tests.
+- Task 27 added authenticated customer Product Q&A, vendor/admin answers, vendor question notifications, safe Q&A payloads, and ProductShow Q&A UX.
+
+## Task 28 Completed Work
+
+- Created branch `codex/task-28-pdf-invoice` from updated `main` after PR #30 was merged.
+- Reused the existing `account.orders.invoice` route and existing `InvoiceController`; no duplicate invoice route/controller was created.
+- Confirmed `barryvdh/laravel-dompdf` is already installed; no new PDF dependency was added.
+- Upgraded `InvoiceController::download()` from plain `.txt` stream download to DomPDF PDF download.
+- Authorization remains `OrderPolicy::view`, so order owners and admin users can download authenticated account invoices; other buyers are forbidden.
+- No signed/session guest invoice flow was added in Task 28. Guest orders are not accessible through the authenticated account invoice route for ordinary buyers.
+- The controller reloads a safe order projection before rendering the PDF:
+  - order/customer/status/payment/totals fields
+  - user name/email
+  - address fields
+  - item quantity, unit price, subtotal
+  - product name/slug
+  - variant combination
+- Created `resources/views/invoices/order.blade.php` with PDF-safe local HTML/CSS only, GlobalDropship branding, invoice metadata, customer and shipping sections, items table, totals breakdown, and support email fallback.
+- The template gracefully handles missing shipping address data, empty item lists, and missing variant combinations.
+- Updated `resources/js/Pages/Account/OrderDetail.vue` so the account CTA label is `Download Invoice`.
+- Added `tests/Feature/InvoiceDownloadTest.php`.
+- Invoice output does not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, supplier payout data, internal vendor balance, admin notes, order notes, or raw internal metadata.
+
+## Task 28 Validation
+
+- `php artisan migrate --force`: passed, Nothing to migrate.
+- PHP lint on changed PHP files: passed.
+- `php artisan route:list --path=invoice`: passed, 1 route.
+- `php artisan test --filter=InvoiceDownloadTest`: passed, 7 tests / 24 assertions.
+- `php artisan test`: passed, 123 tests / 588 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- `git ls-files .env`: empty.
+- Secret scan changed files found no real credentials; broad scan matched only existing safe Cloudinary placeholders in env example files.
+- HTTP smoke with local `php artisan serve`: `/` returned 200, `/products` returned 200, and `/account/orders` returned 302 to `/login`.
+- Browser plugin tool discovery did not expose local browser navigation tooling in this session; HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real secrets, real external APIs, or Task 29 work were performed.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/31
 
 ## Task 27 Completed Work
 

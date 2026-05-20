@@ -51,8 +51,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 24 | Notification Center | ✅ Selesai & PR merged | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
 | Task 25 | Newsletter | ✅ Selesai & PR merged | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
 | Task 26 | Stock & Price Alerts | ✅ Selesai & PR merged | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
-| Task 27 | Product Q&A | ✅ Selesai lokal; draft PR open | `codex/task-27-product-qa` | https://github.com/Exloses/Codex-1/pull/30 |
-| Task 28 | PDF Invoice | ⏳ Belum dimulai | - | - |
+| Task 27 | Product Q&A | ✅ Selesai & PR merged | `codex/task-27-product-qa` | https://github.com/Exloses/Codex-1/pull/30 |
+| Task 28 | PDF Invoice | ✅ Selesai lokal; draft PR open | `codex/task-28-pdf-invoice` | https://github.com/Exloses/Codex-1/pull/31 |
 | Task 29 | PWA | ⏳ Belum dimulai | - | - |
 | Task 30 | FAQ & Help Center | ⏳ Belum dimulai | - | - |
 
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 27 Product Q&A selesai lokal di branch `codex/task-27-product-qa`; draft PR #30 sudah dibuat.
+**Task sedang dikerjakan:** Task 28 PDF Invoice selesai lokal di branch `codex/task-28-pdf-invoice`; draft PR #31 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -976,6 +976,40 @@ Task 27:
   - `npm run build`: passed for client and SSR.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8082`: `/` returned 200, `/products` returned 200, `/admin` returned 302; no active products were available in the refreshed local database for a product-detail smoke.
   - Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; fallback HTTP/build/test validation was used.
+
+Task 28:
+- Branch: `codex/task-28-pdf-invoice`.
+- PR: https://github.com/Exloses/Codex-1/pull/31.
+- Files created:
+  - resources/views/invoices/order.blade.php
+  - tests/Feature/InvoiceDownloadTest.php
+- Files modified:
+  - app/Http/Controllers/Storefront/InvoiceController.php
+  - resources/js/Pages/Account/OrderDetail.vue
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration notes:
+  - No migration added; Task 28 reuses the existing orders, order_items, addresses, products, and product_variants tables.
+- Implementation notes:
+  - Existing `account.orders.invoice` route and `InvoiceController` were upgraded from plain text download to DomPDF PDF download.
+  - PDF filename is `invoice-{order_number}.pdf` and the response content type is `application/pdf`.
+  - Invoice authorization continues to use `OrderPolicy::view`; only the order owner or admin can download authenticated account invoices.
+  - No guest signed/session invoice flow was added; guest orders remain inaccessible through the authenticated account invoice route for ordinary buyers.
+  - The PDF query reloads a safe order projection and only eager loads user, address, items, product name/slug, and variant combination.
+  - The Blade template uses local PDF-safe HTML/CSS only, no external assets/fonts/CDN, and gracefully handles missing address or variant data.
+  - Account order detail button label is now `Download Invoice`.
+  - Invoice/customer output does not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, supplier payout data, internal vendor balance, admin notes, or raw internal metadata.
+- Validation:
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan route:list --path=invoice`: passed, 1 route.
+  - `php artisan test --filter=InvoiceDownloadTest`: passed, 7 tests / 24 assertions.
+  - `php artisan test`: passed, 123 tests / 588 assertions.
+  - `npm run build`: passed for client and SSR.
+  - `git ls-files .env`: empty.
+  - Secret scan changed files: no real credentials found; only existing safe Cloudinary placeholders matched broad scan patterns.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8083/8084`: `/` returned 200, `/products` returned 200, and `/account/orders` returned 302 to `/login`.
+  - Browser plugin tool discovery did not expose local browser navigation tooling in this session; fallback HTTP/build/test validation was used.
 ```
 
 ---
@@ -1012,8 +1046,11 @@ Task 26 PR: https://github.com/Exloses/Codex-1/pull/29
 Task 26 status: merged ke main.
 Task 27 branch: codex/task-27-product-qa
 Task 27 PR: https://github.com/Exloses/Codex-1/pull/30
-Task 27 status: selesai lokal; draft PR open.
-Task berikutnya: Task 28 - PDF Invoice, hanya setelah PR Task 27 merged oleh owner.
+Task 27 status: merged ke main.
+Task 28 branch: codex/task-28-pdf-invoice
+Task 28 PR: https://github.com/Exloses/Codex-1/pull/31
+Task 28 status: selesai lokal; draft PR open.
+Task berikutnya: Task 29 - PWA, hanya setelah PR Task 28 merged oleh owner.
 ```
 
 ---
@@ -1081,6 +1118,10 @@ Task berikutnya: Task 28 - PDF Invoice, hanya setelah PR Task 27 merged oleh own
 - Task 27 vendor answers set `is_vendor=true`; vendor/admin answers set `is_verified=true`.
 - Task 27 new questions notify the product vendor user with `ProductQuestionAskedNotification` through mail + database channels.
 - Task 27 customer-facing Q&A payloads do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, raw `user_id`, user email, guest email, or internal vendor finance fields.
+- Task 28 PDF invoice keeps route `account.orders.invoice` and uses DomPDF through the existing `InvoiceController`.
+- Task 28 invoice access remains `OrderPolicy::view`: order owner or admin only; no new guest invoice flow was added.
+- Task 28 invoice PDF reloads a safe order projection and excludes `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, supplier payout data, internal vendor balance, admin notes, and raw internal metadata.
+- Task 28 PDF template is `resources/views/invoices/order.blade.php`, uses PDF-safe local HTML/CSS only, and has fallbacks for missing address or variant data.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -1099,6 +1140,7 @@ Task berikutnya: Task 28 - PDF Invoice, hanya setelah PR Task 27 merged oleh own
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-20 | Task 28 PDF Invoice selesai lokal; validasi migrate, PHP lint, route:list invoice, InvoiceDownloadTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-20 | Task 27 Product Q&A selesai lokal; validasi migrate, PHP lint, route:list questions/products, ProductQATest, full test, npm build, HTTP smoke, dan Browser fallback berhasil dicatat | Codex |
 | 2026-05-19 | Task 26 Stock & Price Alerts selesai lokal; validasi migrate, PHP lint, route:list notifications, alert commands, StockPriceAlertTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-19 | Task 25 Newsletter selesai lokal; draft PR #28 dibuat; validasi migrate, PHP lint, route:list newsletter, NewsletterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
