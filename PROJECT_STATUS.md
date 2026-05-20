@@ -50,8 +50,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 23 | Loyalty Points | ✅ Selesai & PR merged | `codex/task-23-loyalty-points` | https://github.com/Exloses/Codex-1/pull/26 |
 | Task 24 | Notification Center | ✅ Selesai & PR merged | `codex/task-24-notifications` | https://github.com/Exloses/Codex-1/pull/27 |
 | Task 25 | Newsletter | ✅ Selesai & PR merged | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
-| Task 26 | Stock & Price Alerts | ✅ Selesai lokal; draft PR open | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
-| Task 27 | Product Q&A | ⏳ Belum dimulai | - | - |
+| Task 26 | Stock & Price Alerts | ✅ Selesai & PR merged | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
+| Task 27 | Product Q&A | ✅ Selesai lokal; draft PR open | `codex/task-27-product-qa` | https://github.com/Exloses/Codex-1/pull/30 |
 | Task 28 | PDF Invoice | ⏳ Belum dimulai | - | - |
 | Task 29 | PWA | ⏳ Belum dimulai | - | - |
 | Task 30 | FAQ & Help Center | ⏳ Belum dimulai | - | - |
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 26 Stock & Price Alerts selesai lokal di branch `codex/task-26-stock-alerts`; draft PR #29 sudah dibuat.
+**Task sedang dikerjakan:** Task 27 Product Q&A selesai lokal di branch `codex/task-27-product-qa`; draft PR #30 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -941,6 +941,41 @@ Task 26:
   - Secret scan changed files: no real credentials found.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8081`: `/` and `/products` returned 200, `/account/notifications` returned 302 guest redirect, invalid newsletter unsubscribe returned safe 404 page.
   - Browser plugin loaded, but in-app browser navigation timed out; fallback HTTP/build/test validation used.
+
+Task 27:
+- Branch: `codex/task-27-product-qa`.
+- PR: https://github.com/Exloses/Codex-1/pull/30.
+- Files created:
+  - app/Notifications/ProductQuestionAskedNotification.php
+  - resources/views/emails/product-question-asked.blade.php
+  - tests/Feature/ProductQATest.php
+- Files modified:
+  - app/Http/Controllers/Storefront/ProductController.php
+  - app/Http/Controllers/Storefront/ProductQAController.php
+  - app/Providers/AppServiceProvider.php
+  - resources/js/Pages/Storefront/ProductShow.vue
+  - routes/web.php
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration notes:
+  - No migration added; Task 27 reuses existing `product_questions` and `product_answers` tables.
+- Implementation notes:
+  - Product Q&A routes remain authenticated-only and now use `throttle:product-qa`.
+  - Buyers can ask questions for active products only; guests see a login/register prompt.
+  - Product owner vendors and admins can answer; unrelated vendors and buyers cannot answer.
+  - Vendor answers are marked `is_vendor=true`; vendor/admin answers are marked `is_verified=true`.
+  - New questions notify the product vendor user through mail + database channels via `ProductQuestionAskedNotification`.
+  - Product detail Q&A payloads are sanitized and do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, raw `user_id`, user email, guest email, or internal vendor finance fields.
+- Validation:
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - PHP lint on changed PHP files: passed.
+  - `php artisan route:list --path=questions`: passed, 2 routes.
+  - `php artisan route:list --path=products`: passed, 13 routes.
+  - `php artisan test --filter=ProductQATest`: passed, 7 tests / 37 assertions.
+  - `php artisan test`: passed, 116 tests / 564 assertions.
+  - `npm run build`: passed for client and SSR.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8082`: `/` returned 200, `/products` returned 200, `/admin` returned 302; no active products were available in the refreshed local database for a product-detail smoke.
+  - Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; fallback HTTP/build/test validation was used.
 ```
 
 ---
@@ -974,8 +1009,11 @@ Task 25 PR: https://github.com/Exloses/Codex-1/pull/28
 Task 25 status: merged ke main.
 Task 26 branch: codex/task-26-stock-alerts
 Task 26 PR: https://github.com/Exloses/Codex-1/pull/29
-Task 26 status: selesai lokal; menunggu PR review/merge owner.
-Task berikutnya: Task 27 - Product Q&A, hanya setelah PR Task 26 merged oleh owner.
+Task 26 status: merged ke main.
+Task 27 branch: codex/task-27-product-qa
+Task 27 PR: https://github.com/Exloses/Codex-1/pull/30
+Task 27 status: selesai lokal; draft PR open.
+Task berikutnya: Task 28 - PDF Invoice, hanya setelah PR Task 27 merged oleh owner.
 ```
 
 ---
@@ -1036,6 +1074,13 @@ Task berikutnya: Task 27 - Product Q&A, hanya setelah PR Task 26 merged oleh own
 - Task 26 price alerts require target price lower than the current server-side product/variant price.
 - Task 26 guest notification emails use Laravel anonymous mail notifications; logged-in users receive mail + database notifications for the notification center.
 - Task 26 public/customer responses do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, `user_id`, `guest_email`, or raw internal alert fields.
+- Task 27 Product Q&A uses existing `product_questions` and `product_answers` tables; no migration added.
+- Task 27 route limiter name: `product-qa`.
+- Task 27 questions are authenticated-only and active-product-only; guests see login/register prompt on ProductShow.
+- Task 27 answers are limited to product owner vendors and admin users through ProductPolicy `manage`.
+- Task 27 vendor answers set `is_vendor=true`; vendor/admin answers set `is_verified=true`.
+- Task 27 new questions notify the product vendor user with `ProductQuestionAskedNotification` through mail + database channels.
+- Task 27 customer-facing Q&A payloads do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, raw `user_id`, user email, guest email, or internal vendor finance fields.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -1054,6 +1099,7 @@ Task berikutnya: Task 27 - Product Q&A, hanya setelah PR Task 26 merged oleh own
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-20 | Task 27 Product Q&A selesai lokal; validasi migrate, PHP lint, route:list questions/products, ProductQATest, full test, npm build, HTTP smoke, dan Browser fallback berhasil dicatat | Codex |
 | 2026-05-19 | Task 26 Stock & Price Alerts selesai lokal; validasi migrate, PHP lint, route:list notifications, alert commands, StockPriceAlertTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-19 | Task 25 Newsletter selesai lokal; draft PR #28 dibuat; validasi migrate, PHP lint, route:list newsletter, NewsletterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-18 | Task 24 Notification Center selesai lokal; validasi migrate, PHP lint, route:list notifications, NotificationCenterTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |

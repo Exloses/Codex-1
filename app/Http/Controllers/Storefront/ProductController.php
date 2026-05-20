@@ -28,7 +28,7 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(string $slug): Response
+    public function show(Request $request, string $slug): Response
     {
         $payload = StorefrontCache::remember(
             StorefrontCache::productShowKey($slug),
@@ -46,11 +46,10 @@ class ProductController extends Controller
                         'reviews:id,user_id,product_id,rating,title,comment,images,is_verified,created_at',
                         'reviews.user:id,name',
                         'questions' => fn ($query) => $query
-                            ->select(['id', 'product_id', 'user_id', 'question', 'is_public', 'created_at'])
+                            ->select(['id', 'product_id', 'question', 'is_public', 'created_at'])
                             ->where('is_public', true)
                             ->latest(),
-                        'questions.answers:id,question_id,user_id,answer,is_vendor,is_verified,helpful_count,created_at',
-                        'questions.answers.user:id,name',
+                        'questions.answers:id,question_id,answer,is_vendor,is_verified,helpful_count,created_at',
                     ])
                     ->withCount('variants')
                     ->where('slug', $slug)
@@ -78,6 +77,30 @@ class ProductController extends Controller
             }
         );
 
+        $payload['product']->setRelation(
+            'questions',
+            $payload['product']->questions
+                ->map(fn ($question) => [
+                    'id' => $question->id,
+                    'question' => $question->question,
+                    'is_public' => (bool) $question->is_public,
+                    'asker_label' => 'Customer',
+                    'created_at' => $question->created_at,
+                    'answers' => $question->answers
+                        ->map(fn ($answer) => [
+                            'id' => $answer->id,
+                            'answer' => $answer->answer,
+                            'is_vendor' => (bool) $answer->is_vendor,
+                            'is_verified' => (bool) $answer->is_verified,
+                            'helpful_count' => (int) $answer->helpful_count,
+                            'author_label' => $answer->is_vendor ? 'Vendor' : 'GlobalDrop team',
+                            'created_at' => $answer->created_at,
+                        ])
+                        ->values(),
+                ])
+                ->values()
+        );
+
         $visibleProductIds = collect([$payload['product']->id])
             ->merge($payload['relatedProducts']->pluck('id'))
             ->unique()
@@ -86,6 +109,7 @@ class ProductController extends Controller
         return Inertia::render('Storefront/ProductShow', [
             ...$payload,
             'wishlistProductIds' => $this->wishlistProductIds($visibleProductIds),
+            'canAnswerQuestions' => $request->user()?->can('manage', $payload['product']) ?? false,
         ]);
     }
 
