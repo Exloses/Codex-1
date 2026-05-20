@@ -5,15 +5,15 @@
 
 ## Current Task
 
-- Active task: Task 26 - Stock Notification + Price Alert
-- Last completed task: Task 25 - Newsletter
-- Branch: `codex/task-26-stock-alerts`
-- Status: Task 26 completed locally; draft PR #29 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/29
-- Scope: Guest/auth stock notifications, editable price alerts, server-side product/variant validation, dedupe/reactivation, notification-channel scheduled commands, ProductShow alert UX, and focused tests.
-- Task 25 PR #28 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 26 branch: `10bbef7`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 27.
-- Next task after Task 26 is merged: Task 27 - Product Q&A.
+- Active task: Task 27 - Product Q&A
+- Last completed task: Task 26 - Stock Notification + Price Alert
+- Branch: `codex/task-27-product-qa`
+- Status: Task 27 completed locally; draft PR #30 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/30
+- Scope: Authenticated customer questions, vendor/admin answers, safe Q&A payloads, vendor mail/database notification, ProductShow Q&A UX, and focused tests.
+- Task 26 PR #29 is merged into `main`; post-merge sync and baseline validation were clean. Latest main commit before Task 27 branch: `f49599a`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, do not send real external emails, and do not start Task 28.
+- Next task after Task 27 is merged: Task 28 - PDF Invoice.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## Recent Baseline
 
-- Task 1-21 are merged into `main`.
+- Task 1-26 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
@@ -46,6 +46,52 @@
 - Task 23 added idempotent loyalty earn/redeem/bonus logic, checkout redemption, account loyalty history, and expiry command.
 - Task 24 added authenticated in-app notification feed polling, owner-scoped read actions, navbar notification center, account notifications polish, and notification payload safety.
 - Task 25 added token-safe newsletter subscribe/unsubscribe, welcome/broadcast notifications, admin broadcast, footer form feedback, and newsletter tests.
+- Task 26 added guest/auth stock notifications, editable price alerts, server-side product/variant validation, dedupe/reactivation, notification-channel scheduled commands, ProductShow alert UX, and focused tests.
+
+## Task 27 Completed Work
+
+- Created branch `codex/task-27-product-qa` from updated `main` after PR #29 was merged.
+- Reused the existing `product_questions` and `product_answers` tables, existing Q&A controller/request/model skeletons, existing ProductShow Q&A tab, and ProductQuestion/ProductAnswer storefront cache invalidation.
+- Added `ProductQuestionAskedNotification` with mail + database channels for vendor users.
+- Added `resources/views/emails/product-question-asked.blade.php`.
+- Added `throttle:product-qa` route limiting for product question and answer submissions.
+- Hardened `ProductQAController`:
+  - Questions require authentication and active products.
+  - Questions save `product_id`, `user_id`, `question`, and `is_public=true`.
+  - New questions notify the product vendor user when available, and safely skip notification when no vendor user exists.
+  - Answers require active products and ProductPolicy `manage` authorization.
+  - Product owner vendors and admins can answer; unrelated vendors and ordinary buyers cannot answer.
+  - Vendor answers set `is_vendor=true`; vendor/admin answers set `is_verified=true`.
+  - JSON responses return safe Q&A payloads instead of raw Eloquent models.
+- Hardened ProductController product detail Q&A payload:
+  - Public questions only.
+  - Safe asker/answer author labels.
+  - Vendor and verified answer flags for UI badges.
+  - No raw `user_id`, user email, guest email, or internal vendor financial fields in customer-facing Q&A payloads.
+- Updated ProductShow Q&A tab:
+  - Public question and answer list.
+  - Vendor and Verified badges.
+  - Authenticated question form.
+  - Guest login/register prompt.
+  - Vendor/admin answer form when `canAnswerQuestions` is true.
+  - Validation and success states.
+- Added `tests/Feature/ProductQATest.php`.
+- Preserved Task 26 stock/price alert UI and behavior, plus newsletter, notification center, loyalty, return/refund, tracking, wishlist, variants, guest checkout, social login, support, storefront, vendor panel, and Filament behavior.
+- Public/customer Q&A responses do not expose `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, raw `user_id`, user email, guest email, or internal vendor finance fields.
+
+## Task 27 Validation
+
+- `php artisan migrate --force`: passed, Nothing to migrate.
+- PHP lint on changed PHP files: passed.
+- `php artisan route:list --path=questions`: passed, 2 routes.
+- `php artisan route:list --path=products`: passed, 13 routes.
+- `php artisan test --filter=ProductQATest`: passed, 7 tests / 37 assertions.
+- `php artisan test`: passed, 116 tests / 564 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8082`: `/` returned 200, `/products` returned 200, `/admin` returned 302; no active products were available in the refreshed local database for product-detail smoke.
+- Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real secrets, real external APIs, real external email provider calls, or Task 28 work were performed.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/30
 
 ## Task 26 Completed Work
 

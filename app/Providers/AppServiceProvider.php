@@ -90,6 +90,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by(($request->user()?->id ?: strtolower((string) $request->input('guest_email'))).'|'.$request->ip());
         });
 
+        RateLimiter::for('product-qa', function (Request $request) {
+            $identity = $request->user()?->id ?: $request->ip();
+            $routeName = $request->route()?->getName() ?: 'product-qa';
+
+            return Limit::perMinute(8)->by($identity.'|'.$routeName);
+        });
+
         Vite::prefetch(concurrency: 3);
     }
 }

@@ -166,8 +166,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/support', [SupportTicketController::class, 'store'])->name('support.store');
     Route::get('/support/{ticket}', [SupportTicketController::class, 'show'])->name('support.show');
     Route::post('/support/{ticket}/reply', [SupportTicketController::class, 'reply'])->name('support.reply');
-    Route::post('/products/{product}/questions', [ProductQAController::class, 'store'])->name('products.questions.store');
-    Route::post('/questions/{question}/answers', [ProductQAController::class, 'answer'])->name('questions.answers.store');
+    Route::post('/products/{product}/questions', [ProductQAController::class, 'store'])
+        ->middleware('throttle:product-qa')
+        ->name('products.questions.store');
+    Route::post('/questions/{question}/answers', [ProductQAController::class, 'answer'])
+        ->middleware('throttle:product-qa')
+        ->name('questions.answers.store');
 
     Route::prefix('affiliate')->name('affiliate.')->group(function () {
         Route::post('/register', [AffiliateController::class, 'register'])->name('register');

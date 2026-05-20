@@ -5,7 +5,7 @@ import SizeGuideModal from '@/Components/Storefront/SizeGuideModal.vue';
 import VariantSelector from '@/Components/Storefront/VariantSelector.vue';
 import WishlistButton from '@/Components/Storefront/WishlistButton.vue';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps({
@@ -17,6 +17,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    canAnswerQuestions: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const selectedVariant = ref(null);
@@ -26,6 +30,9 @@ const activeTab = ref('qa');
 const variantError = ref('');
 const stockMessage = ref('');
 const priceMessage = ref('');
+const questionMessage = ref('');
+const answerMessages = ref({});
+const answerForms = ref({});
 const page = usePage();
 
 const hasVariants = computed(() => (props.product.variants || []).length > 0);
@@ -63,8 +70,18 @@ const priceForm = useForm({
     guest_email: '',
     target_price_usd: suggestedTargetPrice.value,
 });
+const questionForm = useForm({
+    question: '',
+});
 
 const money = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0));
+const answerFormFor = (questionId) => {
+    if (!answerForms.value[questionId]) {
+        answerForms.value[questionId] = useForm({ answer: '' });
+    }
+
+    return answerForms.value[questionId];
+};
 
 const addToCart = () => {
     variantError.value = '';
@@ -119,6 +136,31 @@ const submitPriceAlert = () => {
         preserveScroll: true,
         onSuccess: () => {
             priceMessage.value = page.props.flash?.status || 'We will email you if the price reaches your target.';
+        },
+    });
+};
+
+const submitQuestion = () => {
+    questionMessage.value = '';
+
+    questionForm.post(route('products.questions.store', props.product.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            questionForm.reset();
+            questionMessage.value = page.props.flash?.status || 'Your question was posted. The vendor will be notified.';
+        },
+    });
+};
+
+const submitAnswer = (questionId) => {
+    const form = answerFormFor(questionId);
+    answerMessages.value[questionId] = '';
+
+    form.post(route('questions.answers.store', questionId), {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+            answerMessages.value[questionId] = page.props.flash?.status || 'Your answer was posted.';
         },
     });
 };
@@ -270,10 +312,73 @@ const submitPriceAlert = () => {
                 <div class="p-4">
                     <div v-if="activeTab === 'qa'" class="space-y-4">
                         <div v-for="question in product.questions || []" :key="question.id" class="rounded-md bg-zinc-50 p-4">
-                            <p class="text-sm font-semibold">{{ question.question }}</p>
-                            <p v-for="answer in question.answers || []" :key="answer.id" class="mt-2 text-sm text-zinc-600">{{ answer.answer }}</p>
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-normal text-zinc-500">{{ question.asker_label || 'Customer' }}</p>
+                                    <p class="mt-1 text-sm font-semibold text-zinc-950">{{ question.question }}</p>
+                                </div>
+                                <p v-if="question.created_at" class="text-xs text-zinc-500">{{ new Date(question.created_at).toLocaleDateString() }}</p>
+                            </div>
+                            <div v-if="question.answers?.length" class="mt-4 space-y-3 border-l-2 border-emerald-200 pl-4">
+                                <div v-for="answer in question.answers" :key="answer.id" class="rounded-md bg-white p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-semibold text-zinc-700">{{ answer.author_label || 'GlobalDrop team' }}</span>
+                                        <span v-if="answer.is_vendor" class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Vendor</span>
+                                        <span v-if="answer.is_verified" class="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800">Verified</span>
+                                    </div>
+                                    <p class="mt-2 text-sm leading-6 text-zinc-600">{{ answer.answer }}</p>
+                                </div>
+                            </div>
+                            <p v-else class="mt-3 text-sm text-zinc-500">No answer yet.</p>
+                            <form v-if="canAnswerQuestions" class="mt-4 space-y-2 border-t border-zinc-200 pt-4" @submit.prevent="submitAnswer(question.id)">
+                                <textarea
+                                    v-model="answerFormFor(question.id).answer"
+                                    rows="3"
+                                    class="w-full rounded-md border-zinc-300 text-sm"
+                                    placeholder="Write a clear answer for this customer question."
+                                />
+                                <p v-if="answerFormFor(question.id).errors.answer" class="text-sm text-rose-700">{{ answerFormFor(question.id).errors.answer }}</p>
+                                <p v-if="answerMessages[question.id]" class="text-sm text-emerald-700">{{ answerMessages[question.id] }}</p>
+                                <button
+                                    type="submit"
+                                    class="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                                    :disabled="answerFormFor(question.id).processing"
+                                >
+                                    Post answer
+                                </button>
+                            </form>
                         </div>
                         <p v-if="!product.questions?.length" class="text-sm text-zinc-600">No public questions yet.</p>
+                        <div class="rounded-md border border-zinc-200 bg-white p-4">
+                            <template v-if="isAuthenticated">
+                                <p class="text-sm font-semibold text-zinc-950">Ask a question</p>
+                                <form class="mt-3 space-y-3" @submit.prevent="submitQuestion">
+                                    <textarea
+                                        v-model="questionForm.question"
+                                        rows="4"
+                                        class="w-full rounded-md border-zinc-300 text-sm"
+                                        placeholder="Ask about sizing, materials, shipping, or anything you need before buying."
+                                    />
+                                    <p v-if="questionForm.errors.question" class="text-sm text-rose-700">{{ questionForm.errors.question }}</p>
+                                    <p v-if="questionMessage" class="text-sm text-emerald-700">{{ questionMessage }}</p>
+                                    <button
+                                        type="submit"
+                                        class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                                        :disabled="questionForm.processing"
+                                    >
+                                        Post question
+                                    </button>
+                                </form>
+                            </template>
+                            <template v-else>
+                                <p class="text-sm font-semibold text-zinc-950">Have a question?</p>
+                                <p class="mt-1 text-sm text-zinc-600">Sign in or create an account to ask the vendor before buying.</p>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <Link :href="route('login')" class="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white">Sign in</Link>
+                                    <Link :href="route('register')" class="rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-950">Create account</Link>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                     <div v-else class="space-y-4">
                         <div v-for="review in product.reviews || []" :key="review.id" class="rounded-md bg-zinc-50 p-4">
