@@ -8,8 +8,8 @@
 - Active task: Task 29 - PWA.
 - Last completed task: Task 28 - PDF Invoice.
 - Branch: `codex/task-29-pwa`.
-- Status: Task 29 completed locally; branch push and draft PR creation are next.
-- Pull request: pending.
+- Status: Task 29 completed locally; draft PR #32 is open.
+- Pull request: https://github.com/Exloses/Codex-1/pull/32
 - Scope: Vite PWA configuration, root app manifest, generated brand icons, root-scoped service worker, safe runtime caching, static offline fallback, install prompt UX, and focused tests.
 - Task 28 PR #31 is merged into `main`; latest main commit before Task 29 branch: `fd3bb03`.
 - Post-merge baseline from owner for Task 28 main: `php artisan migrate` Nothing to migrate, `php artisan test` 116 tests / 564 assertions, `npm run build` client + SSR successful, working tree clean on `main...origin/main`.
@@ -98,7 +98,7 @@
 - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8083`: `/`, `/products`, `/cart`, `/manifest.webmanifest`, `/sw.js`, `/icons/icon-192.png`, and `/offline.html` returned 200; `/account/orders` and `/admin` returned 302 guest redirects.
 - Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; HTTP/build/test validation was used as fallback.
 - No production deploy, Oracle Cloud configuration, real secrets, real external APIs, sensitive-page caching, or Task 30 work were performed.
-- Draft PR: pending.
+- Draft PR: https://github.com/Exloses/Codex-1/pull/32
 
 ## Task 28 Completed Work
 

@@ -53,7 +53,7 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 26 | Stock & Price Alerts | ✅ Selesai & PR merged | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
 | Task 27 | Product Q&A | ✅ Selesai & PR merged | `codex/task-27-product-qa` | https://github.com/Exloses/Codex-1/pull/30 |
 | Task 28 | PDF Invoice | ✅ Selesai & PR merged | `codex/task-28-pdf-invoice` | https://github.com/Exloses/Codex-1/pull/31 |
-| Task 29 | PWA | ✅ Selesai lokal; draft PR pending | `codex/task-29-pwa` | pending |
+| Task 29 | PWA | ✅ Selesai lokal; draft PR open | `codex/task-29-pwa` | https://github.com/Exloses/Codex-1/pull/32 |
 | Task 30 | FAQ & Help Center | ⏳ Belum dimulai | - | - |
 
 **Status Legend:**
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 29 PWA selesai lokal di branch `codex/task-29-pwa`; draft PR akan dibuat setelah branch dipush.
+**Task sedang dikerjakan:** Task 29 PWA selesai lokal di branch `codex/task-29-pwa`; draft PR #32 sudah dibuat.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -1013,7 +1013,7 @@ Task 28:
 
 Task 29:
 - Branch: `codex/task-29-pwa`.
-- PR: pending branch push and draft PR creation.
+- PR: https://github.com/Exloses/Codex-1/pull/32.
 - Files created:
   - public/icons/icon-192.png
   - public/icons/icon-512.png
@@ -1091,8 +1091,8 @@ Task 28 branch: codex/task-28-pdf-invoice
 Task 28 PR: https://github.com/Exloses/Codex-1/pull/31
 Task 28 status: merged ke main.
 Task 29 branch: codex/task-29-pwa
-Task 29 PR: pending branch push and draft PR creation.
-Task 29 status: selesai lokal.
+Task 29 PR: https://github.com/Exloses/Codex-1/pull/32
+Task 29 status: selesai lokal; draft PR open.
 Task berikutnya: Task 30 - FAQ & Help Center, hanya setelah PR Task 29 merged oleh owner.
 ```
 
