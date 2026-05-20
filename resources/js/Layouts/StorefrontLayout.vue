@@ -2,6 +2,7 @@
 import {
     BellIcon,
     ChatBubbleLeftRightIcon,
+    ArrowDownTrayIcon,
     HeartIcon,
     MagnifyingGlassIcon,
     ShoppingBagIcon,
@@ -10,12 +11,14 @@ import {
 } from '@heroicons/vue/24/outline';
 import NotificationCenter from '@/Components/Storefront/NotificationCenter.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const page = usePage();
 const showMobileMenu = ref(false);
 const showInstallPrompt = ref(false);
 const deferredPrompt = ref(null);
+const isStandalonePwa = ref(false);
+const installPromptOutcome = ref(null);
 const newsletterForm = useForm({ email: '' });
 const newsletterMessage = ref('');
 const newsletterError = ref('');
@@ -26,6 +29,7 @@ const availableCurrencies = computed(() => page.props.availableCurrencies || ['U
 const selectedCurrency = computed(() => page.props.currency || page.props.auth?.user?.currency || 'USD');
 const selectedLanguage = computed(() => page.props.language || page.props.auth?.user?.language || 'en');
 const wishlistCount = computed(() => Number(page.props.wishlist_count || 0));
+const canInstallPwa = computed(() => showInstallPrompt.value && deferredPrompt.value && !isStandalonePwa.value);
 
 const navItems = [
     { label: 'Home', href: route('home') },
@@ -84,14 +88,58 @@ const loadTawkWidget = () => {
     document.body.appendChild(script);
 };
 
-onMounted(() => {
-    window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault();
-        deferredPrompt.value = event;
-        showInstallPrompt.value = true;
-    });
+let displayModeQuery = null;
 
+const updateStandaloneState = () => {
+    isStandalonePwa.value =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+    if (isStandalonePwa.value) {
+        showInstallPrompt.value = false;
+        deferredPrompt.value = null;
+    }
+};
+
+const handleBeforeInstallPrompt = (event) => {
+    event.preventDefault();
+    updateStandaloneState();
+
+    if (isStandalonePwa.value) return;
+
+    deferredPrompt.value = event;
+    installPromptOutcome.value = null;
+    showInstallPrompt.value = true;
+};
+
+const handleAppInstalled = () => {
+    installPromptOutcome.value = 'accepted';
+    deferredPrompt.value = null;
+    showInstallPrompt.value = false;
+    isStandalonePwa.value = true;
+};
+
+onMounted(() => {
+    updateStandaloneState();
+    displayModeQuery = window.matchMedia('(display-mode: standalone)');
+    if (typeof displayModeQuery.addEventListener === 'function') {
+        displayModeQuery.addEventListener('change', updateStandaloneState);
+    } else {
+        displayModeQuery.addListener?.(updateStandaloneState);
+    }
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
     loadTawkWidget();
+});
+
+onUnmounted(() => {
+    if (typeof displayModeQuery?.removeEventListener === 'function') {
+        displayModeQuery.removeEventListener('change', updateStandaloneState);
+    } else {
+        displayModeQuery?.removeListener?.(updateStandaloneState);
+    }
+    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.removeEventListener('appinstalled', handleAppInstalled);
 });
 
 watch([user, tawk], loadTawkWidget);
@@ -99,8 +147,10 @@ watch([user, tawk], loadTawkWidget);
 const installPwa = async () => {
     if (!deferredPrompt.value) return;
 
-    deferredPrompt.value.prompt();
-    await deferredPrompt.value.userChoice;
+    const prompt = deferredPrompt.value;
+    prompt.prompt();
+    const choice = await prompt.userChoice;
+    installPromptOutcome.value = choice?.outcome || 'dismissed';
     deferredPrompt.value = null;
     showInstallPrompt.value = false;
 };
@@ -170,6 +220,14 @@ const subscribe = () => {
                 </select>
 
                 <div class="hidden items-center gap-1 sm:flex">
+                    <button
+                        v-if="canInstallPwa"
+                        class="rounded-md p-2 text-emerald-700 hover:bg-emerald-50"
+                        title="Install App"
+                        @click="installPwa"
+                    >
+                        <ArrowDownTrayIcon class="h-5 w-5" />
+                    </button>
                     <NotificationCenter v-if="user" />
                     <Link v-else :href="route('login')" class="rounded-md p-2 text-zinc-600 hover:bg-zinc-100" title="Notifications">
                         <BellIcon class="h-5 w-5" />
@@ -219,6 +277,13 @@ const subscribe = () => {
                         <Link :href="user ? route('account.notifications') : route('login')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Notifications</Link>
                         <Link :href="route('support.index')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Support</Link>
                         <Link :href="user ? route('account.index') : route('login')" class="rounded-md border border-zinc-300 px-3 py-2 text-center text-sm">Account</Link>
+                        <button
+                            v-if="canInstallPwa"
+                            class="rounded-md border border-emerald-200 px-3 py-2 text-center text-sm font-semibold text-emerald-700"
+                            @click="installPwa"
+                        >
+                            Install App
+                        </button>
                     </div>
                 </div>
             </div>
@@ -278,7 +343,7 @@ const subscribe = () => {
             </div>
         </footer>
 
-        <div v-if="showInstallPrompt" class="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-xl rounded-lg border border-zinc-200 bg-white p-4 shadow-lg sm:left-auto sm:right-4">
+        <div v-if="canInstallPwa" class="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-xl rounded-lg border border-zinc-200 bg-white p-4 shadow-lg sm:left-auto sm:right-4">
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <p class="text-sm font-semibold">Install GlobalDrop</p>

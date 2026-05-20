@@ -5,15 +5,16 @@
 
 ## Current Task
 
-- Active task: Task 28 - PDF Invoice
-- Last completed task: Task 27 - Product Q&A
-- Branch: `codex/task-28-pdf-invoice`
-- Status: Task 28 completed locally; draft PR #31 is open.
-- Pull request: https://github.com/Exloses/Codex-1/pull/31
-- Scope: DomPDF invoice download, safe invoice Blade template, account order detail invoice CTA label, owner/admin authorization, guest route restriction preservation, sensitive-field safety, and focused tests.
-- Task 27 PR #30 is merged into `main`; latest main commit before Task 28 branch: `34685a5`.
-- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, and do not start Task 29.
-- Next task after Task 28 is merged: Task 29 - PWA.
+- Active task: Task 29 - PWA.
+- Last completed task: Task 28 - PDF Invoice.
+- Branch: `codex/task-29-pwa`.
+- Status: Task 29 completed locally; branch push and draft PR creation are next.
+- Pull request: pending.
+- Scope: Vite PWA configuration, root app manifest, generated brand icons, root-scoped service worker, safe runtime caching, static offline fallback, install prompt UX, and focused tests.
+- Task 28 PR #31 is merged into `main`; latest main commit before Task 29 branch: `fd3bb03`.
+- Post-merge baseline from owner for Task 28 main: `php artisan migrate` Nothing to migrate, `php artisan test` 116 tests / 564 assertions, `npm run build` client + SSR successful, working tree clean on `main...origin/main`.
+- Do not edit or commit `.env`, do not deploy, do not configure Oracle Cloud, do not make real external API calls, and do not start Task 30.
+- Next task after Task 29 is merged: Task 30 - FAQ & Help Center.
 
 ---
 
@@ -31,7 +32,7 @@
 
 ## Recent Baseline
 
-- Task 1-27 are merged into `main`.
+- Task 1-28 are merged into `main`.
 - Task 10 added Vue/Inertia storefront, account, vendor, affiliate, and auth page coverage.
 - Task 11 added global security headers, web preference middleware, Inertia shared preference props, and named route throttles.
 - Task 12 added email notifications and responsive Blade email templates using the mail and database notification channels.
@@ -48,6 +49,56 @@
 - Task 25 added token-safe newsletter subscribe/unsubscribe, welcome/broadcast notifications, admin broadcast, footer form feedback, and newsletter tests.
 - Task 26 added guest/auth stock notifications, editable price alerts, server-side product/variant validation, dedupe/reactivation, notification-channel scheduled commands, ProductShow alert UX, and focused tests.
 - Task 27 added authenticated customer Product Q&A, vendor/admin answers, vendor question notifications, safe Q&A payloads, and ProductShow Q&A UX.
+- Task 28 added DomPDF authenticated PDF invoice download, a PDF-safe invoice Blade template, account order detail invoice CTA, owner/admin authorization preservation, guest invoice route restriction, and invoice sensitive-field tests.
+
+## Task 29 Completed Work
+
+- Created branch `codex/task-29-pwa` from updated `main` after PR #31 was merged.
+- Confirmed `vite-plugin-pwa` is already installed in `package.json`; no dependency install or unrelated frontend dependency was added.
+- Updated `vite.config.js` with `VitePWA` client-only activation using Vite's `isSsrBuild` flag so the existing `vite build && vite build --ssr` flow remains intact.
+- Configured PWA metadata for GlobalDropship / GlobalDrop with standalone display, root start URL/scope, emerald theme color, light background color, and 192/512 PNG icons.
+- Added committed source PWA assets:
+  - `public/manifest.webmanifest`
+  - `public/icons/icon-192.png`
+  - `public/icons/icon-512.png`
+  - `public/offline.html`
+- `npm run build` generates:
+  - `public/sw.js`
+  - `public/workbox-e78923df.js`
+  - `public/build/manifest.webmanifest`
+- `.gitignore` now ignores generated root service worker files (`public/sw.js` and `public/workbox-*.js`) while keeping source manifest/icons/offline fallback tracked.
+- Registered the service worker from the client entry via `virtual:pwa-register` with auto-update registration and safe console warning on registration failure.
+- Added PWA meta/link tags in `resources/views/app.blade.php`, including theme color, app names, manifest link, and apple touch icon.
+- Updated `StorefrontLayout.vue` install UX:
+  - Listens for `beforeinstallprompt` only inside `onMounted`.
+  - Hides the prompt when the app is already standalone/installed.
+  - Handles `appinstalled`.
+  - Records accepted/dismissed prompt outcomes.
+  - Cleans up event listeners on unmount.
+  - Adds desktop icon action and mobile menu action without disturbing notifications, wishlist, cart, account, support, newsletter, or mobile navigation.
+- Service worker caching strategy:
+  - Cloudinary images: CacheFirst, 7 days, 150 entries.
+  - Static build assets: StaleWhileRevalidate, 7 days, 80 entries.
+  - Public storefront/product/category navigation: NetworkFirst, 1 hour, 30 entries.
+  - Sensitive routes: NetworkOnly and denied from offline navigation fallback.
+- Sensitive routes excluded from caching/offline fallback: account, admin, api, auth, cart, checkout, login, logout, payment, register, stripe, and vendor.
+- Offline fallback is a static generic page and does not expose private user/order/account/vendor/payment data.
+- Added `tests/Feature/PwaTest.php` covering valid PNG icons, safe offline fallback, manifest/theme shell references, and PWA config safety boundaries.
+
+## Task 29 Validation
+
+- `git status --short --branch`: passed on `codex/task-29-pwa` with expected Task 29 changes.
+- `php artisan migrate --force`: passed, Nothing to migrate.
+- `php artisan test --filter=PwaTest`: passed, 4 tests / 32 assertions.
+- `php artisan test`: passed, 127 tests / 620 assertions.
+- `npm run build`: passed for client and SSR bundles.
+- PWA output check: `public/manifest.webmanifest`, `public/build/manifest.webmanifest`, `public/sw.js`, `public/workbox-e78923df.js`, `public/icons/icon-192.png`, `public/icons/icon-512.png`, and `public/offline.html` exist after build.
+- `git ls-files .env`: empty.
+- Secret scan of changed text files found no real credentials.
+- HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8083`: `/`, `/products`, `/cart`, `/manifest.webmanifest`, `/sw.js`, `/icons/icon-192.png`, and `/offline.html` returned 200; `/account/orders` and `/admin` returned 302 guest redirects.
+- Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; HTTP/build/test validation was used as fallback.
+- No production deploy, Oracle Cloud configuration, real secrets, real external APIs, sensitive-page caching, or Task 30 work were performed.
+- Draft PR: pending.
 
 ## Task 28 Completed Work
 

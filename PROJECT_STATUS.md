@@ -52,8 +52,8 @@ Platform e-commerce dropship global dengan 3 panel:
 | Task 25 | Newsletter | ✅ Selesai & PR merged | `codex/task-25-newsletter` | https://github.com/Exloses/Codex-1/pull/28 |
 | Task 26 | Stock & Price Alerts | ✅ Selesai & PR merged | `codex/task-26-stock-alerts` | https://github.com/Exloses/Codex-1/pull/29 |
 | Task 27 | Product Q&A | ✅ Selesai & PR merged | `codex/task-27-product-qa` | https://github.com/Exloses/Codex-1/pull/30 |
-| Task 28 | PDF Invoice | ✅ Selesai lokal; draft PR open | `codex/task-28-pdf-invoice` | https://github.com/Exloses/Codex-1/pull/31 |
-| Task 29 | PWA | ⏳ Belum dimulai | - | - |
+| Task 28 | PDF Invoice | ✅ Selesai & PR merged | `codex/task-28-pdf-invoice` | https://github.com/Exloses/Codex-1/pull/31 |
+| Task 29 | PWA | ✅ Selesai lokal; draft PR pending | `codex/task-29-pwa` | pending |
 | Task 30 | FAQ & Help Center | ⏳ Belum dimulai | - | - |
 
 **Status Legend:**
@@ -66,7 +66,7 @@ Platform e-commerce dropship global dengan 3 panel:
 
 ## 📂 3. FILE YANG SUDAH DIBUAT / DIUBAH
 
-**Task sedang dikerjakan:** Task 28 PDF Invoice selesai lokal di branch `codex/task-28-pdf-invoice`; draft PR #31 sudah dibuat.
+**Task sedang dikerjakan:** Task 29 PWA selesai lokal di branch `codex/task-29-pwa`; draft PR akan dibuat setelah branch dipush.
 
 <!-- Codex update bagian ini setiap task selesai -->
 
@@ -1010,6 +1010,46 @@ Task 28:
   - Secret scan changed files: no real credentials found; only existing safe Cloudinary placeholders matched broad scan patterns.
   - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8083/8084`: `/` returned 200, `/products` returned 200, and `/account/orders` returned 302 to `/login`.
   - Browser plugin tool discovery did not expose local browser navigation tooling in this session; fallback HTTP/build/test validation was used.
+
+Task 29:
+- Branch: `codex/task-29-pwa`.
+- PR: pending branch push and draft PR creation.
+- Files created:
+  - public/icons/icon-192.png
+  - public/icons/icon-512.png
+  - public/manifest.webmanifest
+  - public/offline.html
+  - tests/Feature/PwaTest.php
+- Files modified:
+  - .gitignore
+  - resources/js/Layouts/StorefrontLayout.vue
+  - resources/js/app.js
+  - resources/views/app.blade.php
+  - vite.config.js
+  - PROJECT_STATUS.md
+  - PROJECT_MEMORY.md
+- Migration notes:
+  - No migration added; Task 29 is frontend/PWA configuration only.
+- Implementation notes:
+  - `vite-plugin-pwa` was already installed in `package.json`; no new dependency was added.
+  - `vite.config.js` now enables `VitePWA` only for the client build using `isSsrBuild`, preserving the existing Laravel Vite client + SSR build.
+  - Root-scoped service worker output is generated at `public/sw.js`; generated PWA build artifacts are ignored by Git while source PWA assets are committed.
+  - `public/manifest.webmanifest` provides the stable app manifest linked by `resources/views/app.blade.php`; Vite also emits `public/build/manifest.webmanifest` during build.
+  - Service worker caching uses CacheFirst for Cloudinary images for 7 days, StaleWhileRevalidate for build assets, NetworkFirst for public storefront/category/product navigation, and NetworkOnly for sensitive routes.
+  - Sensitive routes denied from offline navigation fallback include account, admin, api, auth, cart, checkout, login, logout, payment, register, stripe, and vendor paths.
+  - The offline fallback is a static generic page and does not expose account, order, guest, vendor, or financial data.
+  - Storefront install UX now handles `beforeinstallprompt`, accepted/dismissed outcomes, `appinstalled`, standalone display mode, and listener cleanup in client-safe Vue hooks.
+- Validation:
+  - `git status --short --branch`: passed on `codex/task-29-pwa` with expected Task 29 changes.
+  - `php artisan migrate --force`: passed, Nothing to migrate.
+  - `php artisan test --filter=PwaTest`: passed, 4 tests / 32 assertions.
+  - `php artisan test`: passed, 127 tests / 620 assertions.
+  - `npm run build`: passed for client and SSR; PWA generated `public/sw.js`, `public/workbox-e78923df.js`, and `public/build/manifest.webmanifest`.
+  - PWA asset check: `public/manifest.webmanifest`, `public/icons/icon-192.png`, `public/icons/icon-512.png`, and `public/offline.html` exist.
+  - `git ls-files .env`: empty.
+  - Secret scan changed text files: no real credentials found.
+  - HTTP smoke with `php artisan serve --host=127.0.0.1 --port=8083`: `/`, `/products`, `/cart`, `/manifest.webmanifest`, `/sw.js`, `/icons/icon-192.png`, and `/offline.html` returned 200; `/account/orders` and `/admin` returned 302 guest redirects.
+  - Browser plugin skill was loaded, but Node REPL/browser-control tooling was not exposed by tool discovery; fallback HTTP/build/test validation was used.
 ```
 
 ---
@@ -1049,8 +1089,11 @@ Task 27 PR: https://github.com/Exloses/Codex-1/pull/30
 Task 27 status: merged ke main.
 Task 28 branch: codex/task-28-pdf-invoice
 Task 28 PR: https://github.com/Exloses/Codex-1/pull/31
-Task 28 status: selesai lokal; draft PR open.
-Task berikutnya: Task 29 - PWA, hanya setelah PR Task 28 merged oleh owner.
+Task 28 status: merged ke main.
+Task 29 branch: codex/task-29-pwa
+Task 29 PR: pending branch push and draft PR creation.
+Task 29 status: selesai lokal.
+Task berikutnya: Task 30 - FAQ & Help Center, hanya setelah PR Task 29 merged oleh owner.
 ```
 
 ---
@@ -1122,6 +1165,14 @@ Task berikutnya: Task 29 - PWA, hanya setelah PR Task 28 merged oleh owner.
 - Task 28 invoice access remains `OrderPolicy::view`: order owner or admin only; no new guest invoice flow was added.
 - Task 28 invoice PDF reloads a safe order projection and excludes `vendor_price`, product variant `vendor_price`, `vendor_total_idr`, supplier payout data, internal vendor balance, admin notes, and raw internal metadata.
 - Task 28 PDF template is `resources/views/invoices/order.blade.php`, uses PDF-safe local HTML/CSS only, and has fallbacks for missing address or variant data.
+- Task 29 PWA uses `vite-plugin-pwa` in `vite.config.js` with client-only plugin activation via `isSsrBuild` so SSR build remains unchanged.
+- Task 29 PWA source manifest is `public/manifest.webmanifest`; generated build output also includes `public/build/manifest.webmanifest`.
+- Task 29 service worker is generated at `public/sw.js` during `npm run build`; generated `public/sw.js` and `public/workbox-*.js` are ignored and should be regenerated by builds.
+- Task 29 static icons are `public/icons/icon-192.png` and `public/icons/icon-512.png`.
+- Task 29 offline fallback is `public/offline.html` and is generic only; it does not expose private customer, order, account, vendor, or financial data.
+- Task 29 caching strategy: Cloudinary images CacheFirst for 7 days, static build assets StaleWhileRevalidate, public storefront/product/category pages NetworkFirst, sensitive routes NetworkOnly and denied from offline navigation fallback.
+- Task 29 sensitive routes not cached: account, admin, api, auth, cart, checkout, login, logout, payment, register, stripe, and vendor.
+- Task 29 install prompt lives in `StorefrontLayout.vue` and only appears after `beforeinstallprompt` when the app is not already standalone/installed.
 - Queue worker lokal aman: php artisan queue:work --once. Gunakan redis worker hanya jika Redis benar-benar tersedia.
 - Stripe Webhook HARUS exclude dari CSRF middleware
 - vendor_price JANGAN PERNAH ditampilkan ke storefront
@@ -1140,6 +1191,7 @@ Task berikutnya: Task 29 - PWA, hanya setelah PR Task 28 merged oleh owner.
 
 | Tanggal | Update | Oleh |
 |---------|--------|------|
+| 2026-05-20 | Task 29 PWA selesai lokal; validasi migrate, PwaTest, full test, npm build client+SSR, PWA output check, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-20 | Task 28 PDF Invoice selesai lokal; validasi migrate, PHP lint, route:list invoice, InvoiceDownloadTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
 | 2026-05-20 | Task 27 Product Q&A selesai lokal; validasi migrate, PHP lint, route:list questions/products, ProductQATest, full test, npm build, HTTP smoke, dan Browser fallback berhasil dicatat | Codex |
 | 2026-05-19 | Task 26 Stock & Price Alerts selesai lokal; validasi migrate, PHP lint, route:list notifications, alert commands, StockPriceAlertTest, full test, npm build, .env check, secret scan, dan HTTP smoke berhasil | Codex |
